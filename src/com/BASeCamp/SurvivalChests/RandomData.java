@@ -36,6 +36,7 @@ public class RandomData {
 	private int _Data;
 	private String _Lore = "";
 	private EnchantmentProbability _enchantmentprob = null;
+	private boolean _SuperEnchantment;
 	public float getWeighting(){return _Weighting;}
 	public void setWeighting(float pweight){_Weighting=pweight;}
 	public int getData(){return _Data;}
@@ -185,13 +186,18 @@ public class RandomData {
 			probabilities = new float[]{1,1,1,1}; 
 			
 		}
-		
+		else if(_SuperEnchantment)
+		{
+			
+			probabilities = new float[]{0,0,20,60};
+			
+		}
 		
 		int numints = RandomData.Choose(numenchants,probabilities);
 		try {
 		for(int i=0;i<numints;i++){
 			
-		_enchantmentprob.Apply(createitem);
+		_enchantmentprob.Apply(createitem,_SuperEnchantment);
 		}
 		}
 		catch(Exception exx){} //ignore errors...
@@ -202,6 +208,14 @@ public class RandomData {
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
 		System.out.println("usename=" + usename);
+		
+		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
+		{
+		usename = NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage"}, NameGenerator.Adjectives, NameGenerator.Verbs);	
+			
+		
+		}
+		
 		if(usename.equalsIgnoreCase("%CLEVERHATNAME%")){
 			usename = NameGenerator.GenerateName(new String[]{"Hat","Cap","Helmet","Topper","Fez"}, 
 					NameGenerator.Adjectives, NameGenerator.Verbs);
@@ -367,6 +381,10 @@ public class RandomData {
 			
 			
 		}
+		else if(Initializer.startsWith("SUPERENCHANT:")){
+			_SuperEnchantment = true;
+			Initializer = Initializer.substring(13);
+		}
 		if(Initializer.trim().length()==0) return;
 		//initializer is the initialization line.
 		//format:
@@ -414,7 +432,7 @@ public class RandomData {
 		
 		}
 		catch(Exception exx){
-			System.out.println("Error in RandomData class...");
+			//System.out.println("Error in RandomData class...");
 			
 		}
 		

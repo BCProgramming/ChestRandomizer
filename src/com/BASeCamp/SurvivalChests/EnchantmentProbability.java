@@ -28,7 +28,7 @@ public class EnchantmentProbability {
 		}
 	}
 	//applies a random enchantment to the given item.
-	public void Apply(ItemStack applyitem)
+	public void Apply(ItemStack applyitem, boolean superEnchantment)
 	{
 		//first, select a random enchantment.
 		if(Enchantprobabilities.size()==0) return; //no enchantments to choose from
@@ -61,8 +61,12 @@ public class EnchantmentProbability {
 		
 		Integer[] chooselevels = new Integer[levelprobabilities.length]; 
 			EnchantLevelProbabilities.keySet().toArray(chooselevels);
-		                                       
-			int chosenlevel = RandomData.Choose(chooselevels, levelprobabilities);
+			int chosenlevel=0;
+			if(superEnchantment){
+				chosenlevel = RandomData.rgen.nextInt(6)+1;
+				
+			}                                
+			else {chosenlevel = RandomData.Choose(chooselevels, levelprobabilities);}
 		if(!applyitem.containsEnchantment(gotenchantment))
 		{
 		//applyitem.addEnchantment(gotenchantment, chosenlevel);

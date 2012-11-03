@@ -10,6 +10,7 @@ import net.minecraft.server.NBTTagList;
 import net.minecraft.server.NBTTagString;
 import net.minecraft.server.PotionBrewer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -133,8 +134,14 @@ public class RandomData {
 		if(TypeName.equalsIgnoreCase("STRENGTH")) return PotionType.STRENGTH;
 		if(TypeName.equalsIgnoreCase("WATER")) return PotionType.WATER;
 		if(TypeName.equalsIgnoreCase("WEAKNESS")) return PotionType.WEAKNESS;
-		
 		return null;
+		
+	}
+	private String createSpecialLore(){
+		
+		String initial = NameGenerator.GenerateLore();
+		return initial;
+		
 		
 	}
 	public ItemStack Generate()
@@ -145,7 +152,15 @@ public class RandomData {
 		
 		if(_SpawnType==1){
 			createitem = new ItemStack(373,1); //373 is potion
+			if(_Name=="INVISIBILITY")
+			{
+				
+				createitem.setDurability((short) 14);
+				return createitem;
+				
 			
+			}
+			else {
 			PotionEffectType pet = MapPotionType(_Name);
 			PotionType pt = PotionType.getByEffect(pet);
 			
@@ -166,7 +181,7 @@ public class RandomData {
 			try {makepotion.setLevel(_DamageMax);}catch(IllegalArgumentException ex){}
 			try {makepotion.setSplash(_MinCount>0);}catch(IllegalArgumentException ex){}
 			try {makepotion.apply(createitem);}catch(IllegalArgumentException ex){}
-			
+			}
 		}
 		if(_SpawnType==2){
 			createitem = new ItemStack(397,1,(short) 3);
@@ -217,39 +232,50 @@ public class RandomData {
 		}
 		
 		if(usename.equalsIgnoreCase("%CLEVERHATNAME%")){
-			usename = NameGenerator.GenerateName(new String[]{"Hat","Cap","Helmet","Topper","Fez"}, 
+			usename = NameGenerator.GenerateName(NameGenerator.Hats, 
 					NameGenerator.Adjectives, NameGenerator.Verbs);
 			}
 			
 			
 		
 		else if(usename.equalsIgnoreCase("%CLEVERCHESTPLATENAME%"))	{
-			usename = NameGenerator.GenerateName(new String[]{"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack"},
+			usename = NameGenerator.GenerateName(NameGenerator.Chestplates,
 					NameGenerator.Adjectives,NameGenerator.Verbs);
 			
 			
 		}
 		else if(usename.equalsIgnoreCase("%CLEVERLEGGINGSNAME%")) {
-			usename = NameGenerator.GenerateName(new String[]{"Leggings","Pants","Greaves","Trousers"},
+			usename = NameGenerator.GenerateName(NameGenerator.Pants,
 					NameGenerator.Adjectives,NameGenerator.Verbs);
 			
 		}
 		else if(usename.equalsIgnoreCase("%CLEVERBOOTSNAME%")) {
-			usename = NameGenerator.GenerateName(new String[]{"Boots","Shoes","Flip-Flops","Clogs","Booties"},
+			usename = NameGenerator.GenerateName(NameGenerator.Boots,
 					NameGenerator.Adjectives,NameGenerator.Verbs);
 			
 		}
 		else if(usename.equalsIgnoreCase("%CLEVERSWORDNAME%")){
-			usename = NameGenerator.GenerateName(new String[] {"Slasher","Sword","Blade","Slicer","Cutter","Katana"}
+			usename = NameGenerator.GenerateName(NameGenerator.Sword
 			,NameGenerator.Adjectives,NameGenerator.Verbs);
 		}
 		else if(usename.equalsIgnoreCase("%CLEVERBOWNAME%")){
-			usename = NameGenerator.GenerateName(new String[] {"Shooter","Dealer", "Bow","Piercer","Hunting Bow","Nightingale Bow"},
+			usename = NameGenerator.GenerateName(NameGenerator.Bow,
 					NameGenerator.Adjectives,NameGenerator.Verbs);
 			
 			
 		}
 		System.out.println("usename result=" + usename);
+		
+		if(!usename.trim().equals("") && uselore.trim().equals("")){
+			
+			if(RandomData.rgen.nextFloat()>0.6f){
+				
+				uselore = createSpecialLore();
+				Bukkit.getLogger().info("Created random Lore, " + uselore);
+				
+			}
+			
+		}
 		
 		createitem = setItemNameAndLore(createitem,usename,uselore);
 			
@@ -294,8 +320,8 @@ public class RandomData {
 		}
 		if(!Lore.trim().equalsIgnoreCase("")){
 			//ItemNamer.load(item);
-			//System.out.println("Lore of item set to \"" + Lore + "\"");
-		//ItemNamer.addLore(Lore); 
+			System.out.println("Lore of item set to \"" + Lore + "\"");
+		    ItemNamer.setLore(Lore); 
 		}
 		return ItemNamer.getItemStack();
 	}

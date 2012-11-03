@@ -53,7 +53,7 @@ public class ResumePvP implements Runnable{
 				if(delay==4){
 				delay=0;	
 					//Bukkit.broadcastMessage(ChatColor.RED + String.valueOf((_SecondsDelay - timediff)) + " Seconds...");
-				BroadcastWorld(useWorld,ChatColor.RED + String.valueOf((_SecondsDelay - timediff)) + " Seconds...");
+				BroadcastWorld(useWorld,ChatColor.RED + String.valueOf(Math.floor((_SecondsDelay-timediff)/1000)) + " Seconds...");
 				
 				}
 				Thread.sleep(500);
@@ -66,17 +66,17 @@ public class ResumePvP implements Runnable{
 			System.out.println("timediff:" + timediff);
 			timediff = System.currentTimeMillis()-starttime;	
 		}
-		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
-		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
 		
+		int numactive = 0;
 		useWorld.setPVP(true);
 		
-		useWorld.setStorm(true);
-		useWorld.setThundering(true);
-		useWorld.setThunderDuration(RandomData.rgen.nextInt(20*60));
+		
+		
+		
 		for(Player iterate:useWorld.getPlayers())
 		{
 			if(iterate.isOnline()) {
+				numactive++;
 		       Location currlocation = iterate.getLocation();
 		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
 		       useWorld.playEffect(currlocation, Effect.GHAST_SHRIEK, 10);
@@ -86,9 +86,11 @@ public class ResumePvP implements Runnable{
 		       
 		       
 		       iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.BLINDNESS, 500, 1));
+		       iterate.sendMessage(ChatColor.BOLD.toString() +ChatColor.LIGHT_PURPLE + "You have been temporarily blinded!");
 			}
 		}
-		//done! resumePvP...
+		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
+		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
 		
 		
 	}

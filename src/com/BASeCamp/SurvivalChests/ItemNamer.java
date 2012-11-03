@@ -47,17 +47,26 @@ public class ItemNamer {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         NBTTagList list = tag.getList("Lore");
         if (list == null) list = new NBTTagList();
-        list.add(new NBTTagString(lore));
+        list.add(new NBTTagString("","§r§5" + lore));
         tag.set("Lore", list);
         itemStack.tag.setCompound("display", tag);
     }
    
     public static void setLore(String lore) {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
-        NBTTagList list = new NBTTagList();
-        list.add(new NBTTagString(lore));
-        tag.set("Lore", list);
-        itemStack.tag.setCompound("display", tag);
+        tag.set("Lore", new NBTTagList());
+        
+        String[] splitresult = lore.split("\\r?\\n");
+        
+        for(int i=0;i<splitresult.length;i++)
+        {
+        addLore(splitresult[i]);
+        }
+        
+        //list.add(new NBTTagString("","§r§5" + lore));
+        //tag.set("Lore", list);
+        
+        //itemStack.tag.setCompound("display", tag);
     }
    
     public static String[] getLore() {

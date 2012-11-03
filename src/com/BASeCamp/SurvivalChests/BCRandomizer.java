@@ -34,6 +34,12 @@ public class BCRandomizer extends JavaPlugin {
 	    	String chosen = RandomData.Choose(choosefrom, probdata);
 	    	System.out.println(chosen);
 	    	
+	    	for(int i=0;i<20;i++){
+	    	String generatedLore = NameGenerator.GenerateLore();
+	    	System.out.println(generatedLore);
+	    	
+	    	
+	    	}
 	    	
 	    	
 	    }

@@ -159,6 +159,7 @@ public class RandomizerCommand implements CommandExecutor{
 						pl.getInventory().clear();
 						pl.setGameMode(GameMode.ADVENTURE);
 						
+						pl.playSound(pl.getLocation(), Sound.ENDERMAN_STARE, 1.0f, 1.0f);
 					}
 					
 					

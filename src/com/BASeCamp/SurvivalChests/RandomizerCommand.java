@@ -8,6 +8,8 @@ import org.bukkit.block.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
+import org.fusesource.jansi.Ansi.Color;
+
 import com.BASeCamp.SurvivalChests.*;
 public class RandomizerCommand implements CommandExecutor{
 
@@ -131,20 +133,40 @@ public class RandomizerCommand implements CommandExecutor{
 				
 			
 			}
-			if(arg2.equalsIgnoreCase("stopPvP"))
+			if(arg2.equalsIgnoreCase("startgame"))
 			{
 				
 				
 				int numseconds = 30;
-			
+				String ignoreplayer = null;
 				try {numseconds= Integer.parseInt(arg3[0]);}
 				catch(Exception exx) {numseconds=30;}
-			    ResumePvP rp = new ResumePvP(p.getWorld(), numseconds);
+				try {
+					ignoreplayer = arg3[1];
+					
+				}
+				catch(Exception exx){
+					ignoreplayer=null;
+				}
+				Player ignorep=null;
 			    
 			    World grabworld = p.getWorld();
 			    
 			    
-			    Bukkit.broadcastMessage("Survival Event has begun in world " + grabworld.getName() + "!");
+			    for(Player searchp : grabworld.getPlayers()){
+			    	
+			    	if(searchp.isOnline() &&
+			    			searchp.getName().equalsIgnoreCase(ignoreplayer)){
+			    		ignorep = searchp;
+			    		
+			    		
+			    	}
+			    		
+			    	
+			    	
+			    }
+			    ResumePvP rp = new ResumePvP(_Owner,p.getWorld(), numseconds,ignorep);
+			    Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event " + ChatColor.GREEN + " has begun in world " + ChatColor.DARK_AQUA + grabworld.getName() + "!");
 			    
 			    
 				grabworld.setPVP(false);
@@ -154,12 +176,13 @@ public class RandomizerCommand implements CommandExecutor{
 				for(Player pl: grabworld.getPlayers()){
 					
 					
-					if(pl.isOnline()){
+					if(pl.isOnline() && !(p == ignorep)){
+						
 						pl.sendMessage(ChatColor.BLUE + "Your Inventory has been cleared. No outside food, please.");
 						pl.getInventory().clear();
 						pl.setGameMode(GameMode.ADVENTURE);
-						
-						pl.playSound(pl.getLocation(), Sound.ENDERMAN_STARE, 1.0f, 1.0f);
+						//pl.setHealth(32767); //effectively Invincible.
+						pl.playSound(pl.getLocation(), Sound.EXPLODE_OLD, 1.0f, 1.0f);
 					}
 					
 					

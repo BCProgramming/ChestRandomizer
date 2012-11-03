@@ -4,7 +4,7 @@ version: 1.1
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.
-      stoppvp:
-        description: prevents player PvP for the given number of seconds.
+      startgame:
+        description: prevents player PvP for the given number of seconds, while initializing the data for a new Survival game.
       teamsplit:
         description: splits online players into two teams, and announces the results.

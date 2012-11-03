@@ -30,6 +30,10 @@ public class PlayerDeathWatcher implements Listener{
 		ChatColor usecolor = ChatColor.YELLOW;
 		String usemessage = event.getDeathMessage();
 		Player dyingPlayer = event.getEntity();
+		
+	
+		
+		
 		String DyingName = dyingPlayer.getName();
 		String KillerName="";
 		Player Killer = dyingPlayer.getKiller();
@@ -63,9 +67,10 @@ public class PlayerDeathWatcher implements Listener{
 			String[] possiblemessages = new String[]{
 					DyingName + " ended it all",
 					DyingName + " didn't even leave a suicide note",
-					DyingName + " was a casualty of his own genius",
+					DyingName + " was a casualty of their own genius",
 					DyingName + " killed their own dumb self",
-					DyingName + " committed suicide."
+					DyingName + " committed suicide.",
+					DyingName + " answered Luna's call."
 					
 			};
 			usemessage = RandomData.Choose(possiblemessages);
@@ -82,22 +87,44 @@ public class PlayerDeathWatcher implements Listener{
 		}
 		else if((dyingPlayer.getLastDamageCause().getCause().equals(DamageCause.SUFFOCATION))){
 			String[] possiblemessages = new String[] {
-			DyingName + " tried to share space with a wall.",
+			DyingName + " tried to share space with a wall. It didn't work out.",
 			DyingName + " suffocated in a wall.",
 			DyingName + " choked on their own stupidity."
 					
 			};
+			usemessage = RandomData.Choose(possiblemessages);
+		}
+		else if((dyingPlayer.getLastDamageCause().getCause().equals(DamageCause.LIGHTNING))){
+			
+			String[] possiblemessages = new String[] {
+			 DyingName + " was struck down by Celestia",
+			 DyingName + " was struck down by Luna",
+			 DyingName + " was electrocuted.",
+			 DyingName + " acted as a lightning rod",
+			 DyingName + " was struck by lightning"
+					
+			};
+			
 			
 		}
 		else if(Killer!=null){
 			//ok, get the item the Killer has.
 			
-			String weapon = FriendlizeName(Killer.getItemInHand().toString());
+			
+			
+			String weapon = FriendlizeName(Killer.getItemInHand().getType().name());
+			
+			ItemNamer.load(Killer.getItemInHand());
+			String gotname= ItemNamer.getName();
+			if(gotname!=null && gotname!="")
+				weapon = gotname;
+			
 			String[] possiblemessages = new String[] {
 					DyingName + " met there end from " + 
 					KillerName + "'s " + weapon + ".",
 					KillerName + " and their " + weapon + " slaughtered " + DyingName,
-					DyingName + " was slain by " + KillerName + " using " + weapon
+					DyingName + " was slain by " + KillerName + " using " + weapon,
+					KillerName + " killed " + DyingName + " with a " + weapon
 			};
 			
 			
@@ -111,7 +138,12 @@ public class PlayerDeathWatcher implements Listener{
 		usemessage=usemessage + "(" + dyingPlayer.getLastDamage() + " damage)";
 				System.out.println(usemessage + dyingPlayer.getLastDamageCause().toString());
 		event.setDeathMessage(usecolor + usemessage);
-		
+		event.getDrops().add(RandomData.getHead(DyingName));
+		if(_owner._Tracker!=null){
+			//if there is a Tracker, notify it of the player death. do this after. The tracker
+			//tracks the game itself.
+			_owner._Tracker.PlayerDeath(dyingPlayer,Killer);
+		}
 		
 	}
 

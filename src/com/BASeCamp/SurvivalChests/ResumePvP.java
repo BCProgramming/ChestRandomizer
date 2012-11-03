@@ -13,12 +13,17 @@ import org.bukkit.potion.PotionEffectType;
 
 public class ResumePvP implements Runnable{
 
+	private BCRandomizer _bcr = null;
 	private int _SecondsDelay;
 	private long starttime;
+	private Player ignorePlayer = null;
+	public Thread TrackerThread = null;
 	World useWorld = null;
-	public ResumePvP(World target,int numseconds){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds, Player ignorep){
+		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
+		ignorePlayer = ignorep;
 		useWorld=target;
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
@@ -75,7 +80,7 @@ public class ResumePvP implements Runnable{
 		
 		for(Player iterate:useWorld.getPlayers())
 		{
-			if(iterate.isOnline()) {
+			if(iterate.isOnline() && iterate!=ignorePlayer) {
 				numactive++;
 		       Location currlocation = iterate.getLocation();
 		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
@@ -83,15 +88,28 @@ public class ResumePvP implements Runnable{
 		
 		       //useWorld.strikeLightning(currlocation);
 		     
+		       iterate.setHealth(20);
+		       
+		       
 		       
 		       
 		       iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.BLINDNESS, 500, 1));
 		       iterate.sendMessage(ChatColor.BOLD.toString() +ChatColor.LIGHT_PURPLE + "You have been temporarily blinded!");
 			}
 		}
+		
+		
+		
 		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
 		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
+		if(ignorePlayer!=null){
+			
+		Bukkit.broadcastMessage(ChatColor.AQUA + "This games Moderator is " + ignorePlayer.getDisplayName());	
 		
+		}
+		_bcr._Tracker = new GameTracker(_bcr,useWorld,ignorePlayer);
+		TrackerThread = new Thread(_bcr._Tracker);
+		TrackerThread.start();
 		
 	}
 

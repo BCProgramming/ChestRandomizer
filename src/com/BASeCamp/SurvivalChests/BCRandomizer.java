@@ -11,6 +11,7 @@ public class BCRandomizer extends JavaPlugin {
 	    public static String pluginConfigLocation = pluginMainDir + "/hungergames.cfg";
 	    public static RandomizerCommand Randomcommand = null; 
 	    public static PlayerDeathWatcher deathwatcher = null;
+	    public GameTracker _Tracker = null;
 	    @Override
 	    public void onEnable(){
 	    	Randomcommand = new RandomizerCommand(this);
@@ -19,7 +20,7 @@ public class BCRandomizer extends JavaPlugin {
 		         batchcommand.setExecutor(Randomcommand);
 		         
 		         
-		         PluginCommand delayPvP = this.getCommand("stoppvp");
+		         PluginCommand delayPvP = this.getCommand("startgame");
 		         delayPvP.setExecutor(Randomcommand);
 		         
 

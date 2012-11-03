@@ -83,7 +83,7 @@ public class RandomData {
 		
 	return ItemType + "has extra power :D";
 	}
-	public CraftItemStack getHead(String headname) {
+	public static CraftItemStack getHead(String headname) {
 		CraftItemStack head;
 		try {
 		head = new CraftItemStack(Material.SKULL_ITEM,1,(short)3);

@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,7 +21,7 @@ import com.BASeCamp.SurvivalChests.RandomData;
 
 public class ChestRandomizer {
 
-	
+	private BCRandomizer _owner = null;
 	private Chest mchest;
 	private Inventory mInventory;
 	private int _MinItems = 1;
@@ -32,7 +33,8 @@ public class ChestRandomizer {
 	private static LinkedList<RandomData> randData = null;
 	public static LinkedList<RandomData> addall = null; //items that will always be added once.
 	private String _SourceFile = "";
-	public ChestRandomizer(Chest pChest,String pURL){
+	public ChestRandomizer(BCRandomizer owner,Chest pChest,String pURL){
+		_owner = owner;
 		mchest=pChest;
 		mInventory = mchest.getBlockInventory();
 		if(randData==null|| _SourceFile!=pURL)
@@ -43,9 +45,9 @@ public class ChestRandomizer {
 			
 		}
 	}
-	public ChestRandomizer(Inventory sourceinventory,String pURL){
+	public ChestRandomizer(BCRandomizer owner,Inventory sourceinventory,String pURL){
 		
-		
+		_owner = owner;
 		mchest = null;
 		mInventory = sourceinventory;
 		if(randData==null || _SourceFile!=pURL)
@@ -133,7 +135,6 @@ public class ChestRandomizer {
 	public int Shuffle()
 	{
 		
-		
 		//if the block beneath the chest is wool, break out. We don't randomize chests with wool underneath.
 		if(mchest!=null){
 			Location chestspot = mchest.getLocation();
@@ -145,6 +146,21 @@ public class ChestRandomizer {
 		
 		
 		//select a random number of items.
+		
+		if(_owner!=null){
+			try {
+			FileConfiguration fc = _owner.getConfig();
+			_MaxItems = Integer.parseInt(fc.getString("maxgen"));
+			_MinItems = Integer.parseInt(fc.getString("mingen"));
+			}
+			catch(NumberFormatException nfe){
+				
+				
+			}
+			}
+	
+		
+		
 		int _numgenerate=0;
 		if(_MaxItems==_MinItems) _numgenerate = _MaxItems; else
 		_numgenerate = RandomData.rgen.nextInt(_MaxItems-_MinItems)+_MinItems;

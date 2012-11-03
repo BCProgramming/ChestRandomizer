@@ -141,9 +141,32 @@ public class RandomizerCommand implements CommandExecutor{
 				catch(Exception exx) {numseconds=30;}
 			    ResumePvP rp = new ResumePvP(p.getWorld(), numseconds);
 			    
-				p.getWorld().setPVP(false);
+			    World grabworld = p.getWorld();
+			    
+			    
+			    Bukkit.broadcastMessage("Survival Event has begun in world " + grabworld.getName() + "!");
+			    
+			    
+				grabworld.setPVP(false);
 				
-				Bukkit.broadcastMessage(ChatColor.GREEN + "PvP has been suspended for " + ChatColor.RED + numseconds + ChatColor.GREEN + " Seconds! get ready.");
+				
+				//iterate through all online players.
+				for(Player pl: grabworld.getPlayers()){
+					
+					
+					if(pl.isOnline()){
+						pl.sendMessage(ChatColor.BLUE + "Your Inventory has been cleared. No outside food, please.");
+						pl.getInventory().clear();
+						pl.setGameMode(GameMode.ADVENTURE);
+						
+					}
+					
+					
+				}
+				
+				ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN + 
+						"PvP has been suspended for " + ChatColor.RED + numseconds + ChatColor.GREEN + " Seconds! get ready.");
+				
 				Thread thr = new Thread(rp);
 				thr.start();
 				
@@ -163,7 +186,7 @@ public class RandomizerCommand implements CommandExecutor{
 				//randomize the enderchest contents, too :D
 				for(Player popplayer : gotworld.getPlayers()){
 					Inventory grabinv = popplayer.getEnderChest();
-					ChestRandomizer cr = new ChestRandomizer(grabinv,sourcefile);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,grabinv,sourcefile);
 					cr.setMinItems(grabinv.getSize());
 					cr.setMaxItems(grabinv.getSize());
 					cr.Shuffle();
@@ -182,7 +205,7 @@ public class RandomizerCommand implements CommandExecutor{
 						Chest casted = (Chest)iteratestate;
 						//randomize!
 						allchests.add(casted);
-						ChestRandomizer cr = new ChestRandomizer(casted,sourcefile);
+						ChestRandomizer cr = new ChestRandomizer(_Owner,casted,sourcefile);
 						populatedamount+= cr.Shuffle();
 						
 					}

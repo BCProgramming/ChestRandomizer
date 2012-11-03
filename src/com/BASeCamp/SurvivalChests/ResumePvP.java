@@ -21,16 +21,44 @@ public class ResumePvP implements Runnable{
 		starttime= System.currentTimeMillis();
 		useWorld=target;
 	}
-	
+	public static void BroadcastWorld(World toWorld,String Message){
+		
+		for(Player p:toWorld.getPlayers()){
+			if(p.isOnline()){
+				p.sendMessage(Message);
+				
+				
+			}
+			
+			
+		}
+		
+		
+		
+	}
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		
+		int delay = 0;
+		
 		long timediff = System.currentTimeMillis()-starttime;
+		long prevdiff = timediff;
 		System.out.println("timediff:" + timediff);
-		while((timediff/1000)<_SecondsDelay){
+		while((float)(timediff/1000)<(float)_SecondsDelay){
 			try {
+				
+				
+				delay++;
+				if(delay==4){
+				delay=0;	
+					//Bukkit.broadcastMessage(ChatColor.RED + String.valueOf((_SecondsDelay - timediff)) + " Seconds...");
+				BroadcastWorld(useWorld,ChatColor.RED + String.valueOf((_SecondsDelay - timediff)) + " Seconds...");
+				
+				}
 				Thread.sleep(500);
+				prevdiff = timediff;
+				timediff = System.currentTimeMillis()-starttime;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -38,7 +66,9 @@ public class ResumePvP implements Runnable{
 			System.out.println("timediff:" + timediff);
 			timediff = System.currentTimeMillis()-starttime;	
 		}
-		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled! Fight ON!");
+		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
+		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
+		
 		useWorld.setPVP(true);
 		
 		useWorld.setStorm(true);
@@ -48,10 +78,10 @@ public class ResumePvP implements Runnable{
 		{
 			if(iterate.isOnline()) {
 		       Location currlocation = iterate.getLocation();
-		       currlocation = new Location(useWorld,currlocation.getX()+1,currlocation.getY()-3,currlocation.getZ()-1);
+		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
 		       useWorld.playEffect(currlocation, Effect.GHAST_SHRIEK, 10);
 		
-		       useWorld.strikeLightning(currlocation);
+		       //useWorld.strikeLightning(currlocation);
 		     
 		       
 		       

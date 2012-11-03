@@ -87,12 +87,14 @@ public class RandomData {
 		CraftItemStack head;
 		try {
 		head = new CraftItemStack(Material.SKULL_ITEM,1,(short)3);
+
 		} catch (NullPointerException e) {
 			head = new CraftItemStack(Material.LEATHER_HELMET,1,(short)55);
 		}	
 		NBTTagCompound headNBT = new NBTTagCompound();
 		headNBT.setString("SkullOwner", headname);
 		head.getHandle().tag = headNBT;
+		head.setAmount(1);
 		return head;
 		}
 	private PotionEffectType MapPotionType(String TypeName)
@@ -268,7 +270,7 @@ public class RandomData {
 		
 		if(!usename.trim().equals("") && uselore.trim().equals("")){
 			
-			if(RandomData.rgen.nextFloat()>0.6f){
+			if(RandomData.rgen.nextFloat()>0.9f){
 				
 				uselore = createSpecialLore();
 				Bukkit.getLogger().info("Created random Lore, " + uselore);

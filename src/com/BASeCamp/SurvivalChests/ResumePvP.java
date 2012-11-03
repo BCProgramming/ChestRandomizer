@@ -53,7 +53,7 @@ public class ResumePvP implements Runnable{
 				if(delay==4){
 				delay=0;	
 					//Bukkit.broadcastMessage(ChatColor.RED + String.valueOf((_SecondsDelay - timediff)) + " Seconds...");
-				BroadcastWorld(useWorld,ChatColor.RED + String.valueOf(Math.floor((_SecondsDelay-timediff)/1000)) + " Seconds...");
+				BroadcastWorld(useWorld,ChatColor.RED + String.valueOf(_SecondsDelay - Math.floor((Math.abs(timediff))/1000)) + " Seconds...");
 				
 				}
 				Thread.sleep(500);

@@ -134,7 +134,7 @@ public class ChestRandomizer {
 	}
 	public int Shuffle()
 	{
-		
+		boolean PackedChest = false;
 		//if the block beneath the chest is wool, break out. We don't randomize chests with wool underneath.
 		if(mchest!=null){
 			Location chestspot = mchest.getLocation();
@@ -142,6 +142,8 @@ public class ChestRandomizer {
 			if(mchest.getWorld().getBlockAt(spotbelow).getType()==Material.WOOL){
 			return 0;	
 			}
+			else if(mchest.getWorld().getBlockAt(spotbelow).getType()==Material.CLAY)
+				PackedChest=true;
 		}
 		
 		
@@ -164,7 +166,7 @@ public class ChestRandomizer {
 		int _numgenerate=0;
 		if(_MaxItems==_MinItems) _numgenerate = _MaxItems; else
 		_numgenerate = RandomData.rgen.nextInt(_MaxItems-_MinItems)+_MinItems;
-		
+		if(PackedChest) _numgenerate = mInventory.getSize();
 		
 		Inventory gotinventory = mInventory;
 		//OK, loop the appropriate number of times, choose a randomData and generate it.

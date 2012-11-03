@@ -1,14 +1,16 @@
 package com.BASeCamp.SurvivalChests;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
+import org.bukkit.*;
 public class BCRandomizer extends JavaPlugin {
 	public final static String PluginName="BCRandomizer";
 	  public static String pluginMainDir = "./plugins/BCRandomizer";
 	    public static String pluginConfigLocation = pluginMainDir + "/hungergames.cfg";
 	    public static RandomizerCommand Randomcommand = null; 
-	    
+	    public static PlayerDeathWatcher deathwatcher = null;
 	    @Override
 	    public void onEnable(){
 	    	Randomcommand = new RandomizerCommand(this);
@@ -24,8 +26,20 @@ public class BCRandomizer extends JavaPlugin {
 		         
 		         PluginCommand teamsplit = this.getCommand("teamsplit");
 		         teamsplit.setExecutor(Randomcommand);
+		         deathwatcher= new PlayerDeathWatcher(this);
+		         getServer().getPluginManager().registerEvents(deathwatcher, this);
+		         
+	
+		         
 		         
 	    
+	    }
+	    @Override
+	    public void onDisable()
+	    {
+	    	
+	    	
+	    	
 	    }
 	    public static void main(String[] args){
 	    	

@@ -1,0 +1,11 @@
+name: BASeCamp Survival Chests
+main: com.BASeCamp.SurvivalChests.BCRandomizer
+version: 0.1
+commands:
+      repopchests:
+        description: repopulates chests in loaded chunks.
+      clearchests:
+        description: clears all chests.
+      stoppvp:
+        prevents player PvP for the given number of seconds.
+    

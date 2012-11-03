@@ -1,0 +1,10 @@
+name: BASeCamp Survival Chests
+main: com.BASeCamp.SurvivalChests.BCRandomizer
+version: 1.1
+commands:
+      repopchests:
+        description: repopulates chests in loaded chunks.
+      stoppvp:
+        description: prevents player PvP for the given number of seconds.
+      teamsplit:
+        description: splits online players into two teams, and announces the results.

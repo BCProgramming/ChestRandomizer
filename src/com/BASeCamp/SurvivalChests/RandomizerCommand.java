@@ -6,6 +6,8 @@ import java.util.Timer;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.command.*;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.fusesource.jansi.Ansi.Color;

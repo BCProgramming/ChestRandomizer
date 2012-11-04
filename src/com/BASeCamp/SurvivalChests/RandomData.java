@@ -97,6 +97,54 @@ public class RandomData {
 		head.setAmount(1);
 		return head;
 		}
+	public static boolean isHead(ItemStack testitem){
+		return testitem.getType().equals(Material.SKULL_ITEM) ||
+		testitem.getType().equals(Material.SKULL);
+			
+			
+			
+		
+		
+	}
+	public static String getHeadName(ItemStack source){
+		//retrieves the name of the users head being represented.
+		//only applicable for Heads.
+		if(!isHead(source))
+			return null;
+		if(source.getDurability()==0){
+		//skellie
+			return "Skeleton Head";
+		}
+		else if(source.getDurability() == 1){
+			//wither skellie
+			return "Wither Skull";
+		}
+		else if(source.getDurability()==2){
+			//zombie
+			return "Zombie Head";
+		}
+		else if(source.getDurability()==4){
+			//creeper
+			return "Creeper Head";
+		}
+		else if(source.getDurability()==3){
+		CraftItemStack cstack = new CraftItemStack(source);
+		NBTTagCompound headNBT = cstack.getHandle().tag;
+		if(headNBT!=null){
+			
+			return headNBT.getString("SkullOwner");
+			
+		}
+		else
+		{
+			return "Human Head";
+		}
+		}
+		
+		return null;
+		
+	}
+	
 	private PotionEffectType MapPotionType(String TypeName)
 	{
 		TypeName=TypeName.toUpperCase();

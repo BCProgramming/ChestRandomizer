@@ -2,12 +2,16 @@ package com.BASeCamp.SurvivalChests;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.fusesource.jansi.Ansi.Color;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
+
 
 
 
@@ -22,6 +26,46 @@ public class PlayerDeathWatcher implements Listener{
 		source = source.replace('_', ' ');
 		return NameGenerator.toTitleCase(source);
 		
+	}
+	@EventHandler
+	public void onEntityDamage(EntityDamageEvent event){
+		if(event instanceof EntityDamageByEntityEvent)
+		{
+			EntityDamageByEntityEvent edam = (EntityDamageByEntityEvent)event;
+		
+		
+		if(edam.getEntity() instanceof Player){
+			
+			//entity is the player that is damaged.
+			Player damaged = (Player)edam.getEntity();
+			
+			
+			if(edam.getDamager() instanceof Player){
+				Player Attacker = (Player)edam.getDamager();
+				//only Player versus Player damage is reported.
+				//<Attacker> has struck you with a <Weapon> for <Damage>
+				//damaged.sendMessage("You have been struck by " + Attacker.getDisplayName() + "!");
+				
+			}
+			
+		}
+		}
+	}
+	private String getFriendlyNameFor(ItemStack Item){
+		
+		String weapon = Item.getType().name();
+		
+		ItemNamer.load(Item);
+		String gotname= ItemNamer.getName();
+		if(gotname!=null && gotname!="")
+			weapon = gotname;
+		else
+			if(RandomData.isHead(Item)){
+				weapon = RandomData.getHeadName(Item);
+				
+			}
+		
+		return FriendlizeName(weapon);
 	}
    @EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event){
@@ -109,15 +153,12 @@ public class PlayerDeathWatcher implements Listener{
 		}
 		else if(Killer!=null){
 			//ok, get the item the Killer has.
+			if(Killer instanceof Player){
+			String weapon = getFriendlyNameFor(Killer.getItemInHand());
 			
 			
 			
-			String weapon = FriendlizeName(Killer.getItemInHand().getType().name());
 			
-			ItemNamer.load(Killer.getItemInHand());
-			String gotname= ItemNamer.getName();
-			if(gotname!=null && gotname!="")
-				weapon = gotname;
 			
 			String[] possiblemessages = new String[] {
 					DyingName + " met there end from " + 
@@ -131,14 +172,23 @@ public class PlayerDeathWatcher implements Listener{
 			usemessage = RandomData.Choose(possiblemessages);
 			
 			}
-			
+		}
 		usemessage = usemessage.replace(DyingName, ChatColor.RED + DyingName + usecolor);
 		if(KillerName.length() > 0)
 			usemessage = usemessage.replace(KillerName,ChatColor.BLUE + KillerName + ChatColor.YELLOW);
 		usemessage=usemessage + "(" + dyingPlayer.getLastDamage() + " damage)";
 				System.out.println(usemessage + dyingPlayer.getLastDamageCause().toString());
 		event.setDeathMessage(usecolor + usemessage);
-		event.getDrops().add(RandomData.getHead(DyingName));
+		
+		ItemStack createdhead = RandomData.getHead(DyingName);
+		Enchantment useenchant;
+		
+		EnchantmentProbability ep = new EnchantmentProbability();
+		ep.Apply(createdhead, true);
+		
+		
+		
+		event.getDrops().add(createdhead);
 		if(_owner._Tracker!=null){
 			//if there is a Tracker, notify it of the player death. do this after. The tracker
 			//tracks the game itself.

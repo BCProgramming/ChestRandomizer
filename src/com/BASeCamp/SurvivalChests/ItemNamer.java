@@ -47,7 +47,7 @@ public class ItemNamer {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         NBTTagList list = tag.getList("Lore");
         if (list == null) list = new NBTTagList();
-        list.add(new NBTTagString("","§r§5" + lore));
+        list.add(new NBTTagString("", lore));
         tag.set("Lore", list);
         itemStack.tag.setCompound("display", tag);
     }

@@ -19,44 +19,63 @@ public class GameTracker implements Runnable {
 	public  LinkedList<Player> getStillAlive(){return StillAlive;} 
 	private HashMap<Integer,Player> FinishPositions = new HashMap<Integer,Player>();
 	BCRandomizer _Owner = null;
+	public PlayerDeathWatcher deathwatcher = null;
 	public GameTracker(BCRandomizer Owner,World applicableWorld,Player ModeratorPlayer){
 		//initialize StillAlive List.
+	      deathwatcher= new PlayerDeathWatcher(Owner,this,applicableWorld);
+	      Owner.getServer().getPluginManager().registerEvents(deathwatcher, Owner);
+		
 		_Owner = Owner;
+		_Owner.ActiveGames.add(this);
 		for(Player p:applicableWorld.getPlayers()){
 			if(p.isOnline()){
-				if(p!=ModeratorPlayer){
+				
 				StillAlive.add(p);	
 					
 					
-				}
+				
 			}
 			
 		}
+		Bukkit.broadcastMessage("survival game started! " + StillAlive.size() + " participants.");
 		
+		
+	}
+	private void addprize(Player deathplayer){
+		
+		for(int i=0;i<64;i++)
+		{
+			//add prize gold.
+			ItemStack prizegold = new ItemStack(Material.GOLD_NUGGET);
+			ItemNamer.load(prizegold);
+			ItemNamer.setName("Mulreay's Survival Map Prize Gold");
+			prizegold = ItemNamer.getItemStack();
+			deathplayer.getWorld().dropItemNaturally(deathplayer.getLocation(), prizegold);
+			
+		}
 		
 	}
 	//when a player dies, we need to update the list, and possibly even break out if the game has ended as a result.
 	public void PlayerDeath(Player deadPlayer,Player assailant){
 		//remove player from list.
+		if(gamecomplete) return;
+		if(!StillAlive.contains(deadPlayer)){
+			return;
+			
+		}
 		StillAlive.remove(deadPlayer);
 		Integer theposition = StillAlive.size()+1;
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is " + ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:" + theposition + ")");
-		
+		if(deathwatcher==null) return;
 		FinishPositions.put(theposition, deadPlayer);
 		synchronized(StillAlive) { //synch on StillAlive List.
 			if(StillAlive.size()==0){
 				Bukkit.broadcastMessage("All players participating died. Somehow. No Winner?");
-				for(int i=0;i<48;i++)
-				{
-					
-					Arrow result = deadPlayer.getWorld().spawnArrow
-					(deadPlayer.getLocation(), 
-							new Vector(RandomData.rgen.nextFloat()-0.5f,1,RandomData.rgen.nextFloat()-0.5f).multiply(50), RandomData.rgen.nextFloat()*50,RandomData.rgen.nextFloat());
-					
-					
-					
-				}
-				_Owner._Tracker=null;
+				addprize(deadPlayer);
+				gamecomplete=true;
+				
+				
+				deathwatcher._Trackers.remove(this);
 			return;	
 			}
 		if(StillAlive.size()==1){
@@ -68,18 +87,11 @@ public class GameTracker implements Runnable {
 			gamecomplete=true;
 			//dead player explodes inexplicably.
 			
-			for(int i=0;i<48;i++)
-			{
-				
-				Arrow result = deadPlayer.getWorld().spawnArrow
-				(deadPlayer.getLocation(), 
-						new Vector(RandomData.rgen.nextFloat()-0.5f,1,RandomData.rgen.nextFloat()-0.5f).multiply(50), RandomData.rgen.nextFloat()*50,RandomData.rgen.nextFloat());
-				
-				
-				
-			}
+			addprize(deadPlayer);
 			gamecomplete=true;
-			_Owner._Tracker=null;
+			deathwatcher._Trackers.remove(this);
+			
+			
 			
 		}
 		else
@@ -113,7 +125,7 @@ public class GameTracker implements Runnable {
 		}
 		
 	}
-	private boolean gamecomplete=false;
+	public boolean gamecomplete=false;
 	
 	@Override
 	public void run() {
@@ -183,8 +195,9 @@ public class GameTracker implements Runnable {
 			}
 			
 		}
-		
-		_Owner._Tracker=null;
+		_Owner.ActiveGames.remove(this);
+		//deathwatcher._Tracker=null;
+		deathwatcher._Trackers.remove(this);
 		
 	}
 	//tracks game state, updating the list of still active players when players are killed (GameTracker is notified through PlayerDeathWatcher)

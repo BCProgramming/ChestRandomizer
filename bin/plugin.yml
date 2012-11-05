@@ -1,6 +1,6 @@
 name: BASeCamp Survival Chests
 main: com.BASeCamp.SurvivalChests.BCRandomizer
-version: 1.1
+version: 1.2
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.
@@ -8,5 +8,7 @@ commands:
         description: prevents player PvP for the given number of seconds, while initializing the data for a new Survival game.
       teamsplit:
         description: splits online players into two teams, and announces the results.
-      strikecreepers:
-        description: turns all present creepers into super creepers.
+      stopallgames:
+        description: stops all active tracked games.
+      friendly:
+        description: show friendly name for held item.

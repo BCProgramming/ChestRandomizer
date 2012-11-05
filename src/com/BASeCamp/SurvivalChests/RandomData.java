@@ -1,6 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -11,9 +12,11 @@ import net.minecraft.server.NBTTagString;
 import net.minecraft.server.PotionBrewer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
@@ -34,14 +37,14 @@ public class RandomData {
 	private int _DamageMax;
 	private int _MinCount;
 	private int _MaxCount;
-	private int _Data;
+	private byte _Data;
 	private String _Lore = "";
 	private EnchantmentProbability _enchantmentprob = null;
 	private boolean _SuperEnchantment;
 	public float getWeighting(){return _Weighting;}
 	public void setWeighting(float pweight){_Weighting=pweight;}
-	public int getData(){return _Data;}
-	public void setData(int value){_Data=value;}
+	public byte getData(){return _Data;}
+	public void setData(byte value){_Data=value;}
 	public String getName(){return _Name;}
 	public void setName(String value){ _Name=value;}
 	public int getItemID(){ return _ItemID;}
@@ -57,7 +60,7 @@ public class RandomData {
 	public String getLore(){return _Lore;}
 	public void setLore(String value){ _Lore=value;}
 	
-	
+	public HashMap<String,Integer> staticenchants = new HashMap<String,Integer>();
 	
 	public static RandomData ChooseRandomData(List<RandomData> FromList){
 		
@@ -83,11 +86,11 @@ public class RandomData {
 		
 	return ItemType + "has extra power :D";
 	}
+	
 	public static CraftItemStack getHead(String headname) {
 		CraftItemStack head;
 		try {
 		head = new CraftItemStack(Material.SKULL_ITEM,1,(short)3);
-
 		} catch (NullPointerException e) {
 			head = new CraftItemStack(Material.LEATHER_HELMET,1,(short)55);
 		}	
@@ -104,6 +107,61 @@ public class RandomData {
 			
 			
 		
+		
+	}
+	public static boolean isDye(ItemStack source){
+	return source.getType()==Material.INK_SACK;	
+	
+	}
+	public static String getDyeName(ItemStack source){
+		
+		if(isDye(source)){
+		Dye sourcedye = new Dye(source.getData().getData());
+		
+		if(sourcedye.getColor()==DyeColor.BLACK)
+			return "Ink Sac";
+		else if(sourcedye.getColor()==DyeColor.BLUE)
+			return "Lapis Lazuli";
+		else if(sourcedye.getColor()==DyeColor.BROWN)
+			return "Coca Beans";
+		else if(sourcedye.getColor()==DyeColor.CYAN)
+			return "Cyan Dye";
+		else if(sourcedye.getColor()==DyeColor.GRAY)
+			return "Gray Dye";
+		else if(sourcedye.getColor()==DyeColor.GREEN)
+			return "Cactus Green";
+		else if(sourcedye.getColor()==DyeColor.LIGHT_BLUE)
+			return "Light Blue Dye";
+		else if(sourcedye.getColor()==DyeColor.LIME)
+			return "Lime Dye";
+		else if(sourcedye.getColor()==DyeColor.MAGENTA)
+			return "Magenta Dye";
+		else if(sourcedye.getColor()==DyeColor.ORANGE)
+			return "Orange Dye";
+		else if(sourcedye.getColor() == DyeColor.PINK)
+			return "Pink Dye";
+		else if(sourcedye.getColor() == DyeColor.PURPLE)
+			return "Purple Dye";
+		else if(sourcedye.getColor()==DyeColor.RED)
+			return "Rose Red";
+		else if(sourcedye.getColor() == DyeColor.SILVER)
+			return "Light Gray Dye";
+		else if(sourcedye.getColor()==DyeColor.WHITE)
+			return "Bone Meal";
+		else if(sourcedye.getColor()==DyeColor.YELLOW)
+			return "Dandelion Yellow";
+		return "Unknown Dye";
+		
+		
+		}
+		return null;
+		
+	}
+	private static CraftItemStack toCraftStack(ItemStack source){
+		if(source instanceof CraftItemStack)
+			return (CraftItemStack)source;
+		else
+			return new CraftItemStack(source);
 		
 	}
 	public static String getHeadName(ItemStack source){
@@ -127,21 +185,25 @@ public class RandomData {
 			//creeper
 			return "Creeper Head";
 		}
-		else if(source.getDurability()==3){
-		CraftItemStack cstack = new CraftItemStack(source);
-		NBTTagCompound headNBT = cstack.getHandle().tag;
+		else if(source.getDurability()==3 || source.getDurability() > 3){
+		
+			CraftItemStack cstack = toCraftStack(source);
+		
+		NBTTagCompound headNBT = cstack.getHandle().getTag();
 		if(headNBT!=null){
-			
-			return headNBT.getString("SkullOwner");
+			String ownerName =headNBT.getString("SkullOwner");
+			if(ownerName==null || ownerName.length()==0) ownerName="Steve?";
+			return  ownerName + "'s Head";
 			
 		}
 		else
 		{
+			System.out.println("Head's tag was Null...");
 			return "Human Head";
 		}
 		}
 		
-		return null;
+		return "Unknown Head";
 		
 	}
 	
@@ -214,10 +276,10 @@ public class RandomData {
 			PotionEffectType pet = MapPotionType(_Name);
 			PotionType pt = PotionType.getByEffect(pet);
 			
-			System.out.println("Potion Data Value:" + _Data);
-			System.out.println("Potion Extended:" + _DamageMin);
-			System.out.println("Potion Level:" + _DamageMax);
-			System.out.println("Potion Splash:" + _MinCount);
+			//System.out.println("Potion Data Value:" + _Data);
+			//System.out.println("Potion Extended:" + _DamageMin);
+			//System.out.println("Potion Level:" + _DamageMax);
+			//System.out.println("Potion Splash:" + _MinCount);
 			//PotionType pt = PotionType.getByDamageValue(_Data);
 			if(pt!=null)
 			{
@@ -242,9 +304,39 @@ public class RandomData {
 			
 		}
 		else if(_SpawnType==0){
-		createitem = new ItemStack(_ItemID);
+			if(_ItemID<=0){
+				Bukkit.broadcastMessage("SurvivalChests: Error: ItemID in config file is 0!");
+				System.out.println("itemID has value of 0...");
+				
+				
+			}
+			//type,amount,damage,data
+			int amountset = 1;
+			if(_MaxCount==_MinCount) {
+				if(_MaxCount==0) _MaxCount=1;
+				amountset=_MaxCount;}
+			else
+				amountset = rgen.nextInt(_MaxCount-_MinCount) + _MinCount;
+			
+				int durabilityset = 0;
+			if(_DamageMin==_DamageMax)
+				durabilityset =  (short)_DamageMax;
+			else
+				durabilityset = (short)(rgen.nextInt(_DamageMax-_DamageMin)+_DamageMin);
+		createitem = new ItemStack(_ItemID,amountset,(short)durabilityset,_Data);
+		//createitem.getData().setData(_Data);
+		
+		//System.out.println("Data " +_Data + "set:" + createitem)
+		
 		//we want to have multiple enchants possibly- we choose up to four.
 		//of our _Name contains the string "of" though, we will up the probability of more enchantments, too.
+		
+		for(String statics:staticenchants.keySet()){
+			
+			createitem.addUnsafeEnchantment(EnchantmentProbability.EnchantmentMapping.get(statics), staticenchants.get(statics).intValue());
+			
+		}
+		
 		float[] probabilities = new float[]{60,20,10,5};
 		Integer[] numenchants = new Integer[] {1,2,3,4};
 		if(_Name.indexOf("of")>0){
@@ -272,7 +364,7 @@ public class RandomData {
 		
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
-		System.out.println("usename=" + usename);
+		//System.out.println("usename=" + usename);
 		
 		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
 		{
@@ -314,7 +406,7 @@ public class RandomData {
 			
 			
 		}
-		System.out.println("usename result=" + usename);
+		//System.out.println("usename result=" + usename);
 		
 		if(!usename.trim().equals("") && uselore.trim().equals("")){
 			
@@ -333,17 +425,10 @@ public class RandomData {
 		}
 		
 		
-		if(_DamageMin==_DamageMax)
-			createitem.setDurability((short) _DamageMax);
-		else
-			createitem.setDurability((short)(rgen.nextInt(_DamageMax-_DamageMin)+_DamageMin));
+		
+	
 				
 		
-		if(_MaxCount==_MinCount) {
-			if(_MaxCount==0) _MaxCount=1;
-			createitem.setAmount(_MaxCount);}
-		else
-			createitem.setAmount(rgen.nextInt(_MaxCount-_MinCount) + _MinCount);
 		
 		}//spawntype ==0
 		
@@ -365,12 +450,12 @@ public class RandomData {
 		
 		if(!name.trim().equalsIgnoreCase("")){
 			ItemNamer.load(item);
-			System.out.println("name of item set to \"" + name + "\"");
+		
 		ItemNamer.setName(name);
 		}
 		if(!Lore.trim().equalsIgnoreCase("")){
 			//ItemNamer.load(item);
-			System.out.println("Lore of item set to \"" + Lore + "\"");
+		
 		    ItemNamer.setLore(Lore); 
 		}
 		return ItemNamer.getItemStack();
@@ -395,7 +480,7 @@ public class RandomData {
 		 }
 		  
 		 tag = itemStack.tag.getCompound("display");
-		 System.out.println("dyed item to color " + color);
+	
 		 tag.setInt("color", color);
 		 itemStack.tag.setCompound("display", tag);
 		 return craftStack;
@@ -480,7 +565,8 @@ public class RandomData {
 		_Name = splitresult[0]; //if Name doesn't start with "!", then no name will be set in the NBT Data.
 		_Weighting = Float.parseFloat(splitresult[1]);
 		_ItemID = Integer.parseInt(splitresult[2]);
-		_Data = Integer.parseInt(splitresult[3]);
+		_Data = Byte.parseByte(splitresult[3]);
+		System.out.println("_Data set from " + splitresult[3] + " to " + _Data);
 		_DamageMin = Integer.parseInt(splitresult[4]);
 		_DamageMax = Integer.parseInt(splitresult[5]);
 		_MinCount = Integer.parseInt(splitresult[6]);
@@ -493,12 +579,19 @@ public class RandomData {
 			for(int i=9;i<splitresult.length-1;i+=2){
 			//current element is enchant name,
 				String enchname = splitresult[i];
-				System.out.println("Enchantmentname=" + enchname);
-				System.out.println("weight:" + splitresult[i+1]);
+				//System.out.println("Enchantmentname=" + enchname);
+				//System.out.println("weight:" + splitresult[i+1]);
 			//next item is the probability weight.
+				if(enchname.startsWith("!")){
+				//if it starts with an exclamation mark, this is static and we want to always add it.	
+					int enchantlevel = Integer.parseInt(splitresult[i+1]);
+					staticenchants.put(enchname.substring(1), enchantlevel);
+				
+				} else {
 				float probabilityweight = Float.parseFloat(splitresult[i+1]);
 				//and add this one in!
 				_enchantmentprob.setProbability(enchname, probabilityweight);
+				}
 				
 			}
 		
@@ -525,21 +618,25 @@ public class RandomData {
 	public static Random rgen = new Random();
 	
 	public static <T> T Choose(T[] selectfrom){
+		float[] probabilities = new float[selectfrom.length];
+		for(int i=0;i<probabilities.length;i++)
+			probabilities[i] = 1f;
 		
-		float[] createarray = new float[selectfrom.length];
-		for(int i=0;i<createarray.length;i++)
-			createarray[i] = 1;
+		return Choose(selectfrom,probabilities);
 		
-		return Choose(selectfrom,createarray);
 		
 		
 	}
-	
 	public static <T> T Choose(T[] selectfrom,float[] probabilities){
 		
+		
 		//First: get the full sum of "probabilities"...
+		
 		float[] accumsums = new float[probabilities.length];
 		float totalsum = 0;
+		
+		
+		
 		for(int i=0;i<probabilities.length;i++)
 		{
 			accumsums[i] = totalsum;
@@ -547,6 +644,7 @@ public class RandomData {
 			
 			
 		}
+		
 		//we now have the sum, so choose a random value in that range (0 to totalsum).
 		float randomvalue = rgen.nextFloat()*totalsum;
 		//find the latest item larger than randomvalue.
@@ -560,10 +658,10 @@ public class RandomData {
 		}
 		
 		
-		System.out.println("totalsum=" + totalsum + " randomvalue=" + randomvalue);
+		//System.out.println("totalsum=" + totalsum + " randomvalue=" + randomvalue);
 		return null;
 		
 	}
-	
+		
 	
 }

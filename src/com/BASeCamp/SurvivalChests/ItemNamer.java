@@ -1,8 +1,14 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
  
 import net.minecraft.server.NBTTagCompound;
+import net.minecraft.server.NBTTagDouble;
 import net.minecraft.server.NBTTagList;
 import net.minecraft.server.NBTTagString;
  
@@ -51,7 +57,7 @@ public class ItemNamer {
         tag.set("Lore", list);
         itemStack.tag.setCompound("display", tag);
     }
-   
+    
     public static void setLore(String lore) {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         tag.set("Lore", new NBTTagList());
@@ -68,7 +74,51 @@ public class ItemNamer {
         
         //itemStack.tag.setCompound("display", tag);
     }
-   
+    public static String NBTtoString(NBTTagCompound sourcenbt){
+    	//sourceNBT must be an NBT tag of some sort.
+    	if(sourcenbt instanceof NBTTagCompound){
+    		
+    		ByteArrayOutputStream os = new ByteArrayOutputStream();
+     		XMLEncoder xml = new XMLEncoder(os);
+     		xml.writeObject(sourcenbt);
+     		xml.close();
+     		String serialized = javax.xml.bind.DatatypeConverter.printBase64Binary(os.toByteArray());
+     		return serialized;
+    	}
+		return "";
+    	
+    	
+    	
+    }
+    public static NBTTagCompound StringtoNBT(String source){
+    	
+    	
+    	InputStream is = new java.io.ByteArrayInputStream(source.getBytes());
+    	
+    	
+    	XMLDecoder xml = new XMLDecoder(is);
+    	Object readobject = xml.readObject();
+    	xml.close();
+    	if(readobject instanceof NBTTagCompound){ return (NBTTagCompound) readobject;}
+    	
+    	return null;
+    }
+   public static String SaveNBT(ItemStack istack){
+    	
+	   if(istack instanceof CraftItemStack){
+		      
+		   CraftItemStack crafty = (CraftItemStack)istack;
+		   net.minecraft.server.ItemStack usestack=crafty.getHandle();
+		   
+		   
+		   
+		   
+		   
+	   }
+	   
+	   return ""; //empty string indicates no NBT tag data.
+	   
+   }
     public static String[] getLore() {
         NBTTagCompound tag = itemStack.tag;
         NBTTagList list = tag.getCompound("display").getList("Lore");

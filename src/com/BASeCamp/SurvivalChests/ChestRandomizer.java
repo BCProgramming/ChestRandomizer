@@ -178,6 +178,7 @@ public class ChestRandomizer {
 			if(rdata!=null){
 				
 				ItemStack created = rdata.Generate();
+				System.out.println("Data:" + created.getData().getData());
 				if(created!=null)
 				{
 				//get all empty slots.
@@ -186,8 +187,16 @@ public class ChestRandomizer {
 					if(selectedslot!=null){
 					gotinventory.setItem(selectedslot,created);
 					}
-					else {
+					else 
+					{
+						try {
 				    gotinventory.addItem(created);
+						}
+						catch(NullPointerException ex){
+							System.out.println("Created==null:" + (created==null) + (!(created==null)?created.getTypeId():""));
+							ex.printStackTrace();
+							return 0;
+						}
 					}
 					
 				}

@@ -6,7 +6,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 public class EnchantmentProbability {
 
-	private static HashMap<String,Enchantment> EnchantmentMapping = null;
+	public static HashMap<String,Enchantment> EnchantmentMapping = null;
 	private HashMap<String,Float> Enchantprobabilities = new HashMap<String,Float>();
 	private HashMap<Integer,Float> EnchantLevelProbabilities = new HashMap<Integer,Float>();
 	public void setProbability(String EnchantmentName,float Probability)

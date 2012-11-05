@@ -107,8 +107,8 @@ public class ResumePvP implements Runnable{
 		Bukkit.broadcastMessage(ChatColor.AQUA + "This games Moderator is " + ignorePlayer.getDisplayName());	
 		
 		}
-		_bcr._Tracker = new GameTracker(_bcr,useWorld,ignorePlayer);
-		TrackerThread = new Thread(_bcr._Tracker);
+		GameTracker usetracker = new GameTracker(_bcr,useWorld,ignorePlayer);
+		TrackerThread = new Thread(usetracker);
 		TrackerThread.start();
 		
 	}

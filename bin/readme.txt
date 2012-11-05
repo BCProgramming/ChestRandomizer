@@ -46,6 +46,9 @@ MinCount and MaxCount: When the item is created, a random value is chosen betwee
 Lore: This sets the lore text for the item. Normally, this will be empty, but it can be changed. Note that all the items generated from the line will have this lore text. In the current implementation there is no generator for random lore.
 
 
+Enchantments are listed at the end. All remaining entries on the line are parsed as Enchantment Names followed by their weight. If the enchantment name starts with a exclamation mark, than that is parsed as being a enchantment that is always given to the resulting item, at the level of the following item.
+
+
 For creation potions, there is a similar but slightly different syntax to the line:
 
 POTION:SLOWNESS,10,373,8194,0,0,0
@@ -57,7 +60,7 @@ NAME is the more significant value here. Supported items include:
 
 FIRERESIST,DAMAGE,HEAL,POISON,REGENERATION,SLOWNESS,SPEED,STRENGTH,WATER,WEAKNESS
 
-Invisiblity is unfortunately not available yet.
+Invisibility is unfortunately not available yet.
 
 ID and Damage are both unused, and will be 373 and the appropriate damage value for the resulting potion in the created item. Extended indicates when the potion has a extended length. Leveled indicates whether it is a Level II potion, and Splash is whether it is a splash potion.
 

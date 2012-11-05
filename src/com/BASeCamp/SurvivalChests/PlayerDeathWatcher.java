@@ -1,7 +1,10 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.util.LinkedList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -17,14 +21,36 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerDeathWatcher implements Listener{
 	private BCRandomizer _owner=null;
-	public PlayerDeathWatcher(BCRandomizer bcRandomizer) {
+	private World watchworld;
+	public static LinkedList<GameTracker> _Trackers= new LinkedList<GameTracker>();
+	//public GameTracker _Tracker=null;
+	public PlayerDeathWatcher(BCRandomizer bcRandomizer,GameTracker gt,World watchworld) {
 			_owner=bcRandomizer;
+			_Trackers.add(gt);
+			
+			
 	}
-	private String FriendlizeName(String source)
+	public static String capitalizeString(String string) {
+		  char[] chars = string.toLowerCase().toCharArray();
+		  boolean found = false;
+		  for (int i = 0; i < chars.length; i++) {
+		    if (!found && Character.isLetter(chars[i])) {
+		      chars[i] = Character.toUpperCase(chars[i]);
+		      found = true;
+		    } else if (Character.isWhitespace(chars[i]) || chars[i]=='.' ) { // You can add other chars here
+		      found = false;
+		    }
+		  }
+		  return String.valueOf(chars);
+		}
+	private static String FriendlizeName(String source)
 	{
 		
 		source = source.replace('_', ' ');
-		return NameGenerator.toTitleCase(source);
+		
+		
+		
+		return capitalizeString(source);
 		
 	}
 	@EventHandler
@@ -36,35 +62,46 @@ public class PlayerDeathWatcher implements Listener{
 		
 		if(edam.getEntity() instanceof Player){
 			
+			
 			//entity is the player that is damaged.
 			Player damaged = (Player)edam.getEntity();
 			
-			
+			if(damaged.getWorld()!=watchworld) return;
 			if(edam.getDamager() instanceof Player){
 				Player Attacker = (Player)edam.getDamager();
 				//only Player versus Player damage is reported.
 				//<Attacker> has struck you with a <Weapon> for <Damage>
-				//damaged.sendMessage("You have been struck by " + Attacker.getDisplayName() + "!");
-				
+				//only report when the distance between the players is more than three blocks.
+				if(Attacker!=null){
+				if(damaged.getLocation().distance(Attacker.getLocation()) > 3){
+					damaged.sendMessage("You have been struck by " + Attacker.getDisplayName() + "!");
+				}
+				}
 			}
 			
 		}
 		}
 	}
-	private String getFriendlyNameFor(ItemStack Item){
+	public static String getFriendlyNameFor(ItemStack Item){
 		
+		if(Item==null) return "Nothing";
 		String weapon = Item.getType().name();
 		
 		ItemNamer.load(Item);
 		String gotname= ItemNamer.getName();
 		if(gotname!=null && gotname!="")
 			weapon = gotname;
-		else
+		else{
 			if(RandomData.isHead(Item)){
 				weapon = RandomData.getHeadName(Item);
 				
 			}
+			else if(RandomData.isDye(Item)){
+				weapon = RandomData.getDyeName(Item);
+			}
 		
+		
+		}
 		return FriendlizeName(weapon);
 	}
    @EventHandler
@@ -92,7 +129,9 @@ public class PlayerDeathWatcher implements Listener{
 			String[] explosionstrings = new String[] {
 					dyingPlayer + " blew up.",
 					dyingPlayer + "'s body parts became shrapnel",
-					dyingPlayer + " exploded."
+					dyingPlayer + " exploded.",
+					dyingPlayer + " imitated a Creeper."
+					
 			};
 			usemessage = RandomData.Choose(explosionstrings);
 		
@@ -114,7 +153,8 @@ public class PlayerDeathWatcher implements Listener{
 					DyingName + " was a casualty of their own genius",
 					DyingName + " killed their own dumb self",
 					DyingName + " committed suicide.",
-					DyingName + " answered Luna's call."
+					DyingName + " cried for Celestia.",
+					DyingName + " failed to survive death"
 					
 			};
 			usemessage = RandomData.Choose(possiblemessages);
@@ -165,7 +205,8 @@ public class PlayerDeathWatcher implements Listener{
 					KillerName + "'s " + weapon + ".",
 					KillerName + " and their " + weapon + " slaughtered " + DyingName,
 					DyingName + " was slain by " + KillerName + " using " + weapon,
-					KillerName + " killed " + DyingName + " with a " + weapon
+					KillerName + " killed " + DyingName + " with a " + weapon,
+					KillerName + " gave " + DyingName + " a closer look at their " + weapon
 			};
 			
 			
@@ -189,12 +230,23 @@ public class PlayerDeathWatcher implements Listener{
 		
 		
 		event.getDrops().add(createdhead);
-		if(_owner._Tracker!=null){
+		if(_Trackers!=null){
 			//if there is a Tracker, notify it of the player death. do this after. The tracker
 			//tracks the game itself.
-			_owner._Tracker.PlayerDeath(dyingPlayer,Killer);
+			//_Tracker.PlayerDeath(dyingPlayer,Killer);
+			for(GameTracker Tracker : _Trackers){
+				Tracker.PlayerDeath(dyingPlayer, Killer);
+			}
 		}
 		
 	}
-
+   @EventHandler
+   public void onPlayerDisconnect(PlayerQuitEvent event) {
+       if(_Trackers!=null)
+    	   for(GameTracker Tracker : _Trackers){
+    	   BCRandomizer.clearPlayerInventory(event.getPlayer());
+    	   Tracker.PlayerDeath(event.getPlayer(), null);
+    	   }   
+       
+   }
 }

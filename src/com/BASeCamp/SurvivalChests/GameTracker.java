@@ -94,7 +94,7 @@ public class GameTracker implements Runnable {
 			//announce the winner!
 			Player winner = StillAlive.getFirst();
 			Bukkit.broadcastMessage(winner.getName() + " has WON the event!");
-			
+			Bukkit.getServer().getPluginManager().callEvent(new GameEndEvent(winner));
 			gamecomplete=true;
 			//dead player explodes inexplicably.
 			

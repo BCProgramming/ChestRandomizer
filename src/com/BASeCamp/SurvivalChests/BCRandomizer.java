@@ -55,7 +55,7 @@ public class BCRandomizer extends JavaPlugin {
 		        
 		         this.getCommand("preparegame").setExecutor(Randomcommand);
 		         this.getCommand("joingame").setExecutor(Randomcommand);
-		         
+		         this.getCommand("spectategame").setExecutor(Randomcommand);
 	    
 	    }
 	    @Override

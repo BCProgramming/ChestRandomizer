@@ -1,5 +1,6 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.security.acl.Owner;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,20 +18,23 @@ public class GameTracker implements Runnable {
 
 	private World runningWorld = null;
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
+	private List<Player> _Spectators = null;
 	public  LinkedList<Player> getStillAlive(){return StillAlive;} 
 	private HashMap<Integer,Player> FinishPositions = new HashMap<Integer,Player>();
 	BCRandomizer _Owner = null;
 	public PlayerDeathWatcher deathwatcher = null;
-	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants){
+	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants, List<Player> spectators){
 		//initialize StillAlive List.
 	      deathwatcher= new PlayerDeathWatcher(Owner,this,applicableWorld);
 	      Owner.getServer().getPluginManager().registerEvents(deathwatcher, Owner);
 		
 		_Owner = Owner;
 		_Owner.ActiveGames.add(this);
+		_Spectators = spectators;
 		for(Player p:Participants){
 			StillAlive.add(p);
 		}
+		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(Participants,spectators));
 		Bukkit.broadcastMessage("survival game started! " + StillAlive.size() + " participants.");
 		
 		
@@ -101,6 +105,7 @@ public class GameTracker implements Runnable {
 			addprize(deadPlayer);
 			gamecomplete=true;
 			deathwatcher._Trackers.remove(this);
+			//move players back to their original spots where desired.
 			
 			
 			

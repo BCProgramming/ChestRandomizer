@@ -20,13 +20,15 @@ public class ResumePvP implements Runnable{
 	private int _SecondsDelay;
 	private long starttime;
 	private List<Player> _Players = null;
+	private List<Player> _Spectators = null;
 	public Thread TrackerThread = null;
 	World useWorld = null;
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> ActivePlayers){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> ActivePlayers,List<Player> Spectators){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
 		_Players=ActivePlayers;
+		_Spectators = Spectators;
 		useWorld=target;
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
@@ -110,7 +112,7 @@ public class ResumePvP implements Runnable{
 		//format is /startgame <seconds> <moderator> <spectators>
 		
 		
-		GameTracker usetracker = new GameTracker(_bcr,useWorld,_Players);
+		GameTracker usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators);
 		TrackerThread = new Thread(usetracker);
 		TrackerThread.start();
 		

@@ -33,8 +33,8 @@ public class RandomData {
 	private float _Weighting = 1f;
 	private String _Name;
 	private int _ItemID;
-	private int _DamageMin;
-	private int _DamageMax;
+	private float _DamageMin;
+	private float _DamageMax;
 	private int _MinCount;
 	private int _MaxCount;
 	private byte _Data;
@@ -49,10 +49,10 @@ public class RandomData {
 	public void setName(String value){ _Name=value;}
 	public int getItemID(){ return _ItemID;}
 	public void setItemID(int value)	{_ItemID=value;	}
-	public int getDamageMin(){return _DamageMin;}
-	public void setDamageMin(int value){_DamageMin=value;}
-	public int getDamageMax(){return _DamageMax;}
-	public void setDamageMax(int value){_DamageMax=value;}
+	public float getDamageMin(){return _DamageMin;}
+	public void setDamageMin(float value){_DamageMin=value;}
+	public float getDamageMax(){return _DamageMax;}
+	public void setDamageMax(float value){_DamageMax=value;}
 	public int getMinCount(){return _MinCount;}
 	public void setMinCount(int value){_MinCount=value;}
 	public int getMaxCount(){return _MaxCount;}
@@ -290,7 +290,7 @@ public class RandomData {
 			try {
 			makepotion.setHasExtendedDuration(_DamageMin>0);
 			}catch(IllegalArgumentException ex){}
-			try {makepotion.setLevel(_DamageMax);}catch(IllegalArgumentException ex){}
+			try {makepotion.setLevel((int)_DamageMax);}catch(IllegalArgumentException ex){}
 			try {makepotion.setSplash(_MinCount>0);}catch(IllegalArgumentException ex){}
 			try {makepotion.apply(createitem);}catch(IllegalArgumentException ex){}
 			}
@@ -321,15 +321,28 @@ public class RandomData {
 				int durabilityset = 0;
 			if(_DamageMin==_DamageMax)
 				durabilityset =  (short)_DamageMax;
-			else
-				durabilityset = (short)(rgen.nextInt(_DamageMax-_DamageMin)+_DamageMin);
+			else{
+				
+				ItemStack temp = new ItemStack(_ItemID,amountset);
+				short maxdir = temp.getType().getMaxDurability();
+				short mindir = 0;
+				float randval = (rgen.nextFloat()*(_DamageMax-_DamageMin))+_DamageMin;
+				//System.out.println("randval=" + randval);
+				durabilityset = (short)(((float)temp.getType().getMaxDurability())*
+						randval)
+						;
+				
+				
+			//	durabilityset = (short)(rgen.nextInt(_DamageMax-_DamageMin)+_DamageMin);
+				
+			}
+			System.out.println("durability set to " + durabilityset + "Min/max " + _DamageMin + " " + _DamageMax);
 		createitem = new ItemStack(_ItemID,amountset,(short)durabilityset,_Data);
 		//createitem.getData().setData(_Data);
+		if(durabilityset > 0)
+			createitem.setDurability((short) durabilityset);
 		
-		//System.out.println("Data " +_Data + "set:" + createitem)
 		
-		//we want to have multiple enchants possibly- we choose up to four.
-		//of our _Name contains the string "of" though, we will up the probability of more enchantments, too.
 		
 		for(String statics:staticenchants.keySet()){
 			
@@ -560,15 +573,25 @@ public class RandomData {
 		//ideally this could be "fixed" by having a single base class with three derived classes, one for each "type" of line, but this works for the moment 
 		//and that is a rather major refactoring.
 		try {
+			
+			
+			
 		_enchantmentprob = new EnchantmentProbability();
 		String[] splitresult = Initializer.split(",");
+		String lastelement = splitresult[splitresult.length-1];
+		//if lastelement starts with !D, format is:
+		//!D(10-50) which indicates the percentage durability range that the item can be generated with.
+		
+		
 		_Name = splitresult[0]; //if Name doesn't start with "!", then no name will be set in the NBT Data.
 		_Weighting = Float.parseFloat(splitresult[1]);
 		_ItemID = Integer.parseInt(splitresult[2]);
 		_Data = Byte.parseByte(splitresult[3]);
 		System.out.println("_Data set from " + splitresult[3] + " to " + _Data);
-		_DamageMin = Integer.parseInt(splitresult[4]);
-		_DamageMax = Integer.parseInt(splitresult[5]);
+		_DamageMin = Float.parseFloat(splitresult[4]);
+		_DamageMax = Float.parseFloat(splitresult[5]);
+		System.out.println("Damage Min set to " + _DamageMin + " from " + splitresult[3]);
+		System.out.println("Damage Max set to " + _DamageMax + " from " + splitresult[4]);
 		_MinCount = Integer.parseInt(splitresult[6]);
 		_MaxCount = Integer.parseInt(splitresult[7]);
 		if(splitresult.length > 8)

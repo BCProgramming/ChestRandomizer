@@ -49,7 +49,11 @@ public class BCRandomizer extends JavaPlugin {
 	    public void onDisable()
 	    {
 	    	
-	   
+	    	for(GameTracker t:ActiveGames){
+	    		t.gamecomplete =true;
+	    		t.deathwatcher._Trackers=null;
+	    		
+	    	}
 	    	
 	    }
 	    public static void main(String[] args){

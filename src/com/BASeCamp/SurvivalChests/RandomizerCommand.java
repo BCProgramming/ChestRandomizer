@@ -149,27 +149,29 @@ public class RandomizerCommand implements CommandExecutor {
 				} catch (Exception exx) {
 					numseconds = 30;
 				}
-				try {
-					ignoreplayer = arg3[1];
-
-				} catch (Exception exx) {
-					ignoreplayer = null;
-				}
-				Player ignorep = null;
-
 				World grabworld = p.getWorld();
+				LinkedList<Player> SpectatorPlayers = new LinkedList<Player>();
+				if(arg3.length > 1){
+
+				
 
 				for (Player searchp : grabworld.getPlayers()) {
 
 					if (searchp.isOnline()
 							&& searchp.getName().equalsIgnoreCase(ignoreplayer)) {
-						ignorep = searchp;
+						SpectatorPlayers.add(searchp);
 
 					}
 
 				}
+				}
+				else
+				{
+					SpectatorPlayers = null;
+					
+				}
 				ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
-						ignorep);
+						SpectatorPlayers);
 				Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
 						+ ChatColor.GREEN + " has begun in world "
 						+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
@@ -179,7 +181,7 @@ public class RandomizerCommand implements CommandExecutor {
 				// iterate through all online players.
 				for (Player pl : grabworld.getPlayers()) {
 
-					if (pl.isOnline() && !(p == ignorep)) {
+					if (pl.isOnline() && !(!SpectatorPlayers.contains(p))) {
 
 						pl
 								.sendMessage(ChatColor.BLUE

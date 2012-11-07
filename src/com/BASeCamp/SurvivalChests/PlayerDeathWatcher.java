@@ -107,6 +107,7 @@ public class PlayerDeathWatcher implements Listener{
    @EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event){
 		
+	   if(_Trackers==null || _Trackers.size() == 0) return;
 		//Bukkit.broadcastMessage(event.getEntity().getName() + " has been slain!");
 		ChatColor usecolor = ChatColor.YELLOW;
 		String usemessage = event.getDeathMessage();

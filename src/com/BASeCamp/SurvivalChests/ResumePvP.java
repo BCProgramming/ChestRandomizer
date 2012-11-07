@@ -1,5 +1,8 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -16,14 +19,14 @@ public class ResumePvP implements Runnable{
 	private BCRandomizer _bcr = null;
 	private int _SecondsDelay;
 	private long starttime;
-	private Player ignorePlayer = null;
+	private List<Player> _spectators = null;
 	public Thread TrackerThread = null;
 	World useWorld = null;
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds, Player ignorep){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> Spectators){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
-		ignorePlayer = ignorep;
+		_spectators = Spectators;
 		useWorld=target;
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
@@ -75,12 +78,12 @@ public class ResumePvP implements Runnable{
 		int numactive = 0;
 		useWorld.setPVP(true);
 		
-		
+		//TODO: refactor code to only affect/modify non-spectator, non-moderator players.
 		
 		
 		for(Player iterate:useWorld.getPlayers())
 		{
-			if(iterate.isOnline() && iterate!=ignorePlayer) {
+			if(iterate.isOnline() && !(_spectators!=null && _spectators.contains(iterate))) {
 				numactive++;
 		       Location currlocation = iterate.getLocation();
 		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
@@ -89,7 +92,8 @@ public class ResumePvP implements Runnable{
 		       //useWorld.strikeLightning(currlocation);
 		     
 		       iterate.setHealth(20);
-		       
+		       iterate.setFoodLevel(20);
+		       iterate.setSaturation(20);
 		       
 		       
 		       
@@ -102,12 +106,11 @@ public class ResumePvP implements Runnable{
 		
 		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
 		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
-		if(ignorePlayer!=null){
-			
-		Bukkit.broadcastMessage(ChatColor.AQUA + "This games Moderator is " + ignorePlayer.getDisplayName());	
 		
-		}
-		GameTracker usetracker = new GameTracker(_bcr,useWorld,ignorePlayer);
+		//format is /startgame <seconds> <moderator> <spectators>
+		
+		
+		GameTracker usetracker = new GameTracker(_bcr,useWorld,_spectators);
 		TrackerThread = new Thread(usetracker);
 		TrackerThread.start();
 		

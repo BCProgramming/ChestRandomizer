@@ -179,7 +179,7 @@ public class NameGenerator {
 	
 	static String[] PrefixValues = new String[] 
 	     {"Hot","Cold","Blazing","Burning","Freezing","Extreme","oversized","rotund","particular","mean","zistonian",
-		"Canadian","american","british","Hispanic","jewish","Irish","Scottish","Incredible","Ordinary"};
+		"Canadian","american","british","Hispanic","Jewish","Irish","Scottish","Incredible","Ordinary","asgard","ancient","dwarven"};
 		
 	
 	

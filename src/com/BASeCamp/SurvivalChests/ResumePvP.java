@@ -19,14 +19,14 @@ public class ResumePvP implements Runnable{
 	private BCRandomizer _bcr = null;
 	private int _SecondsDelay;
 	private long starttime;
-	private List<Player> _spectators = null;
+	private List<Player> _Players = null;
 	public Thread TrackerThread = null;
 	World useWorld = null;
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> Spectators){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> ActivePlayers){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
-		_spectators = Spectators;
+		_Players=ActivePlayers;
 		useWorld=target;
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
@@ -81,9 +81,9 @@ public class ResumePvP implements Runnable{
 		//TODO: refactor code to only affect/modify non-spectator, non-moderator players.
 		
 		
-		for(Player iterate:useWorld.getPlayers())
+		for(Player iterate:_Players)
 		{
-			if(iterate.isOnline() && !(_spectators!=null && _spectators.contains(iterate))) {
+			if(iterate.isOnline()) {
 				numactive++;
 		       Location currlocation = iterate.getLocation();
 		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
@@ -110,7 +110,7 @@ public class ResumePvP implements Runnable{
 		//format is /startgame <seconds> <moderator> <spectators>
 		
 		
-		GameTracker usetracker = new GameTracker(_bcr,useWorld,_spectators);
+		GameTracker usetracker = new GameTracker(_bcr,useWorld,_Players);
 		TrackerThread = new Thread(usetracker);
 		TrackerThread.start();
 		

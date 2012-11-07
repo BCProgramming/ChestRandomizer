@@ -11,11 +11,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.*;
 public class BCRandomizer extends JavaPlugin {
+	//new method:
+	
+	//preparegame sets the game to accept players.
+	//joingame willl be issued by players that wish to play.
+	//startgame begins that game.
+	
+	//implementation: startgame will use a pre-existing list of players that used /joingame.
+	//the list will be cleared by preparegame.
+	
+	
 	public final static String PluginName="BCRandomizer";
 	  public static String pluginMainDir = "./plugins/BCRandomizer";
 	    public static String pluginConfigLocation = pluginMainDir + "/hungergames.cfg";
 	    public RandomizerCommand Randomcommand = null; 
 	    public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
+	    
 	   // public GameTracker _Tracker = null;
 	    public static void clearPlayerInventory(Player p){
 	    	
@@ -41,7 +52,9 @@ public class BCRandomizer extends JavaPlugin {
 		         PluginCommand friendly = this.getCommand("friendly");
 		         friendly.setExecutor(Randomcommand);
 	
-		         
+		        
+		         this.getCommand("preparegame").setExecutor(Randomcommand);
+		         this.getCommand("joingame").setExecutor(Randomcommand);
 		         
 	    
 	    }

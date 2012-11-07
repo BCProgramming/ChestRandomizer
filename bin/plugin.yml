@@ -4,6 +4,10 @@ version: 1.2
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.
+      preparegame:
+        description: prepares a game to start.
+      joingame:
+        description: issued by players to join a game being prepared.
       startgame:
         description: prevents player PvP for the given number of seconds, while initializing the data for a new Survival game.
       teamsplit:

@@ -21,28 +21,21 @@ public class GameTracker implements Runnable {
 	private HashMap<Integer,Player> FinishPositions = new HashMap<Integer,Player>();
 	BCRandomizer _Owner = null;
 	public PlayerDeathWatcher deathwatcher = null;
-	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Spectators){
+	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants){
 		//initialize StillAlive List.
 	      deathwatcher= new PlayerDeathWatcher(Owner,this,applicableWorld);
 	      Owner.getServer().getPluginManager().registerEvents(deathwatcher, Owner);
 		
 		_Owner = Owner;
 		_Owner.ActiveGames.add(this);
-		for(Player p:applicableWorld.getPlayers()){
-			if(p.isOnline() && !(Spectators.contains(p))){
-				
-				StillAlive.add(p);	
-					
-					
-				
-			}
-			
+		for(Player p:Participants){
+			StillAlive.add(p);
 		}
 		Bukkit.broadcastMessage("survival game started! " + StillAlive.size() + " participants.");
 		
 		
 		String[] participantNames = new String[StillAlive.size()];
-		String[] SpectatorNames = new String[Spectators.size()];
+		
 		int i=0;
 		for(Player Alive:StillAlive){
 			
@@ -50,25 +43,11 @@ public class GameTracker implements Runnable {
 			i++;
 		}
 		i=0;
-		for(Player Spectate:Spectators){
-			SpectatorNames[i] = Spectate.getDisplayName();
-			i++;
-			
-		}
+		
 		Bukkit.broadcastMessage(ChatColor.RED + "participating:" + StringUtil.Join(participantNames,","));
-		if(Spectators.size()>0)
-			Bukkit.broadcastMessage(ChatColor.BLUE + "Spectating:" + StringUtil.Join(SpectatorNames, ","));
 		
 		
 		//Bukkit.broadcastMessage(ChatColor.RED + "participating:" + StringUtil.Join(Source, Delimiter));
-		
-		StringBuffer buildstrspectate = new StringBuffer();
-		for(Player s:Spectators){
-			
-			
-		
-		}
-		
 		
 		
 		

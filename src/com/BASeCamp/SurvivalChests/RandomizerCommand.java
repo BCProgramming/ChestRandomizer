@@ -19,6 +19,10 @@ public class RandomizerCommand implements CommandExecutor {
 
 	private BCRandomizer _Owner = null;
 
+	
+	private LinkedList<Player> joinedplayers = new LinkedList<Player>(); //list of players that accepted to join a game.
+    private boolean accepting=false;
+	World playingWorld = null;
 	public BCRandomizer getOwner() {
 		return _Owner;
 	}
@@ -61,7 +65,7 @@ public class RandomizerCommand implements CommandExecutor {
 			String WorldName = p.getWorld().getName().toLowerCase();
 			String permnode = "chestrandomizer." + WorldName + "." + usecmd;
 
-			if (!p.hasPermission(permnode)) {
+			if (!p.hasPermission(permnode) && !arg2.equalsIgnoreCase("joingame")) {
 				if (!p.isOp()) {
 					if (p.getGameMode() == GameMode.CREATIVE)
 						p.setGameMode(GameMode.ADVENTURE);
@@ -80,7 +84,33 @@ public class RandomizerCommand implements CommandExecutor {
 				}
 				return true;
 			}
-
+			if (arg2.equalsIgnoreCase("preparegame")){
+				//prepare game for the issuing players world.
+				accepting=true;
+				joinedplayers.clear();
+				playingWorld = p.getWorld();
+				for(Player px:p.getWorld().getPlayers()){
+					
+					px.sendMessage(ChatColor.YELLOW + " A Survival game has started!");
+					px.sendMessage(ChatColor.YELLOW + " use /joingame to participate before the game starts.");
+					
+					
+				}
+				p.sendMessage(ChatColor.YELLOW + "Game opened. use /startgame to initiate a game when ready.");
+			}
+			else if(arg2.equalsIgnoreCase("joingame")){
+				
+				if(p.getWorld()==playingWorld){
+					if(!joinedplayers.contains(p)){
+					joinedplayers.add(p);
+					
+					Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.BLUE + " is participating.(" + joinedplayers.size() + " players)");
+					}
+					
+					
+				}
+				
+			}
 			if (arg2.equalsIgnoreCase("teamsplit")) {
 				// get all online Players.
 
@@ -135,6 +165,12 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 
 			if (arg2.equalsIgnoreCase("startgame")) {
+				accepting=false;
+				if(joinedplayers.size()==0){
+					p.sendMessage("No players participating! Cannot start game.");
+					
+					return false;
+				}
 				if (_Owner.ActiveGames.size() > 0) {
 					p
 							.sendMessage(ChatColor.YELLOW
@@ -150,38 +186,19 @@ public class RandomizerCommand implements CommandExecutor {
 					numseconds = 30;
 				}
 				World grabworld = p.getWorld();
-				LinkedList<Player> SpectatorPlayers = new LinkedList<Player>();
-				if(arg3.length > 1){
-
-				
-
-				for (Player searchp : grabworld.getPlayers()) {
-
-					if (searchp.isOnline()
-							&& searchp.getName().equalsIgnoreCase(ignoreplayer)) {
-						SpectatorPlayers.add(searchp);
-
-					}
-
-				}
-				}
-				else
-				{
-					SpectatorPlayers = null;
-					
-				}
+			
 				ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
-						SpectatorPlayers);
+						joinedplayers);
 				Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
 						+ ChatColor.GREEN + " has begun in world "
 						+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
-
+				Bukkit.broadcastMessage(joinedplayers.size() + " Players.");
 				grabworld.setPVP(false);
 
 				// iterate through all online players.
-				for (Player pl : grabworld.getPlayers()) {
+				for (Player pl : joinedplayers) {
 
-					if (pl.isOnline() && !(!SpectatorPlayers.contains(p))) {
+					if (pl.isOnline()) {
 
 						pl
 								.sendMessage(ChatColor.BLUE

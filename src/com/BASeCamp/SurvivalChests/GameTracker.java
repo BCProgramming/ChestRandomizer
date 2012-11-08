@@ -34,6 +34,7 @@ public class GameTracker implements Runnable {
 		for(Player p:Participants){
 			StillAlive.add(p);
 		}
+		//raise custom event.
 		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(Participants,spectators));
 		Bukkit.broadcastMessage("survival game started! " + StillAlive.size() + " participants.");
 		
@@ -50,11 +51,6 @@ public class GameTracker implements Runnable {
 		
 		Bukkit.broadcastMessage(ChatColor.RED + "participating:" + StringUtil.Join(participantNames,","));
 		
-		
-		//Bukkit.broadcastMessage(ChatColor.RED + "participating:" + StringUtil.Join(Source, Delimiter));
-		
-		
-		
 	}
 	private void addprize(Player deathplayer){
 		
@@ -63,7 +59,7 @@ public class GameTracker implements Runnable {
 			//add prize gold.
 			ItemStack prizegold = new ItemStack(Material.GOLD_NUGGET);
 			ItemNamer.load(prizegold);
-			ItemNamer.setName("Mulreay's Survival Map Prize Gold");
+			ItemNamer.setName("Mulreay Gold");
 			prizegold = ItemNamer.getItemStack();
 			deathplayer.getWorld().dropItemNaturally(deathplayer.getLocation(), prizegold);
 			
@@ -81,6 +77,7 @@ public class GameTracker implements Runnable {
 		StillAlive.remove(deadPlayer);
 		Integer theposition = StillAlive.size()+1;
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is " + ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:" + theposition + ")");
+		BCRandomizer.Victories.madePlace(deadPlayer, theposition);
 		if(deathwatcher==null) return;
 		FinishPositions.put(theposition, deadPlayer);
 		synchronized(StillAlive) { //synch on StillAlive List.
@@ -98,6 +95,7 @@ public class GameTracker implements Runnable {
 			//announce the winner!
 			Player winner = StillAlive.getFirst();
 			Bukkit.broadcastMessage(winner.getName() + " has WON the event!");
+			//raise custom event.
 			Bukkit.getServer().getPluginManager().callEvent(new GameEndEvent(winner));
 			gamecomplete=true;
 			//dead player explodes inexplicably.
@@ -106,7 +104,12 @@ public class GameTracker implements Runnable {
 			gamecomplete=true;
 			deathwatcher._Trackers.remove(this);
 			//move players back to their original spots where desired.
-			
+			for(Player pp:_Owner.Randomcommand.returninfo.keySet()){
+				_Owner.Randomcommand.returninfo.get(pp).sendBack();
+								
+				
+				
+			}
 			
 			
 		}

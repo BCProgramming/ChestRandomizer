@@ -30,6 +30,19 @@ public class PlayerDeathWatcher implements Listener{
 			
 			
 	}
+	
+	public static boolean allCaps(String strtest){
+	for(int i=0;i<strtest.length();i++){
+		
+		char currchar = strtest.charAt(i);
+		if(!Character.isUpperCase(currchar)){
+		return false;	
+		
+		}
+		
+	}
+	return true;
+	}
 	public static String capitalizeString(String string) {
 		  char[] chars = string.toLowerCase().toCharArray();
 		  boolean found = false;
@@ -45,12 +58,12 @@ public class PlayerDeathWatcher implements Listener{
 		}
 	private static String FriendlizeName(String source)
 	{
-		
+		source = source.replace("item_"," ");
 		source = source.replace('_', ' ');
 		
 		
 		
-		return capitalizeString(source);
+		return allCaps(source)?capitalizeString(source):source;
 		
 	}
 	@EventHandler

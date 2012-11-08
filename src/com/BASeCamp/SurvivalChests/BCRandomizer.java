@@ -19,7 +19,7 @@ public class BCRandomizer extends JavaPlugin {
 	
 	//implementation: startgame will use a pre-existing list of players that used /joingame.
 	//the list will be cleared by preparegame.
-	
+	public static VictoryTracker Victories = null;
 	
 	public final static String PluginName="BCRandomizer";
 	  public static String pluginMainDir = "./plugins/BCRandomizer";
@@ -33,8 +33,17 @@ public class BCRandomizer extends JavaPlugin {
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
 	    	
 	    }
+	    public BCRandomizer()
+	    {
+	    	
+	    	Victories = new VictoryTracker(this);
+	    	
+	    	
+	    }
+	    
 	    @Override
 	    public void onEnable(){
+	    	
 	    	Randomcommand = new RandomizerCommand(this);
 	    	  PluginCommand batchcommand = this.getCommand("repopchests");
 	    	  

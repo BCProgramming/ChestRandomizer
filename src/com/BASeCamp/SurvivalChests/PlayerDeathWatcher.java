@@ -259,6 +259,7 @@ public class PlayerDeathWatcher implements Listener{
        if(_Trackers!=null)
     	   for(GameTracker Tracker : _Trackers){
     	   BCRandomizer.clearPlayerInventory(event.getPlayer());
+    	   
     	   Tracker.PlayerDeath(event.getPlayer(), null);
     	   }   
        

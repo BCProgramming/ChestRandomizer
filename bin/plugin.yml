@@ -1,6 +1,6 @@
 name: BASeCamp Survival Chests
 main: com.BASeCamp.SurvivalChests.BCRandomizer
-version: 1.2
+version: 1.3
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.

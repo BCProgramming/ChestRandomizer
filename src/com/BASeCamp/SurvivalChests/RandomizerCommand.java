@@ -160,9 +160,23 @@ public class RandomizerCommand implements CommandExecutor {
 						.sendMessage(ChatColor.YELLOW
 								+ "Whispers: Game opened. use /startgame to initiate a game when ready.");
 		} else if (arg2.equalsIgnoreCase("joingame")) {
+			if(!accepting)
+			{
+				
+				p.sendMessage( ChatColor.RED + "You cannot join a game still in progress.");
+				
+				
+			}
 			if (p == null)
 				return false;
-			if (p.getWorld() == playingWorld) {
+			if (p.getWorld() != playingWorld) {
+				//teleport them to the world the game is in.
+				returninfo.put(p, new ReturnData(p));
+				Location spawnspot = playingWorld.getSpawnLocation();
+				p.teleport(spawnspot);
+
+				
+			}
 				
 				if(spectating.contains(p)){
 					
@@ -180,16 +194,13 @@ public class RandomizerCommand implements CommandExecutor {
 					
 					return false;
 				}
-			} else {
-				returninfo.put(p, new ReturnData(p));
-				Location spawnspot = playingWorld.getSpawnLocation();
-				p.teleport(spawnspot);
-
-			}
+						
+			
 			Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.BLUE
 					+ " is participating.(" + joinedplayers.size()
 					+ " players)");
 		} else if (arg2.equalsIgnoreCase("spectategame")) {
+			
 			if (p == null)
 				return false;
 			if (p.getWorld() == playingWorld) {

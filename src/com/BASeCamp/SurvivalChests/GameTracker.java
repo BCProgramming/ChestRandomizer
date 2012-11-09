@@ -36,7 +36,7 @@ public class GameTracker implements Runnable {
 		}
 		//raise custom event.
 		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(Participants,spectators));
-		Bukkit.broadcastMessage("survival game started! " + StillAlive.size() + " participants.");
+		Bukkit.broadcastMessage(ChatColor.YELLOW + "SURVIVAL:Survival game started! " + StillAlive.size() + " participants.");
 		
 		
 		String[] participantNames = new String[StillAlive.size()];
@@ -49,7 +49,7 @@ public class GameTracker implements Runnable {
 		}
 		i=0;
 		
-		Bukkit.broadcastMessage(ChatColor.RED + "participating:" + StringUtil.Join(participantNames,","));
+		Bukkit.broadcastMessage("SURVIVAL:" +ChatColor.RED + "participating:" + StringUtil.Join(participantNames,","));
 		
 	}
 	private void addprize(Player deathplayer){
@@ -105,11 +105,24 @@ public class GameTracker implements Runnable {
 			deathwatcher._Trackers.remove(this);
 			//move players back to their original spots where desired.
 			for(Player pp:_Owner.Randomcommand.returninfo.keySet()){
-				_Owner.Randomcommand.returninfo.get(pp).sendBack();
-								
+				
+				pp.sendMessage(ChatColor.BLUE + "You will be returned to your before-game position in 5 seconds.");
 				
 				
 			}
+			_Owner.getServer().getScheduler().scheduleSyncDelayedTask(_Owner, new Runnable() {
+
+				   public void run() {
+					   for(Player pp:_Owner.Randomcommand.returninfo.keySet()){
+							_Owner.Randomcommand.returninfo.get(pp).sendBack();
+											
+							
+							
+						}
+				   }
+				}, 5*20L);
+			
+			
 			
 			
 		}

@@ -36,6 +36,19 @@ public class ChestRandomizer {
 	public ChestRandomizer(BCRandomizer owner,Chest pChest,String pURL){
 		_owner = owner;
 		mchest=pChest;
+		
+		
+		String buildpath = BCRandomizer.pluginMainDir;
+		if(!buildpath.endsWith("\\")) buildpath = buildpath + "\\";
+		File  gotfile = new File(buildpath + pURL);
+		if(gotfile!=null && gotfile.exists()){
+			pURL = gotfile.getAbsolutePath();
+			
+			
+		}
+				
+		
+		
 		mInventory = mchest.getBlockInventory();
 		if(randData==null|| _SourceFile!=pURL)
 		{
@@ -82,7 +95,7 @@ public class ChestRandomizer {
 		if(sc==null)
 		{
 			Bukkit.getLogger().log(Level.WARNING, "Warning: Config/List file not found at " + BCRandomizer.pluginConfigLocation + " using built in.");
-			sc = new Scanner(getClass().getClassLoader().getResourceAsStream("hungergames.cfg"));
+			sc = new Scanner(getClass().getClassLoader().getResourceAsStream("survivalchests.cfg"));
 		}
 			
 			while(sc.hasNextLine()){
@@ -103,7 +116,7 @@ public class ChestRandomizer {
 			}
 			
 		
-		System.out.println("Read in " + randData.size() + " elements");
+		BCRandomizer.emitmessage("Read in " + randData.size() + " elements");
 		
 		
 		
@@ -171,14 +184,14 @@ public class ChestRandomizer {
 		Inventory gotinventory = mInventory;
 		//OK, loop the appropriate number of times, choose a randomData and generate it.
 		gotinventory.clear();
-		//System.out.println("Minitems:" + _MinItems + "MaxItems " + _MaxItems + "Gen:" + _numgenerate);
+		//BCRandomizer.emitmessage("Minitems:" + _MinItems + "MaxItems " + _MaxItems + "Gen:" + _numgenerate);
 		
 		for(int i=1;i<_numgenerate;i++){
 			RandomData rdata = RandomData.ChooseRandomData(randData);
 			if(rdata!=null){
 				
 				ItemStack created = rdata.Generate();
-				System.out.println("Data:" + created.getData().getData());
+				BCRandomizer.emitmessage("Data:" + created.getData().getData());
 				if(created!=null)
 				{
 				//get all empty slots.
@@ -193,7 +206,7 @@ public class ChestRandomizer {
 				    gotinventory.addItem(created);
 						}
 						catch(NullPointerException ex){
-							System.out.println("Created==null:" + (created==null) + (!(created==null)?created.getTypeId():""));
+							BCRandomizer.emitmessage("Created==null:" + (created==null) + (!(created==null)?created.getTypeId():""));
 							ex.printStackTrace();
 							return 0;
 						}

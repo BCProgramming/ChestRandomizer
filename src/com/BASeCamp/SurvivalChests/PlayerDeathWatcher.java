@@ -232,7 +232,7 @@ public class PlayerDeathWatcher implements Listener{
 		if(KillerName.length() > 0)
 			usemessage = usemessage.replace(KillerName,ChatColor.BLUE + KillerName + ChatColor.YELLOW);
 		usemessage=usemessage + "(" + dyingPlayer.getLastDamage() + " damage)";
-				System.out.println(usemessage + dyingPlayer.getLastDamageCause().toString());
+				BCRandomizer.emitmessage(usemessage + dyingPlayer.getLastDamageCause().toString());
 		event.setDeathMessage(usecolor + usemessage);
 		
 		ItemStack createdhead = RandomData.getHead(DyingName);

@@ -110,7 +110,7 @@ public class RandomData {
 		
 	}
 	public static boolean isDye(ItemStack source){
-	return source.getType()==Material.INK_SACK;	
+	return source.getType().equals(Material.INK_SACK);
 	
 	}
 	public static String getDyeName(ItemStack source){
@@ -198,7 +198,7 @@ public class RandomData {
 		}
 		else
 		{
-			System.out.println("Head's tag was Null...");
+			BCRandomizer.emitmessage("Head's tag was Null...");
 			return "Human Head";
 		}
 		}
@@ -276,14 +276,14 @@ public class RandomData {
 			PotionEffectType pet = MapPotionType(_Name);
 			PotionType pt = PotionType.getByEffect(pet);
 			
-			//System.out.println("Potion Data Value:" + _Data);
-			//System.out.println("Potion Extended:" + _DamageMin);
-			//System.out.println("Potion Level:" + _DamageMax);
-			//System.out.println("Potion Splash:" + _MinCount);
+			//BCRandomizer.emitmessage("Potion Data Value:" + _Data);
+			//BCRandomizer.emitmessage("Potion Extended:" + _DamageMin);
+			//BCRandomizer.emitmessage("Potion Level:" + _DamageMax);
+			//BCRandomizer.emitmessage("Potion Splash:" + _MinCount);
 			//PotionType pt = PotionType.getByDamageValue(_Data);
 			if(pt!=null)
 			{
-			System.out.println("Potion Type:" + pt.name());
+			BCRandomizer.emitmessage("Potion Type:" + pt.name());
 			}
 			Potion makepotion = new Potion(pt);
 			// Potions: Type is DataValue, Extended is DamageMin, Level is DamageMax, and Splash is MinCount.
@@ -306,7 +306,7 @@ public class RandomData {
 		else if(_SpawnType==0){
 			if(_ItemID<=0){
 				Bukkit.broadcastMessage("SurvivalChests: Error: ItemID in config file is 0!");
-				System.out.println("itemID has value of 0...");
+				BCRandomizer.emitmessage("itemID has value of 0...");
 				
 				
 			}
@@ -327,7 +327,7 @@ public class RandomData {
 				short maxdir = temp.getType().getMaxDurability();
 				short mindir = 0;
 				float randval = (rgen.nextFloat()*(_DamageMax-_DamageMin))+_DamageMin;
-				//System.out.println("randval=" + randval);
+				//BCRandomizer.emitmessage("randval=" + randval);
 				durabilityset = (short)(((float)temp.getType().getMaxDurability())*
 						randval)
 						;
@@ -336,7 +336,7 @@ public class RandomData {
 			//	durabilityset = (short)(rgen.nextInt(_DamageMax-_DamageMin)+_DamageMin);
 				
 			}
-			System.out.println("durability set to " + durabilityset + "Min/max " + _DamageMin + " " + _DamageMax);
+			BCRandomizer.emitmessage("durability set to " + durabilityset + "Min/max " + _DamageMin + " " + _DamageMax);
 		createitem = new ItemStack(_ItemID,amountset,(short)durabilityset,_Data);
 		//createitem.getData().setData(_Data);
 		if(durabilityset > 0)
@@ -377,7 +377,7 @@ public class RandomData {
 		
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
-		//System.out.println("usename=" + usename);
+		//BCRandomizer.emitmessage("usename=" + usename);
 		
 		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
 		{
@@ -419,7 +419,7 @@ public class RandomData {
 			
 			
 		}
-		//System.out.println("usename result=" + usename);
+		//BCRandomizer.emitmessage("usename result=" + usename);
 		
 		if(!usename.trim().equals("") && uselore.trim().equals("")){
 			
@@ -451,7 +451,7 @@ public class RandomData {
 		}
 		catch(Exception exx)
 		{
-			System.out.println("Exception with " + _Name  + exx.toString()) ;
+			BCRandomizer.emitmessage("Exception with " + _Name  + exx.toString()) ;
 		
 			return null;
 		}
@@ -587,11 +587,11 @@ public class RandomData {
 		_Weighting = Float.parseFloat(splitresult[1]);
 		_ItemID = Integer.parseInt(splitresult[2]);
 		_Data = Byte.parseByte(splitresult[3]);
-		System.out.println("_Data set from " + splitresult[3] + " to " + _Data);
+		BCRandomizer.emitmessage("_Data set from " + splitresult[3] + " to " + _Data);
 		_DamageMin = Float.parseFloat(splitresult[4]);
 		_DamageMax = Float.parseFloat(splitresult[5]);
-		System.out.println("Damage Min set to " + _DamageMin + " from " + splitresult[3]);
-		System.out.println("Damage Max set to " + _DamageMax + " from " + splitresult[4]);
+		BCRandomizer.emitmessage("Damage Min set to " + _DamageMin + " from " + splitresult[3]);
+		BCRandomizer.emitmessage("Damage Max set to " + _DamageMax + " from " + splitresult[4]);
 		_MinCount = Integer.parseInt(splitresult[6]);
 		_MaxCount = Integer.parseInt(splitresult[7]);
 		if(splitresult.length > 8)
@@ -602,8 +602,8 @@ public class RandomData {
 			for(int i=9;i<splitresult.length-1;i+=2){
 			//current element is enchant name,
 				String enchname = splitresult[i];
-				//System.out.println("Enchantmentname=" + enchname);
-				//System.out.println("weight:" + splitresult[i+1]);
+				//BCRandomizer.emitmessage("Enchantmentname=" + enchname);
+				//BCRandomizer.emitmessage("weight:" + splitresult[i+1]);
 			//next item is the probability weight.
 				if(enchname.startsWith("!")){
 				//if it starts with an exclamation mark, this is static and we want to always add it.	
@@ -624,7 +624,7 @@ public class RandomData {
 		
 		}
 		catch(Exception exx){
-			//System.out.println("Error in RandomData class...");
+			//BCRandomizer.emitmessage("Error in RandomData class...");
 			
 		}
 		
@@ -681,7 +681,7 @@ public class RandomData {
 		}
 		
 		
-		//System.out.println("totalsum=" + totalsum + " randomvalue=" + randomvalue);
+		//BCRandomizer.emitmessage("totalsum=" + totalsum + " randomvalue=" + randomvalue);
 		return null;
 		
 	}

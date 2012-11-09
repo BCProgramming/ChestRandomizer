@@ -6,7 +6,18 @@ Permissions nodes:
 
 chestrandomizer.worldname.command
 
-available commands are clearchests, repopchests, stopPvP, and teamsplit.
+available commands are repopchests, preparegame, startgame,joingame and spectategame
+
+Game Tracking:
+
+Although outside the original scope of the plugin, I added the capability to track games to the plugin. This is done by somebody with permission to use the preparegame command. the preparegame command prepares a game to start; the command accepts a name of the world in which to start the event or if not provided it will use the world of the issuing player.
+
+At this point,it is now announced and players that wish to participate (on the entire server) to use /joingame. Those who wish to spectate use /spectategame.
+
+If the player is outside the world in which the event occurs, in both cases they will be teleported to the spawn location of the world in which the event occurs.
+
+when /startgame is issued (again, by somebody with the proper permissions), it can either be provided a time interval to delay (default is 30 seconds) in which all PvP combat will be disabled. All players will be put into adventure mode and their health and hunger bars will be refilled. After the time has expired, players will be incurred with 5 seconds of blindness (this is to help prevent kills immediately when PvP is re-enabled).
+
 
 Features:
 
@@ -29,7 +40,7 @@ The format here is:
 Name,Weight,TypeID,Data,MinDamage,MaxDamage,MinCount,MaxCount,Lore, EnchantmentName,EnchantmentWeight...
 
 
-The first element is the Name. This is normally ignored (as in, it is not applied to the Item through NBT Tags). If you want to give the item a special name, precent that name with !. There are also special variables you can use in conjunction with !, Currently implemented name randomizers include:
+The first element is the Name. This is normally ignored (as in, it is not applied to the Item through NBT Tags). If you want to give the item a special name, precede that name with !. There are also special variables you can use in conjunction with !, Currently implemented name randomizers include:
 
 %CLEVERHATNAME%,%CLEVERCHESTPLATENAME%,%CLEVERLEGGINGSNAME%,%CLEVERBOOTSNAME%,%CLEVERSWORDNAME%,%CLEVERBOWNAME%
 

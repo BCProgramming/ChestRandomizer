@@ -91,7 +91,7 @@ public class RandomizerCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2,
 			String[] arg3) {
 		// TODO Auto-generated method stub
-		System.out.println("onCommand:" + arg2);
+		BCRandomizer.emitmessage("onCommand:" + arg2);
 		Player p = null;
 		if (sender instanceof Player) {
 
@@ -104,7 +104,7 @@ public class RandomizerCommand implements CommandExecutor {
 			String permnode = "chestrandomizer." + WorldName + "." + usecmd;
 
 			if (!p.hasPermission(permnode)
-					&& !arg2.equalsIgnoreCase("joingame")) {
+					&& !arg2.equalsIgnoreCase("joingame") && !arg2.equalsIgnoreCase("spectategame")) {
 				if (!p.isOp()) {
 					if (p.getGameMode() == GameMode.CREATIVE)
 						p.setGameMode(GameMode.ADVENTURE);
@@ -147,27 +147,39 @@ public class RandomizerCommand implements CommandExecutor {
 			spectating.clear();
 			for (Player px : getAllPlayers()) {
 
-				px.sendMessage(ChatColor.YELLOW
+				px.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
 						+ " A Survival game has started in "
 						+ playingWorld.getName());
 				px
-						.sendMessage(ChatColor.YELLOW
+						.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
 								+ " use /joingame to participate before the game starts.");
 
 			}
 			if (p != null)
 				p
 						.sendMessage(ChatColor.YELLOW
-								+ "Game opened. use /startgame to initiate a game when ready.");
+								+ "Whispers: Game opened. use /startgame to initiate a game when ready.");
 		} else if (arg2.equalsIgnoreCase("joingame")) {
 			if (p == null)
 				return false;
 			if (p.getWorld() == playingWorld) {
+				
+				if(spectating.contains(p)){
+					
+					spectating.remove(p);
+					
+					
+				}
+				
 				if (!joinedplayers.contains(p)) {
 					joinedplayers.add(p);
 
 				}
-
+				else {
+					p.sendMessage(ChatColor.RED + " You are already participating!");
+					
+					return false;
+				}
 			} else {
 				returninfo.put(p, new ReturnData(p));
 				Location spawnspot = playingWorld.getSpawnLocation();
@@ -181,9 +193,18 @@ public class RandomizerCommand implements CommandExecutor {
 			if (p == null)
 				return false;
 			if (p.getWorld() == playingWorld) {
+				if(joinedplayers.contains(p)){
+				     joinedplayers.remove(p); //remove them from the participation list.	
+				    
+					
+				}
 				if (!spectating.contains(p)) {
 					spectating.add(p);
 
+				}
+				else {
+					p.sendMessage("you are already spectating!");
+					return false;
 				}
 			} else {
 				returninfo.put(p,new ReturnData(p));
@@ -373,7 +394,7 @@ public class RandomizerCommand implements CommandExecutor {
 					// choose a random chest.
 					Chest chosen = RandomData.Choose(chestchoose);
 					Inventory iv = chosen.getBlockInventory();
-					// System.out.println("Added Static Item:" +
+					// BCRandomizer.emitmessage("Added Static Item:" +
 					// result.toString());
 					iv.addItem(result);
 					StaticAdded++;

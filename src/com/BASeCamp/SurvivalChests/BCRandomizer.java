@@ -23,7 +23,9 @@ public class BCRandomizer extends JavaPlugin {
 	
 	public final static String PluginName="BCRandomizer";
 	  public static String pluginMainDir = "./plugins/BCRandomizer";
-	    public static String pluginConfigLocation = pluginMainDir + "/hungergames.cfg";
+	  //TODO: use plugin.yml to retrieve configuration data- more precisely, to retrieve the file to use for the randomization data.
+	  //Another idea is to allow that to be changed via other commands, possibly referring to files in the plugin folder.
+	    public static String pluginConfigLocation = pluginMainDir + "/survivalchests.cfg";
 	    public RandomizerCommand Randomcommand = null; 
 	    public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
 	    
@@ -78,17 +80,23 @@ public class BCRandomizer extends JavaPlugin {
 	    	}
 	    	
 	    }
+	    private static final boolean _debug=false;
+	    public static void emitmessage(String msg){
+	    	
+	    	if(_debug) System.out.println(msg);
+	    	
+	    }
 	    public static void main(String[] args){
 	    	
 	    	String[] choosefrom = new String[] { "StringA","StringB","StringC","StringD"};
 	    	float[] probdata = new float[] {100f,100f,100f,100f};
 	    	String chosen = RandomData.Choose(choosefrom, probdata);
 	    	
-	    	System.out.println(chosen);
+	    	BCRandomizer.emitmessage(chosen);
 	    	
 	    	for(int i=0;i<20;i++){
 	    	String generatedLore = NameGenerator.GenerateLore();
-	    	System.out.println(generatedLore);
+	    	BCRandomizer.emitmessage(generatedLore);
 	    	
 	    	
 	    	}

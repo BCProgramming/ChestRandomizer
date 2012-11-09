@@ -69,6 +69,7 @@ public class GameTracker implements Runnable {
 	//when a player dies, we need to update the list, and possibly even break out if the game has ended as a result.
 	public void PlayerDeath(Player deadPlayer,Player assailant){
 		//remove player from list.
+		deadPlayer.teleport(deadPlayer.getWorld().getSpawnLocation());
 		if(gamecomplete) return;
 		if(!StillAlive.contains(deadPlayer)){
 			return;

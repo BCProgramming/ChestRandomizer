@@ -284,7 +284,7 @@ public class RandomizerCommand implements CommandExecutor {
 				numseconds = 30;
 			}
 			World grabworld = p.getWorld();
-
+			Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(joinedplayers,spectating));
 			ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
 					joinedplayers, spectating);
 			Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "

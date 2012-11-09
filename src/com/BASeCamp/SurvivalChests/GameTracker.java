@@ -35,7 +35,7 @@ public class GameTracker implements Runnable {
 			StillAlive.add(p);
 		}
 		//raise custom event.
-		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(Participants,spectators));
+		
 		Bukkit.broadcastMessage(ChatColor.YELLOW + "SURVIVAL:Survival game started! " + StillAlive.size() + " participants.");
 		
 		

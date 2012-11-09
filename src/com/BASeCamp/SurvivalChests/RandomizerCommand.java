@@ -39,7 +39,7 @@ public class RandomizerCommand implements CommandExecutor {
 																		// preparing
 																		// game.
 	private boolean accepting = false;
-
+	public boolean getaccepting() { return accepting;}
 	public LinkedList<Player> getjoinedplayers() {
 		return joinedplayers;
 	}
@@ -163,8 +163,8 @@ public class RandomizerCommand implements CommandExecutor {
 			if(!accepting)
 			{
 				
-				p.sendMessage( ChatColor.RED + "You cannot join a game still in progress.");
-				
+				p.sendMessage( ChatColor.RED + "You cannot join a game still in progress. use /spectategame if you want to observe.");
+				return false;
 				
 			}
 			if (p == null)
@@ -205,6 +205,7 @@ public class RandomizerCommand implements CommandExecutor {
 				return false;
 			if (p.getWorld() == playingWorld) {
 				if(joinedplayers.contains(p)){
+					
 				     joinedplayers.remove(p); //remove them from the participation list.	
 				    
 					

@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -117,6 +118,23 @@ public class PlayerDeathWatcher implements Listener{
 		}
 		return FriendlizeName(weapon);
 	}
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		
+		
+		if(_owner.Randomcommand.getaccepting()){
+			
+			event.getPlayer().sendMessage(ChatColor.YELLOW + "Welcome! A game is being prepared. ");
+			event.getPlayer().sendMessage(ChatColor.YELLOW + "use /joingame to join, and /spectategame to watch.");
+			
+			
+		}
+		
+		
+		
+		
+	}
+	
    @EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event){
 		

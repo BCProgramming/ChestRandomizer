@@ -26,12 +26,12 @@ Items can have random enchantments and randomized names (though the latter is li
 
 Chests that are on Wool Blocks will NOT have their contents randomized.
 
-Randomization data is stored in the "BCRandomizer" folder of your plugin directory, inside a file named "hungergames.cfg"
+Randomization data is stored in the "BCRandomizer" folder of your plugin directory, inside a file named "survivalchests.cfg"
 
 
 There are a few "Types" of lines in the file: these come in the form of "Standard" lines, as well as lines for creating Potions and Player Heads.
 
-The following is an example line (standard) from this file (A default hungergames.cfg file is provided in the zip alongside the jar and this file):
+The following is an example line (standard) from this file (A default survivalchests.cfg file is provided in the zip alongside the jar and this file):
 
 Stone Sword,50,272,0,0,0,1,1,,NONE,700,SHARPNESS,100,FIREASPECT,50
 

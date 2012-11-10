@@ -1,5 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -19,6 +21,22 @@ public class GameEndEvent extends Event {
     private void setPlayer(Player value) { _winner = value;}
     
     public Player getWinner() { return _winner;}
+    
+    /**
+     * retrieves all Participants for the game that just ended.
+     * @return Participants of the ending game.
+     */
+    public List<Player> getAllParticipants(){
+    	LinkedList<Player> buildlisting = new LinkedList<Player>();
+    	for(Player p:Placers.values()){
+    		
+    		buildlisting.add(p);
+    		
+    	}
+    	return buildlisting;
+    	
+    }
+    
     /**
      * returns player that made the given place.
      * @param placement place to retrieve. 1 for 1st place, 2 for second place, etc.

@@ -4,15 +4,19 @@ import java.util.LinkedList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -153,7 +157,34 @@ public class PlayerDeathWatcher implements Listener{
 		
 		
 	}
-	
+	 @EventHandler
+	 public void onInteract(PlayerInteractEvent event) {
+		 
+		 if(event.hasBlock()){
+		 
+			 if (event.getClickedBlock().getType() == Material.CHEST ||
+					 event.getClickedBlock().getType()==Material.DISPENSER ||
+					 event.getClickedBlock().getType()==Material.FURNACE){
+			
+				 
+				 //only ops may look in chests when they are outside a game.
+				 Player p  = event.getPlayer();
+				 if(_owner.isParticipant(p)==null){
+					 
+					 //not a participant... so they had better be an op!
+					 if(!p.isOp()){
+						 //oh... too bad.
+						 event.setCancelled(true);
+					 }
+					 
+				 }
+				 
+				 
+				 
+				 
+			 }
+		 } 
+	 }
    @EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event){
 		
@@ -236,7 +267,8 @@ public class PlayerDeathWatcher implements Listener{
 			 DyingName + " was struck down by Luna",
 			 DyingName + " was electrocuted.",
 			 DyingName + " acted as a lightning rod",
-			 DyingName + " was struck by lightning"
+			 DyingName + " was struck by lightning",
+			 DyingName + " was consumed by King Sombre"
 					
 			};
 			
@@ -302,8 +334,53 @@ public class PlayerDeathWatcher implements Listener{
 		
 	}
    @EventHandler
+   public void onBlockPlacement(BlockPlaceEvent event){
+	   
+	   ////change: no block changes can be made by non ops.
+	   if(event.getBlockAgainst().getType().equals(Material.GOLD_BLOCK) &&
+			   event.getBlock().getType().equals(Material.STONE_BUTTON))
+	   {
+		   
+		   return; //allow placement of buttons on gold blocks.
+		   
+	   }
+	   if(!event.getPlayer().isOp()){
+		   event.getPlayer().sendMessage("You cannot place blocks.");
+		   event.setCancelled(true);
+		   return;
+	   }
+	   if(null==_owner.isParticipant(event.getPlayer())){
+		   event.getPlayer().sendMessage("You cannot place blocks when in an event, even as an Op.");
+		   event.setCancelled(true);
+	   }
+	   
+   }
+   @EventHandler
+   public void onBlockBreak(BlockBreakEvent event){
+	   //can't break blocks if participating.
+	   
+	   
+	   if(!event.getPlayer().isOp()){
+		   event.getPlayer().sendMessage("You cannot break blocks.");
+		   event.setCancelled(true);
+		   return;
+	   }
+	   if(null==_owner.isParticipant(event.getPlayer())){
+		   event.getPlayer().sendMessage("You cannot break blocks when in an event, even as an Op.");
+		   event.setCancelled(true);
+	   }
+   }
+   
+   
+   @EventHandler
    public void onPlayerDisconnect(PlayerQuitEvent event) {
-       if(_Trackers!=null)
+	   
+	   if(_owner.Randomcommand.getaccepting()){
+		   _owner.Randomcommand.getjoinedplayers().remove(event.getPlayer());
+		   
+	   }
+	   
+	   else if(_Trackers!=null)
     	   for(GameTracker Tracker : _Trackers){
     	   BCRandomizer.clearPlayerInventory(event.getPlayer());
     	   

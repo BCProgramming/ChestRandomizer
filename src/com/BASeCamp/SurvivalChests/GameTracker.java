@@ -180,20 +180,7 @@ public class GameTracker implements Runnable {
 		// TODO Auto-generated method stub
 	
 		
-		if(StillAlive.size()<=3){
-			for(Player givecompass:StillAlive){
-				ItemStack CompassItem = new ItemStack(Material.COMPASS);
-				ItemNamer.load(CompassItem);
-				ItemNamer.setName("BASeCamp(r) Player Finder");
-				CompassItem = ItemNamer.getItemStack();
-				givecompass.getInventory().addItem(CompassItem);
-				givecompass.sendMessage(ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
-				givecompass.sendMessage(ChatColor.GREEN + "it points towards the closest player.");
-				
-				
-			}	
-			
-		}
+		
 		
 		
 		while(!gamecomplete)
@@ -201,6 +188,22 @@ public class GameTracker implements Runnable {
 			
 			try {
 				synchronized(StillAlive) {
+					
+					if(StillAlive.size()<=3){
+						for(Player givecompass:StillAlive){
+							ItemStack CompassItem = new ItemStack(Material.COMPASS);
+							ItemNamer.load(CompassItem);
+							ItemNamer.setName("BASeCamp" + ChatColor.ITALIC + "(r)" + ChatColor.RESET + " Player Finder");
+							CompassItem = ItemNamer.getItemStack();
+							givecompass.getInventory().addItem(CompassItem);
+							givecompass.sendMessage(ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
+							givecompass.sendMessage(ChatColor.GREEN + "it points towards the closest participant.");
+							
+							
+						}	
+						
+					}
+					
 					
 				for(Player pa:StillAlive){
 					
@@ -259,7 +262,9 @@ public class GameTracker implements Runnable {
 			BCRandomizer.unvanishPlayer(Spectator);
 			
 		}
-		
+		//also, disable PvP again.
+		runningWorld.setPVP(false);
+		Bukkit.broadcastMessage(ChatColor.YELLOW + "Game Over. PvP re-disabled.");
 		
 		if(_Owner!=null && _Owner.ActiveGames!=null){
 		_Owner.ActiveGames.remove(this);

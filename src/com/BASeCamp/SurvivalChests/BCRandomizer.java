@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.*;
 public class BCRandomizer extends JavaPlugin {
@@ -56,6 +57,58 @@ public class BCRandomizer extends JavaPlugin {
 	    public static void clearPlayerInventory(Player p){
 	    	
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
+	    	
+	    }
+	    public static String getItemMaterial(ItemStack item){
+	    	
+	    	Material mat = item.getType();
+	    	if(mat.equals(Material.LEATHER_HELMET) ||
+	    			mat.equals(Material.LEATHER_CHESTPLATE) ||
+	    			mat.equals(Material.LEATHER_LEGGINGS) ||
+	    			mat.equals(Material.LEATHER_BOOTS))
+	    		return "Leather";
+	    	else if(mat.equals(Material.WOOD_SPADE) ||
+	    			mat.equals(Material.WOOD_AXE) ||
+	    			mat.equals(Material.WOOD_SWORD) ||
+	    			mat.equals(Material.WOOD_PICKAXE))
+	    		return "Wood";
+	    	else if(mat.equals(Material.CHAINMAIL_HELMET) ||
+	    			mat.equals(Material.CHAINMAIL_CHESTPLATE) ||
+	    			mat.equals(Material.CHAINMAIL_LEGGINGS) ||
+	    			mat.equals(Material.CHAINMAIL_BOOTS))
+	    		return "Chainmail";
+	    	
+	    	
+	    	else if(mat.equals(Material.IRON_HELMET) ||
+	    			mat.equals(Material.IRON_CHESTPLATE) ||
+	    			mat.equals(Material.IRON_LEGGINGS)||
+	    			mat.equals(Material.IRON_BOOTS) ||
+	    			mat.equals(Material.IRON_SPADE) ||
+	    			mat.equals(Material.IRON_AXE) ||
+	    			mat.equals(Material.IRON_SWORD) ||
+	    			mat.equals(Material.IRON_PICKAXE))
+	    		return "Iron";
+	    	else if(mat.equals(Material.GOLD_HELMET) ||
+	    			mat.equals(Material.GOLD_CHESTPLATE) ||
+	    			mat.equals(Material.GOLD_LEGGINGS)||
+	    			mat.equals(Material.GOLD_BOOTS) ||
+	    			mat.equals(Material.GOLD_SPADE) ||
+	    			mat.equals(Material.GOLD_AXE) ||
+	    			mat.equals(Material.GOLD_SWORD) ||
+	    			mat.equals(Material.GOLD_PICKAXE))
+	    		return "Gold";
+	    	else if(mat.equals(Material.DIAMOND_HELMET) ||
+	    			mat.equals(Material.DIAMOND_CHESTPLATE) ||
+	    			mat.equals(Material.DIAMOND_LEGGINGS)||
+	    			mat.equals(Material.DIAMOND_BOOTS) ||
+	    			mat.equals(Material.DIAMOND_SPADE) ||
+	    			mat.equals(Material.DIAMOND_AXE) ||
+	    			mat.equals(Material.DIAMOND_SWORD) ||
+	    			mat.equals(Material.DIAMOND_PICKAXE))
+	    		return "Diamond";
+	    	else
+	    		return "";
+	    	
 	    	
 	    }
 	    public static void VanishPlayer(Player invisify){

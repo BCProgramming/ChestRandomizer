@@ -168,26 +168,10 @@ public class RandomizerCommand implements CommandExecutor {
 			} else if (p != null) {
 				playingWorld = p.getWorld();
 				_SpawnSpot = p.getLocation();
-				
+				playingWorld.setSpawnLocation((int)_SpawnSpot.getX(),(int)_SpawnSpot.getY(),(int)_SpawnSpot.getZ());
 			}
-			playingWorld.setPVP(false);
-			accepting = true;
-			joinedplayers.clear();
-			spectating.clear();
-			for (Player px : getAllPlayers()) {
-
-				px.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
-						+ " A Survival game has started in "
-						+ playingWorld.getName());
-				px
-						.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
-								+ " use /joingame to participate before the game starts.");
-
-			}
-			if (p != null)
-				p
-						.sendMessage(ChatColor.YELLOW
-								+ "Whispers: Game opened. use /startgame to initiate a game when ready.");
+			
+			prepareGame(playingWorld);
 		} else if (arg2.equalsIgnoreCase("joingame")) {
 			if(!accepting)
 			{
@@ -198,12 +182,19 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 			if (p == null)
 				return false;
+			
+			
+			//fire the event.
+			ParticipantJoinEvent joinevent = new ParticipantJoinEvent(p);
+			Bukkit.getPluginManager().callEvent(joinevent);
+			if(joinevent.getCancelled()) return false;
+			
 			if (p.getWorld() != playingWorld) {
 				//teleport them to the world the game is in.
 				returninfo.put(p, new ReturnData(p));
-				Location spawnspot = playingWorld.getSpawnLocation();
+				Location spawnspot =_SpawnSpot;
 				p.teleport(spawnspot);
-
+				p.setBedSpawnLocation(spawnspot);
 				
 			}
 				
@@ -255,17 +246,24 @@ public class RandomizerCommand implements CommandExecutor {
 				returninfo.put(p,new ReturnData(p));
 				Location spawnspot = playingWorld.getSpawnLocation();
 				p.teleport(spawnspot);
+				p.setBedSpawnLocation(_SpawnSpot);
 			}
 
 			Bukkit.broadcastMessage(Color.MAGENTA + p.getDisplayName() + " is spectating.");
 			
-			
+			//if a game is in progress, make them invisible and flying.
+			if(!accepting){
+				p.setAllowFlight(true);
+				BCRandomizer.VanishPlayer(p);
+				
+				
+			}
 			
 
 		}
 		if (arg2.equalsIgnoreCase("teamsplit")) {
 			// get all online Players.
-
+				//unused!
 			LinkedList<Player> onlineplayers = new LinkedList<Player>();
 			for (Player checkonline : p.getWorld().getPlayers()) {
 				if (checkonline.isOnline()) {
@@ -311,63 +309,17 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 
 		if (arg2.equalsIgnoreCase("startgame")) {
-			accepting = false;
-			if (joinedplayers.size() == 0) {
-				p.sendMessage("No players participating! Cannot start game.");
-
-				return false;
-			}
-			if (_Owner.ActiveGames.size() > 0) {
-				//this is for debugging. Right now it will only allow one game at a time.
-				p
-						.sendMessage(ChatColor.YELLOW
-								+ "Game is already in progress! use /stopallgames to stop current games.");
-
-			}
-
-			int numseconds = 30;
-			String ignoreplayer = null;
+			int numseconds=30;
+			if(arg3.length > 0){
 			try {
 				numseconds = Integer.parseInt(arg3[0]);
-			} catch (Exception exx) {
-				numseconds = 30;
+				
+				
 			}
-			World grabworld = p.getWorld();
-			Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(joinedplayers,spectating));
-			ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
-					joinedplayers, spectating);
-			Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
-					+ ChatColor.GREEN + " has begun in world "
-					+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
-			Bukkit.broadcastMessage(joinedplayers.size() + " Players.");
-			grabworld.setPVP(false);
-
-			// iterate through all online players.
-			for (Player pl : joinedplayers) {
-
-				if (pl.isOnline()) {
-
-					pl
-							.sendMessage(ChatColor.BLUE
-									+ "Your Inventory has been cleared. No outside food, please.");
-					BCRandomizer.clearPlayerInventory(pl);
-					for (PotionEffect iterate : pl.getActivePotionEffects())
-						pl.removePotionEffect(iterate.getType());
-					pl.setGameMode(GameMode.ADVENTURE);
-
-					pl.playSound(pl.getLocation(), Sound.ENDERMAN_HIT, 1.0f,
-							1.0f);
-				}
-
+			catch(Exception exx){ numseconds=30;}
 			}
-
-			ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN
-					+ "PvP will be re-enabled in " + ChatColor.RED
-					+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
-
-			Thread thr = new Thread(rp);
-			thr.start();
-
+			StartGame(p,numseconds);
+			return false;
 		}
 		if (arg2.equalsIgnoreCase("friendly")) {
 			String friendly = (PlayerDeathWatcher.getFriendlyNameFor(p
@@ -377,92 +329,187 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		if (arg2.equalsIgnoreCase("stopallgames")) {
 			int numgames=0;
-			for (GameTracker iterate : _Owner.ActiveGames) {
-				
-				//inform the players they're game was cancelled.
-				for(Player tellem:iterate.getStillAlive()){
-					
-					tellem.sendMessage(ChatColor.RED + "SURVIVAL:" + "The game you are in has been cancelled!");
-					
-				}
-				
-				iterate.gamecomplete = true;
-
-			}
+			numgames = stopAllGames();
 			_Owner.ActiveGames = new LinkedList<GameTracker>();
 			p.sendMessage(numgames + " games stopped.");
 		}
 		if (arg2.equalsIgnoreCase("repopchests")) {
 
-			int populatedamount = 0;
-			LinkedList<Chest> allchests = new LinkedList<Chest>();
-			World gotworld = p.getWorld();
-			Bukkit.broadcastMessage("BASeCamp Chest Randomizer- Running...");
-			String sourcefile = "";
-			if (arg3.length > 0) {
-				sourcefile = arg3[0];
-			}
-			// randomize the enderchest contents, too :D
-			for (Player popplayer : gotworld.getPlayers()) {
-				Inventory grabinv = popplayer.getEnderChest();
-				ChestRandomizer cr = new ChestRandomizer(_Owner, grabinv,
-						sourcefile);
-				cr.setMinItems(grabinv.getSize());
-				cr.setMaxItems(grabinv.getSize());
-				cr.Shuffle();
-
-			}
-
-			Chunk[] iteratechunks = gotworld.getLoadedChunks();
-			// iterate through all the chunks...
-			for (Chunk iteratechunk : iteratechunks) {
-				// go through all tileentities and look for Chests.
-				BlockState[] entities = iteratechunk.getTileEntities();
-				for (BlockState iteratestate : entities) {
-					if (iteratestate instanceof Chest) {
-						Chest casted = (Chest) iteratestate;
-						// randomize!
-						allchests.add(casted);
-						ChestRandomizer cr = new ChestRandomizer(_Owner,
-								casted, sourcefile);
-						populatedamount += cr.Shuffle();
-
-					}
-
-				}
-
-			}
-
-			// turn chest LinkedList into an array.
-			Chest[] chestchoose = new Chest[allchests.size()];
-			allchests.toArray(chestchoose);
-
-			int StaticAdded = 0;
-			Bukkit.broadcastMessage(ChatColor.AQUA.toString()
-					+ allchests.size() + ChatColor.YELLOW
-					+ " Chests Populated.");
-			Bukkit.broadcastMessage(ChatColor.YELLOW + "Populated "
-					+ ChatColor.AQUA.toString() + populatedamount
-					+ ChatColor.YELLOW + " slots.");
-			for (RandomData iterate : ChestRandomizer.addall) {
-
-				ItemStack result = iterate.Generate();
-				if (result != null) {
-					// choose a random chest.
-					Chest chosen = RandomData.Choose(chestchoose);
-					Inventory iv = chosen.getBlockInventory();
-					// BCRandomizer.emitmessage("Added Static Item:" +
-					// result.toString());
-					iv.addItem(result);
-					StaticAdded++;
-				}
-			}
-			Bukkit.broadcastMessage(ChatColor.YELLOW + "Added "
-					+ ChatColor.AQUA.toString() + StaticAdded
-					+ ChatColor.YELLOW + " Static items.");
+			String usesource = "";
+			if(arg3.length > 0){ usesource=arg3[0];}
+			repopulateChests(usesource, p.getWorld());
 
 		}
 
 		return false;
+	}
+	private int stopAllGames() {
+		int retval = 0;
+		for (GameTracker iterate : _Owner.ActiveGames) {
+			
+			//inform the players they're game was cancelled.
+			for(Player tellem:iterate.getStillAlive()){
+				
+				tellem.sendMessage(ChatColor.RED + "SURVIVAL:" + "The game you are in has been cancelled!");
+				
+			}
+			
+			iterate.gamecomplete = true;
+			retval++;
+
+		}
+		return retval;
+	}
+	private void prepareGame(World inWorld) {
+		playingWorld = inWorld;
+		playingWorld.setPVP(false);
+		accepting = true;
+		joinedplayers.clear();
+		spectating.clear();
+		for (Player px : getAllPlayers()) {
+
+			px.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
+					+ " A Survival game has started in "
+					+ playingWorld.getName());
+			px
+					.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
+							+ " use /joingame to participate before the game starts.");
+
+		}
+		
+		
+		
+		
+	
+	}
+	private void StartGame(Player p,int numseconds) {
+		accepting = false;
+		if (joinedplayers.size() == 0) {
+			if(p!=null)
+				p.sendMessage("No players participating! Cannot start game.");
+			else
+				System.out.println("No players participating! Cannot start game.");
+			return;
+		}
+		if (_Owner.ActiveGames.size() > 0) {
+			//this is for debugging. Right now it will only allow one game at a time.
+			if(p!=null)
+			p
+					.sendMessage(ChatColor.YELLOW
+							+ "Game is already in progress! use /stopallgames to stop current games.");
+			else
+				System.out.println("Game in progress. use /stopallgames to stop current games.");
+		}
+
+		
+		String ignoreplayer = null;
+	
+		World grabworld = p.getWorld();
+		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(joinedplayers,spectating));
+		ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
+				joinedplayers, spectating);
+		Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
+				+ ChatColor.GREEN + " has begun in world "
+				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
+		Bukkit.broadcastMessage(joinedplayers.size() + " Players.");
+		grabworld.setPVP(false);
+
+		// iterate through all online players.
+		for (Player pl : joinedplayers) {
+
+			if (pl.isOnline()) {
+
+				pl
+						.sendMessage(ChatColor.BLUE
+								+ "Your Inventory has been cleared. No outside food, please.");
+				BCRandomizer.clearPlayerInventory(pl);
+				for (PotionEffect iterate : pl.getActivePotionEffects())
+					pl.removePotionEffect(iterate.getType());
+				
+				pl.setExp(0);
+				pl.setLevel(0);
+				pl.setHealth(20);
+				pl.setExhaustion(20);
+				pl.setSaturation(20);
+				pl.setGameMode(GameMode.ADVENTURE);
+
+				pl.playSound(pl.getLocation(), Sound.ENDERMAN_HIT, 1.0f,
+						1.0f);
+			}
+
+		}
+
+		ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN
+				+ "PvP will be re-enabled in " + ChatColor.RED
+				+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
+
+		Thread thr = new Thread(rp);
+		thr.start();
+	}
+	private void repopulateChests(String Source, World w) {
+		int populatedamount = 0;
+		LinkedList<Chest> allchests = new LinkedList<Chest>();
+		World gotworld = w;
+		Bukkit.broadcastMessage("BASeCamp Chest Randomizer- Running...");
+		String sourcefile = Source;
+		
+		// randomize the enderchest contents, too :D
+		for (Player popplayer : gotworld.getPlayers()) {
+			Inventory grabinv = popplayer.getEnderChest();
+			ChestRandomizer cr = new ChestRandomizer(_Owner, grabinv,
+					sourcefile);
+			cr.setMinItems(grabinv.getSize());
+			cr.setMaxItems(grabinv.getSize());
+			cr.Shuffle();
+
+		}
+
+		Chunk[] iteratechunks = gotworld.getLoadedChunks();
+		// iterate through all the chunks...
+		for (Chunk iteratechunk : iteratechunks) {
+			// go through all tileentities and look for Chests.
+			BlockState[] entities = iteratechunk.getTileEntities();
+			for (BlockState iteratestate : entities) {
+				if (iteratestate instanceof Chest) {
+					Chest casted = (Chest) iteratestate;
+					// randomize!
+					allchests.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,
+							casted, sourcefile);
+					populatedamount += cr.Shuffle();
+
+				}
+
+			}
+
+		}
+
+		// turn chest LinkedList into an array.
+		Chest[] chestchoose = new Chest[allchests.size()];
+		allchests.toArray(chestchoose);
+
+		int StaticAdded = 0;
+		Bukkit.broadcastMessage(ChatColor.AQUA.toString()
+				+ allchests.size() + ChatColor.YELLOW
+				+ " Chests Populated.");
+		Bukkit.broadcastMessage(ChatColor.YELLOW + "Populated "
+				+ ChatColor.AQUA.toString() + populatedamount
+				+ ChatColor.YELLOW + " slots.");
+		for (RandomData iterate : ChestRandomizer.addall) {
+
+			ItemStack result = iterate.Generate();
+			if (result != null) {
+				// choose a random chest.
+				Chest chosen = RandomData.Choose(chestchoose);
+				Inventory iv = chosen.getBlockInventory();
+				// BCRandomizer.emitmessage("Added Static Item:" +
+				// result.toString());
+				iv.addItem(result);
+				StaticAdded++;
+			}
+		}
+		Bukkit.broadcastMessage(ChatColor.YELLOW + "Added "
+				+ ChatColor.AQUA.toString() + StaticAdded
+				+ ChatColor.YELLOW + " Static items.");
 	}
 }

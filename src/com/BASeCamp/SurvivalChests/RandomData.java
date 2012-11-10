@@ -385,7 +385,7 @@ public class RandomData {
 		}
 		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
 		{
-		usename = NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage"}, NameGenerator.Adjectives, NameGenerator.Verbs);	
+		usename = NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage","Hinter"}, NameGenerator.Adjectives, NameGenerator.Verbs);	
 			
 		
 		}
@@ -435,6 +435,9 @@ public class RandomData {
 			}
 			
 		}
+		
+	
+		
 		
 		createitem = setItemNameAndLore(createitem,usename,uselore);
 			

@@ -18,15 +18,15 @@ import net.minecraft.server.Path;
 public class NameGenerator {
 
 	
-	public static String[] Hats = new String[]{"Hat","Cap","Helmet","Topper","Fez"};
-	public static String[] Chestplates = new String[]{"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack"};
-	public static String[] Pants = new String[]{"Leggings","Pants","Greaves","Trousers"};
-	public static String[] Boots = new String[]{"Boots","Shoes","Flip-Flops","Clogs","Booties"};
-	public static String[] Sword = new String[] {"Slasher","Sword","Blade","Slicer","Cutter","Katana"};
+	public static String[] Hats = new String[]{"Hat","Cap","Helmet","Topper","Fez","Sombrero"};
+	public static String[] Chestplates = new String[]{"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"};
+	public static String[] Pants = new String[]{"Leggings","Pants","Greaves","Trousers","Britches","Slacks","Pantaloons"};
+	public static String[] Boots = new String[]{"Boots","Shoes","Flip-Flops","Clogs","Booties","Moccasins","Sneakers","Cleats","Loafers","Slippers"};
+	public static String[] Sword = new String[] {"Slasher","Sword","Blade","Slicer","Cutter","Katana","Cutlass","Foil","Rapier","Scimitar","Knife","Bodkin"};
 	
 	
 	
-	public static String[] Bow = new String[] {"Shooter","Dealer", "Bow","Piercer","Hunting Bow","Nightingale Bow"};
+	public static String[] Bow = new String[] {"Shooter","Dealer", "Bow","Piercer","Hunting Bow","Nightingale Bow","Dart Shooter"};
 	
 	public static String[] Nouns = new String[] 
 {"accounts","achievers","acoustics","acts","actions","activities","actors","additions","adjustments",

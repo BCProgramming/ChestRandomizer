@@ -93,9 +93,7 @@ public class ResumePvP implements Runnable{
 		
 		       //useWorld.strikeLightning(currlocation);
 		     
-		       iterate.setHealth(20);
-		       iterate.setFoodLevel(20);
-		       iterate.setSaturation(20);
+		       
 		       
 		       
 		       

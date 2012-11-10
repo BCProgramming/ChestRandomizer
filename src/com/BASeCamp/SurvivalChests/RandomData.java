@@ -378,7 +378,11 @@ public class RandomData {
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
 		//BCRandomizer.emitmessage("usename=" + usename);
-		
+		if(usename.equalsIgnoreCase("%CLEVERSHEARSNAME%")){
+			usename = NameGenerator.GenerateName(new String[]{"Shears","Scissors","Cutters","Safety Scissors"},NameGenerator.Adjectives,NameGenerator.Verbs);
+			
+			
+		}
 		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
 		{
 		usename = NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage"}, NameGenerator.Adjectives, NameGenerator.Verbs);	

@@ -259,8 +259,9 @@ public class PlayerDeathWatcher implements Listener{
 					KillerName + " killed " + DyingName + " with a " + weapon,
 					KillerName + " gave " + DyingName + " a closer look at their " + weapon
 			};
-			
-			
+			if(_owner.isParticipant(dyingPlayer)!=null){
+			Bukkit.getPluginManager().callEvent(new ParticipantDeathEvent(dyingPlayer,Killer,weapon));
+			}
 			usemessage = RandomData.Choose(possiblemessages);
 			
 			}

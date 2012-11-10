@@ -89,11 +89,16 @@ public class PlayerDeathWatcher implements Listener{
 				
 				//if the damagee (receiver) is in a game, and the attacker isn't...
 				//only allow the damage if both players are participants in the same game.
+				if(_owner.Randomcommand.getaccepting()) {
+					
+					event.setCancelled(true);
+					
+				}
 				GameTracker gameorigin = _owner.isParticipant(damaged);
 				if(!gameorigin.getStillAlive().contains(Attacker)){
 					
 					System.out.println(Attacker.getName() + " tried to attack " + damaged.getName() + "Cancelled as they are not participants in the same game.");
-					
+					event.setCancelled(true);
 					
 				}
 				

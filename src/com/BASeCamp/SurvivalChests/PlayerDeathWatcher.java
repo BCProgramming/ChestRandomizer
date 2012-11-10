@@ -81,8 +81,22 @@ public class PlayerDeathWatcher implements Listener{
 			Player damaged = (Player)edam.getEntity();
 			
 			if(damaged.getWorld()!=watchworld) return;
+			
+			//
+			
 			if(edam.getDamager() instanceof Player){
 				Player Attacker = (Player)edam.getDamager();
+				
+				//if the damagee (receiver) is in a game, and the attacker isn't...
+				//only allow the damage if both players are participants in the same game.
+				GameTracker gameorigin = _owner.isParticipant(damaged);
+				if(!gameorigin.getStillAlive().contains(Attacker)){
+					
+					System.out.println(Attacker.getName() + " tried to attack " + damaged.getName() + "Cancelled as they are not participants in the same game.");
+					
+					
+				}
+				
 				//only Player versus Player damage is reported.
 				//<Attacker> has struck you with a <Weapon> for <Damage>
 				//only report when the distance between the players is more than three blocks.
@@ -142,14 +156,14 @@ public class PlayerDeathWatcher implements Listener{
 		//Bukkit.broadcastMessage(event.getEntity().getName() + " has been slain!");
 		ChatColor usecolor = ChatColor.YELLOW;
 		String usemessage = event.getDeathMessage();
-		Player dyingPlayer = event.getEntity();
+		final Player dyingPlayer = event.getEntity();
 		
 	
 		
 		
 		String DyingName = dyingPlayer.getName();
 		String KillerName="";
-		Player Killer = dyingPlayer.getKiller();
+		final Player Killer = dyingPlayer.getKiller();
 		if(Killer!=null) KillerName = Killer.getName();
 		if(dyingPlayer.getLastDamageCause().getCause().equals(DamageCause.FALL))
 		{
@@ -261,7 +275,13 @@ public class PlayerDeathWatcher implements Listener{
 		
 		
 		
-		event.getDrops().add(createdhead);
+		//event.getDrops().add(createdhead);
+		//we need to return first, so the death message can be issued first, then we will tell the gameTracker about the death. 
+		_owner.getServer().getScheduler().scheduleSyncDelayedTask(_owner, new Runnable() {
+
+			   public void run() {
+			   
+		
 		if(_Trackers!=null){
 			//if there is a Tracker, notify it of the player death. do this after. The tracker
 			//tracks the game itself.
@@ -270,6 +290,9 @@ public class PlayerDeathWatcher implements Listener{
 				Tracker.PlayerDeath(dyingPlayer, Killer);
 			}
 		}
+			   }
+		}, 20L);
+	
 		
 	}
    @EventHandler

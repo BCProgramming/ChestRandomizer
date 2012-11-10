@@ -19,6 +19,12 @@ public class BCRandomizer extends JavaPlugin {
 	
 	//implementation: startgame will use a pre-existing list of players that used /joingame.
 	//the list will be cleared by preparegame.
+	
+	
+	//PLUGIN todolist: Sometimes games get "stuck.". stopallgames doesn't appear to fix it. investigate this and also make it actually show a message
+	//to the issuer (or the entire server) indicating the game has been cancelled.
+	//possibly add tpall command to teleport all players or something. 
+	
 	public static VictoryTracker Victories = null;
 	
 	public final static String PluginName="BCRandomizer";
@@ -29,10 +35,43 @@ public class BCRandomizer extends JavaPlugin {
 	    public RandomizerCommand Randomcommand = null; 
 	    public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
 	    
+	    
+	    public GameTracker isParticipant(Player testplayer){
+	    	for(GameTracker gt:ActiveGames){
+	    		
+	    		if(gt.getStillAlive().contains(testplayer)) return gt;
+	    		
+	    	}
+	    	return null;
+	    	
+	    }
+	    public GameTracker isSpectator(Player testplayer){
+	    	for(GameTracker gt:ActiveGames){
+	    		if(gt.getSpectating().contains(testplayer)) return gt;
+	    	}
+	    	return null;
+	    }
+	    
 	   // public GameTracker _Tracker = null;
 	    public static void clearPlayerInventory(Player p){
 	    	
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
+	    	
+	    }
+	    public static void VanishPlayer(Player invisify){
+	    	
+	    	for(Player p:Bukkit.getOnlinePlayers()){
+	    		
+	    	p.hidePlayer(invisify);	
+	    		
+	    	}
+	    	
+	    }
+	    public static void unvanishPlayer(Player visify){
+	    	
+	    	for(Player p:Bukkit.getOnlinePlayers()){
+	    		p.showPlayer(visify);
+	    	}
 	    	
 	    }
 	    public BCRandomizer()
@@ -67,7 +106,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("preparegame").setExecutor(Randomcommand);
 		         this.getCommand("joingame").setExecutor(Randomcommand);
 		         this.getCommand("spectategame").setExecutor(Randomcommand);
-	    
+		         this.getCommand("gamestate").setExecutor(Randomcommand);
 	    }
 	    @Override
 	    public void onDisable()

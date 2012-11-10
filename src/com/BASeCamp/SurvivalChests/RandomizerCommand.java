@@ -39,6 +39,7 @@ public class RandomizerCommand implements CommandExecutor {
 																		// preparing
 																		// game.
 	private boolean accepting = false;
+	private Location _SpawnSpot = null;
 	public boolean getaccepting() { return accepting;}
 	public LinkedList<Player> getjoinedplayers() {
 		return joinedplayers;
@@ -86,7 +87,15 @@ public class RandomizerCommand implements CommandExecutor {
 		return createlist;
 
 	}
-
+	public static List<String> getPlayerNames(List<Player> source){
+		LinkedList<String> retval = new LinkedList<String>();
+		for(Player Playerp:source){
+			retval.add(Playerp.getName());
+		}
+		
+		return retval;
+		
+	}
 	@Override
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2,
 			String[] arg3) {
@@ -124,6 +133,23 @@ public class RandomizerCommand implements CommandExecutor {
 				return true;
 			}
 		}
+		if (arg2.equalsIgnoreCase("gamestate")){
+			//output information about running games.
+			int currgame=1;
+			p.sendMessage(ChatColor.RED + "Currently running games:" + _Owner.ActiveGames.size());
+			for(GameTracker gt: _Owner.ActiveGames){
+				p.sendMessage(ChatColor.RED + "Game:" + currgame);
+				
+				p.sendMessage(ChatColor.RED + "Alive:" + StringUtil.Join(getPlayerNames(gt.getStillAlive()),","));
+				p.sendMessage(ChatColor.GRAY + "Dead:" + StringUtil.Join(getPlayerNames(gt.getDead()), ","));
+				p.sendMessage(ChatColor.AQUA + "Spectating:" + StringUtil.Join(getPlayerNames(gt.getSpectating()), ","));
+				
+			}
+			
+			
+			
+			
+		}
 		if (arg2.equalsIgnoreCase("preparegame")) {
 			// prepare game for the issuing players world.
 			// unless a world is specified, that is.
@@ -134,14 +160,17 @@ public class RandomizerCommand implements CommandExecutor {
 					if (w.getName().equalsIgnoreCase(arg3[0])) {
 						// world found.
 						playingWorld = w;
+						_SpawnSpot = playingWorld.getSpawnLocation();
 						break;
 					}
 
 				}
 			} else if (p != null) {
 				playingWorld = p.getWorld();
-
+				_SpawnSpot = p.getLocation();
+				
 			}
+			playingWorld.setPVP(false);
 			accepting = true;
 			joinedplayers.clear();
 			spectating.clear();
@@ -196,9 +225,13 @@ public class RandomizerCommand implements CommandExecutor {
 				}
 						
 			
-			Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.BLUE
+			Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.AQUA
 					+ " is participating.(" + joinedplayers.size()
 					+ " players)");
+			
+			Bukkit.broadcastMessage("Current participants:" + StringUtil.Join(getPlayerNames(joinedplayers), ","));
+			
+			
 		} else if (arg2.equalsIgnoreCase("spectategame")) {
 			
 			if (p == null)
@@ -215,7 +248,7 @@ public class RandomizerCommand implements CommandExecutor {
 
 				}
 				else {
-					p.sendMessage("you are already spectating!");
+					p.sendMessage(ChatColor.YELLOW + "you are already spectating!");
 					return false;
 				}
 			} else {
@@ -224,7 +257,10 @@ public class RandomizerCommand implements CommandExecutor {
 				p.teleport(spawnspot);
 			}
 
-			Bukkit.broadcastMessage(p.getDisplayName() + " is spectating.");
+			Bukkit.broadcastMessage(Color.MAGENTA + p.getDisplayName() + " is spectating.");
+			
+			
+			
 
 		}
 		if (arg2.equalsIgnoreCase("teamsplit")) {
@@ -282,6 +318,7 @@ public class RandomizerCommand implements CommandExecutor {
 				return false;
 			}
 			if (_Owner.ActiveGames.size() > 0) {
+				//this is for debugging. Right now it will only allow one game at a time.
 				p
 						.sendMessage(ChatColor.YELLOW
 								+ "Game is already in progress! use /stopallgames to stop current games.");
@@ -325,7 +362,7 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 
 			ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN
-					+ "PvP has been suspended for " + ChatColor.RED
+					+ "PvP will be re-enabled in " + ChatColor.RED
 					+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
 
 			Thread thr = new Thread(rp);
@@ -339,13 +376,21 @@ public class RandomizerCommand implements CommandExecutor {
 
 		}
 		if (arg2.equalsIgnoreCase("stopallgames")) {
-
+			int numgames=0;
 			for (GameTracker iterate : _Owner.ActiveGames) {
-
+				
+				//inform the players they're game was cancelled.
+				for(Player tellem:iterate.getStillAlive()){
+					
+					tellem.sendMessage(ChatColor.RED + "SURVIVAL:" + "The game you are in has been cancelled!");
+					
+				}
+				
 				iterate.gamecomplete = true;
 
 			}
 			_Owner.ActiveGames = new LinkedList<GameTracker>();
+			p.sendMessage(numgames + " games stopped.");
 		}
 		if (arg2.equalsIgnoreCase("repopchests")) {
 

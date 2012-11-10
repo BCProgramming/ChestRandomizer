@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Arrow;
@@ -19,10 +20,12 @@ public class GameTracker implements Runnable {
 	private World runningWorld = null;
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
 	private List<Player> _Spectators = null;
+	private LinkedList<Player> _deadPlayers = null;
 	public  LinkedList<Player> getStillAlive(){return StillAlive;} 
 	private HashMap<Integer,Player> FinishPositions = new HashMap<Integer,Player>();
 	BCRandomizer _Owner = null;
 	public PlayerDeathWatcher deathwatcher = null;
+	
 	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants, List<Player> spectators){
 		//initialize StillAlive List.
 	      deathwatcher= new PlayerDeathWatcher(Owner,this,applicableWorld);
@@ -34,6 +37,7 @@ public class GameTracker implements Runnable {
 		for(Player p:Participants){
 			StillAlive.add(p);
 		}
+		_deadPlayers = new LinkedList<Player>();
 		//raise custom event.
 		
 		Bukkit.broadcastMessage(ChatColor.YELLOW + "SURVIVAL:Survival game started! " + StillAlive.size() + " participants.");
@@ -50,6 +54,13 @@ public class GameTracker implements Runnable {
 		i=0;
 		
 		Bukkit.broadcastMessage("SURVIVAL:" +ChatColor.RED + "participating:" + StringUtil.Join(participantNames,","));
+		
+		//now, we set everything up: vanish all the spectators.
+		
+		for(Player spectator : _Spectators){
+			BCRandomizer.VanishPlayer(spectator);
+		}
+		
 		
 	}
 	private void addprize(Player deathplayer){
@@ -76,6 +87,7 @@ public class GameTracker implements Runnable {
 			
 		}
 		StillAlive.remove(deadPlayer);
+		_deadPlayers.add(deadPlayer);
 		Integer theposition = StillAlive.size()+1;
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is " + ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:" + theposition + ")");
 		BCRandomizer.Victories.madePlace(deadPlayer, theposition);
@@ -97,7 +109,10 @@ public class GameTracker implements Runnable {
 			Player winner = StillAlive.getFirst();
 			Bukkit.broadcastMessage(winner.getName() + " has WON the event!");
 			//raise custom event.
-			Bukkit.getServer().getPluginManager().callEvent(new GameEndEvent(winner));
+			
+			
+			
+			Bukkit.getServer().getPluginManager().callEvent(new GameEndEvent(winner,FinishPositions));
 			gamecomplete=true;
 			//dead player explodes inexplicably.
 			
@@ -167,9 +182,12 @@ public class GameTracker implements Runnable {
 		
 		if(StillAlive.size()<=3){
 			for(Player givecompass:StillAlive){
-				
-				givecompass.getInventory().addItem(new ItemStack(Material.COMPASS));
-				givecompass.sendMessage(ChatColor.GREEN + "You have been given a Compass.");
+				ItemStack CompassItem = new ItemStack(Material.COMPASS);
+				ItemNamer.load(CompassItem);
+				ItemNamer.setName("BASeCamp(r) Player Finder");
+				CompassItem = ItemNamer.getItemStack();
+				givecompass.getInventory().addItem(CompassItem);
+				givecompass.sendMessage(ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
 				givecompass.sendMessage(ChatColor.GREEN + "it points towards the closest player.");
 				
 				
@@ -228,12 +246,39 @@ public class GameTracker implements Runnable {
 			}
 			
 		}
+		
+		//make spectators unable to fly, since the game is over.
+		for(Player Spectator:_Spectators){
+			Location Spectatorlocation = Spectator.getLocation();
+			int Yuse = Spectator.getWorld().getHighestBlockYAt(Spectator.getLocation());
+			Location setLocation = new Location(Spectator.getWorld(),Spectatorlocation.getX(),Yuse,Spectatorlocation.getZ());
+			//teleport them to a safe place before we make them no longer fly.
+			Spectator.teleport(setLocation);
+			Spectator.setAllowFlight(false);
+			Spectator.setFlying(false);
+			BCRandomizer.unvanishPlayer(Spectator);
+			
+		}
+		
+		
+		if(_Owner!=null && _Owner.ActiveGames!=null){
 		_Owner.ActiveGames.remove(this);
+		}
 		//deathwatcher._Tracker=null;
-		deathwatcher._Trackers.remove(this);
+		//TODO: fix nullpointer exception.
+		if(deathwatcher!=null && deathwatcher._Trackers!=null){
+		deathwatcher._Trackers.remove(this);}
 		
 	}
 	//tracks game state, updating the list of still active players when players are killed (GameTracker is notified through PlayerDeathWatcher)
+	public List<Player> getSpectating() {
+		// TODO Auto-generated method stub
+		return this._Spectators;
+	}
+	public List<Player> getDead() {
+		// TODO Auto-generated method stub
+		return _deadPlayers;
+	}
 	
 
 }

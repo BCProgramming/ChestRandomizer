@@ -12,6 +12,8 @@ commands:
         description: issued by players to spectate a game being prepared.
       startgame:
         description: prevents player PvP for the given number of seconds, while initializing the data for a new Survival game.
+      gamestate:
+        description: lists all players participating and spectating a game.
       teamsplit:
         description: splits online players into two teams, and announces the results.
       stopallgames:

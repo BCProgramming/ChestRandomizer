@@ -1,12 +1,20 @@
 package com.BASeCamp.SurvivalChests;
 
+
+import java.util.HashMap;
 import java.util.LinkedList;
+
+import net.minecraft.server.Block;
+import net.minecraft.server.EntityItemFrame;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +28,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.*;
+import org.bukkit.*;
 
 
 
@@ -333,6 +343,7 @@ public class PlayerDeathWatcher implements Listener{
 	
 		
 	}
+   LinkedList<Location> setAirLocations = new LinkedList<Location>();
    @EventHandler
    public void onBlockPlacement(BlockPlaceEvent event){
 	   
@@ -340,7 +351,8 @@ public class PlayerDeathWatcher implements Listener{
 	   if(event.getBlockAgainst().getType().equals(Material.GOLD_BLOCK) &&
 			   event.getBlock().getType().equals(Material.STONE_BUTTON))
 	   {
-		   
+		   //save this Location to reset it to air.
+		   setAirLocations.add(event.getBlock().getLocation());
 		   return; //allow placement of buttons on gold blocks.
 		   
 	   }
@@ -388,4 +400,80 @@ public class PlayerDeathWatcher implements Listener{
     	   }   
        
    }
-}
+   private HashMap<World,LinkedList<CachedFrameData>> CachedData = new HashMap<World,LinkedList<CachedFrameData>>();
+   @EventHandler
+   public void onGameStart(GameStartEvent event)
+   {
+	   World Worldgrab = event.getParticipants().get(0).getWorld();
+	   //record itemframe locations.
+	   if(!CachedData.containsKey(Worldgrab))
+		   CachedData.put(Worldgrab, new LinkedList<CachedFrameData>());
+	   LinkedList<CachedFrameData> datagrab = CachedData.get(Worldgrab);
+	   
+	   for(Chunk iteratechunk:Worldgrab.getLoadedChunks()){
+		   
+		   for(Entity iterateentity :iteratechunk.getEntities()){
+			   
+			   if(iterateentity instanceof ItemFrame){
+				   
+				   ItemFrame g;
+				   ItemFrame foundframe = (ItemFrame)iterateentity;
+				   datagrab.add(new CachedFrameData(foundframe));
+				   
+			   }
+			   
+		   }
+		   
+	   }
+	   
+	   
+	   
+   }
+
+
+   
+   @EventHandler
+   public void onGameEnd(GameEndEvent event){
+	   //re-add the item frames.
+	   World worldevent = event.getAllParticipants().get(0).getWorld();
+	   
+	   if(!CachedData.containsKey(worldevent)) {
+		   System.out.println("SurvivalChests:Key not found for world attempting to revive itemframes...");
+		   return; //hmm, curious.
+	   }
+	   LinkedList<CachedFrameData> framedata = CachedData.get(worldevent); 
+	   
+	   
+	   for(CachedFrameData addme:framedata){
+		   
+		   addme.Regenerate(worldevent);
+		   
+	   }
+	   
+	
+		
+	   for(Location setair : setAirLocations){
+		   
+		   setair.getBlock().setType(Material.AIR);
+		   
+		   
+		   
+	   }
+	   setAirLocations = new LinkedList<Location>();
+	   
+	   
+		   
+		   
+	   }
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+   }
+   
+   
+   
+

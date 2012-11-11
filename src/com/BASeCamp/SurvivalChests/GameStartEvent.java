@@ -37,3 +37,5 @@ public class GameStartEvent extends Event {
 	        return handlers;
 	    }
 }
+//TODO: hook out own events, on start, cache the location of all frame entities and pictures and whatnot. On game end, re-add those frames
+//and remove all buttons that are attached to gold blocks.

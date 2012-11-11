@@ -14,7 +14,35 @@ public class CachedFrameData {
 	public CachedFrameData(ItemFrame iframe){
 		
 		attachedTo = iframe.getAttachedFace();
-		Spot = iframe.getLocation();
+		
+		Location lgrab = new Location(iframe.getWorld(), iframe.getLocation().getBlockX(),iframe.getLocation().getBlockY(),iframe.getLocation().getBlockZ());
+		BlockFace gfacing = iframe.getFacing();
+		int Xoffset=0;
+		int Zoffset=0;
+		//The z coordinate decreases as you move north and 
+		//increases when you move south, 
+		//while the x coordinate decreases as 
+		//you move west and increases as you move east. 
+		
+		if(gfacing.equals(BlockFace.EAST)){
+			
+			Xoffset=1;
+			
+		}
+	else if(gfacing.equals(BlockFace.WEST)){
+		Xoffset=-1;
+		
+	}
+	else if(gfacing.equals(BlockFace.NORTH)){
+		Zoffset=-1;
+		
+	}
+	else if(gfacing.equals(BlockFace.SOUTH)){
+		Zoffset=1;
+		
+	}
+		
+		Spot = new Location(lgrab.getWorld(),lgrab.getX()+Xoffset,lgrab.getY(),lgrab.getZ()+Zoffset);
 		innards = iframe.getItem();
 		Original=iframe;
 		
@@ -22,9 +50,18 @@ public class CachedFrameData {
 	}
 	//Attempts to regenerate the Item frame in the provided world.
 	public void Regenerate(World genworld){
+		try {
 		ItemFrame iframe = (ItemFrame)(genworld.spawnEntity(Spot, EntityType.ITEM_FRAME));
 		iframe.setItem(innards);
 		iframe.setFacingDirection(attachedTo);
+		}
+		catch(Exception exx)
+		{
+			System.out.println("Exception regenerating ItemFrame:");
+			exx.printStackTrace();
+			
+			
+		}
 		
 	}
 	

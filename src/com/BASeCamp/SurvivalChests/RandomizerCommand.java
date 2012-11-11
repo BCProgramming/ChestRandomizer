@@ -165,6 +165,9 @@ public class RandomizerCommand implements CommandExecutor {
 					}
 
 				}
+				
+				
+				
 			} else if (p != null) {
 				playingWorld = p.getWorld();
 				_SpawnSpot = p.getLocation();
@@ -361,11 +364,27 @@ public class RandomizerCommand implements CommandExecutor {
 		return retval;
 	}
 	private void prepareGame(World inWorld) {
+		
+		
+		PrepareGameEvent pge = new PrepareGameEvent();
+		Bukkit.getPluginManager().callEvent(pge);
+		if(pge.getCancelled()){
+			//preparegame cancelled...
+			accepting=false;
+			return;
+			
+			
+		}
+		
 		playingWorld = inWorld;
 		playingWorld.setPVP(false);
 		accepting = true;
 		joinedplayers.clear();
 		spectating.clear();
+		
+		
+		
+		
 		for (Player px : getAllPlayers()) {
 
 			px.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
@@ -405,9 +424,16 @@ public class RandomizerCommand implements CommandExecutor {
 		String ignoreplayer = null;
 	
 		World grabworld = p.getWorld();
-		Bukkit.getServer().getPluginManager().callEvent(new GameStartEvent(joinedplayers,spectating));
+	
+		
+		
 		ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
 				joinedplayers, spectating);
+		
+		GameStartEvent eventobj =new GameStartEvent(joinedplayers,spectating);
+		Bukkit.getServer().getPluginManager().callEvent(eventobj);
+		
+		
 		Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
 				+ ChatColor.GREEN + " has begun in world "
 				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
@@ -438,19 +464,34 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 
 		}
-
+		
+		repopulateChests("", p.getWorld(),true);
+		ResumePvP.BroadcastWorld(grabworld, ChatColor.LIGHT_PURPLE + " Containers randomized.");
+		
+		GameStartEvent evento= new GameStartEvent(joinedplayers,spectating);
+		rp.getTracker().deathwatcher.onGameStart(eventobj);
+		
+		
+		
 		ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN
 				+ "PvP will be re-enabled in " + ChatColor.RED
 				+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
-
+		
 		Thread thr = new Thread(rp);
 		thr.start();
 	}
-	private void repopulateChests(String Source, World w) {
+	private void repopulateChests(String Source,World w){
+		
+		
+		repopulateChests(Source,w,false);
+	}
+	private void repopulateChests(String Source, World w,boolean silent) {
 		int populatedamount = 0;
 		LinkedList<Chest> allchests = new LinkedList<Chest>();
+		LinkedList<Furnace> allfurnaces = new LinkedList<Furnace>();
+		LinkedList<Dispenser> alldispensers = new LinkedList<Dispenser>();
 		World gotworld = w;
-		Bukkit.broadcastMessage("BASeCamp Chest Randomizer- Running...");
+		if(!silent) Bukkit.broadcastMessage("BASeCamp Chest Randomizer- Running...");
 		String sourcefile = Source;
 		
 		// randomize the enderchest contents, too :D
@@ -479,6 +520,19 @@ public class RandomizerCommand implements CommandExecutor {
 					populatedamount += cr.Shuffle();
 
 				}
+				else if(iteratestate instanceof Furnace){
+					Furnace casted =(Furnace)iteratestate;
+					allfurnaces.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					populatedamount+= cr.Shuffle();
+				}
+				else if(iteratestate instanceof Dispenser){
+					Dispenser casted = (Dispenser)iteratestate;
+					alldispensers.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					populatedamount += cr.Shuffle();
+					
+				}
 
 			}
 
@@ -489,12 +543,19 @@ public class RandomizerCommand implements CommandExecutor {
 		allchests.toArray(chestchoose);
 
 		int StaticAdded = 0;
+		if(!silent) {
 		Bukkit.broadcastMessage(ChatColor.AQUA.toString()
 				+ allchests.size() + ChatColor.YELLOW
 				+ " Chests Populated.");
+		Bukkit.broadcastMessage(ChatColor.AQUA.toString() + 
+		allfurnaces.size() + ChatColor.RED + "Furnaces " + ChatColor.YELLOW + "Populated.");
+		
+		Bukkit.broadcastMessage(ChatColor.AQUA + "" + alldispensers.size() + ChatColor.GREEN + " Dispensers " + ChatColor.YELLOW + " Populated.");
+		
 		Bukkit.broadcastMessage(ChatColor.YELLOW + "Populated "
 				+ ChatColor.AQUA.toString() + populatedamount
 				+ ChatColor.YELLOW + " slots.");
+		}
 		for (RandomData iterate : ChestRandomizer.addall) {
 
 			ItemStack result = iterate.Generate();
@@ -508,7 +569,7 @@ public class RandomizerCommand implements CommandExecutor {
 				StaticAdded++;
 			}
 		}
-		Bukkit.broadcastMessage(ChatColor.YELLOW + "Added "
+		if(!silent) Bukkit.broadcastMessage(ChatColor.YELLOW + "Added "
 				+ ChatColor.AQUA.toString() + StaticAdded
 				+ ChatColor.YELLOW + " Static items.");
 	}

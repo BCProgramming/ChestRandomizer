@@ -6,7 +6,14 @@ import org.bukkit.event.HandlerList;
 
 public class ParticipantDeathEvent extends Event {
 	 private static final HandlerList handlers = new HandlerList();
-	 
+	 @Override
+		public HandlerList getHandlers() {
+			// TODO Auto-generated method stub
+			return handlers;
+		}
+		public static HandlerList getHandlerList() {
+		        return handlers;
+		}
 	 private Player _DeadPlayer;
 	 private Player _Assailant;
 	 private String _WeaponUsed;
@@ -22,13 +29,6 @@ public class ParticipantDeathEvent extends Event {
 		 
 	 }
 	 
-	@Override
-	public HandlerList getHandlers() {
-		// TODO Auto-generated method stub
-		return handlers;
-	}
-	public static HandlerList getHandlerList() {
-	        return handlers;
-	}
+	
 
 }

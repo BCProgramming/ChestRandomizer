@@ -1,11 +1,22 @@
 name: BASeCamp Survival Chests
 main: com.BASeCamp.SurvivalChests.BCRandomizer
-version: 0.1
+version: 1.3
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.
-      clearchests:
-        description: clears all chests.
-      stoppvp:
-        prevents player PvP for the given number of seconds.
-    
+      preparegame:
+        description: prepares a game to start. players will be informed and able to use /joingame and /spectategame to join and spectate.
+      joingame:
+        description: issued by players to join a game being prepared.
+      spectategame:
+        description: issued by players to spectate a game being prepared.
+      startgame:
+        description: prevents player PvP for the given number of seconds, while initializing the data for a new Survival game.
+      teamsplit:
+        description: splits online players into two teams, and announces the results.
+      stopallgames:
+        description: stops all active tracked games.
+      gamestate:
+        description: displays state of the game.
+      friendly:
+        description: show friendly name for held item.

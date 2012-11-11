@@ -98,8 +98,9 @@ public class GameTracker implements Runnable {
 				Bukkit.broadcastMessage("All players participating died. Somehow. No Winner?");
 				addprize(deadPlayer);
 				gamecomplete=true;
-				
-				
+				GameEndEvent eventobj = new GameEndEvent(deadPlayer,FinishPositions);
+				Bukkit.getServer().getPluginManager().callEvent(eventobj);
+				deathwatcher.onGameEnd(eventobj);
 				deathwatcher._Trackers.remove(this);
 			return;	
 			}
@@ -111,8 +112,9 @@ public class GameTracker implements Runnable {
 			//raise custom event.
 			
 			
-			
-			Bukkit.getServer().getPluginManager().callEvent(new GameEndEvent(winner,FinishPositions));
+			GameEndEvent eventobj = new GameEndEvent(winner,FinishPositions);
+			Bukkit.getServer().getPluginManager().callEvent(eventobj);
+			deathwatcher.onGameEnd(eventobj);
 			gamecomplete=true;
 			//dead player explodes inexplicably.
 			
@@ -174,7 +176,7 @@ public class GameTracker implements Runnable {
 		
 	}
 	public boolean gamecomplete=false;
-	
+	private boolean gavecompasses = false;
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -189,7 +191,8 @@ public class GameTracker implements Runnable {
 			try {
 				synchronized(StillAlive) {
 					
-					if(StillAlive.size()<=3){
+					if(StillAlive.size()<=3 && !gavecompasses){
+						gavecompasses=true;
 						for(Player givecompass:StillAlive){
 							ItemStack CompassItem = new ItemStack(Material.COMPASS);
 							ItemNamer.load(CompassItem);
@@ -263,12 +266,14 @@ public class GameTracker implements Runnable {
 			
 		}
 		//also, disable PvP again.
-		runningWorld.setPVP(false);
+		if(runningWorld!=null){
+		runningWorld.setPVP(false);}
 		Bukkit.broadcastMessage(ChatColor.YELLOW + "Game Over. PvP re-disabled.");
 		
 		if(_Owner!=null && _Owner.ActiveGames!=null){
 		_Owner.ActiveGames.remove(this);
 		}
+		
 		//deathwatcher._Tracker=null;
 		//TODO: fix nullpointer exception.
 		if(deathwatcher!=null && deathwatcher._Trackers!=null){

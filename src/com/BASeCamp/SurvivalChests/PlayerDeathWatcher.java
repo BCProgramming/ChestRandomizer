@@ -50,13 +50,12 @@ public class PlayerDeathWatcher implements Listener{
 	for(int i=0;i<strtest.length();i++){
 		
 		char currchar = strtest.charAt(i);
-		if(!Character.isUpperCase(currchar)){
-		return false;	
+		if(currchar!=Character.toUpperCase(currchar))
+			return false;	
 		
 		}
-		
-	}
-	return true;
+		return true;
+	
 	}
 	public static String capitalizeString(String string) {
 		  char[] chars = string.toLowerCase().toCharArray();
@@ -343,25 +342,34 @@ public class PlayerDeathWatcher implements Listener{
 	
 		
 	}
+   private Material KeySpotMaterial = Material.GOLD_BLOCK;
    LinkedList<Location> setAirLocations = new LinkedList<Location>();
    @EventHandler
    public void onBlockPlacement(BlockPlaceEvent event){
+	   System.out.println("block placed by " + event.getPlayer().getName());
 	   
 	   ////change: no block changes can be made by non ops.
-	   if(event.getBlockAgainst().getType().equals(Material.GOLD_BLOCK) &&
-			   event.getBlock().getType().equals(Material.STONE_BUTTON))
+	   if(event.getBlockAgainst().getType().equals(KeySpotMaterial) &&
+			   event.getItemInHand().getType().equals(Material.STONE_BUTTON))
 	   {
+		   event.getPlayer().sendMessage("Key Placed!");
 		   //save this Location to reset it to air.
 		   setAirLocations.add(event.getBlock().getLocation());
 		   return; //allow placement of buttons on gold blocks.
 		   
 	   }
+	   else if(event.getItemInHand().getType().equals(Material.STONE_BUTTON)){
+		   event.getPlayer().sendMessage(ChatColor.WHITE + "This is a Key! Place it on a " + ChatColor.GOLD + FriendlizeName(KeySpotMaterial.name()) + ChatColor.WHITE + "To find treasures!");
+		   event.setCancelled(true);
+		   return;
+	   }
+	   
 	   if(!event.getPlayer().isOp()){
 		   event.getPlayer().sendMessage("You cannot place blocks.");
 		   event.setCancelled(true);
 		   return;
 	   }
-	   if(null==_owner.isParticipant(event.getPlayer())){
+	   if(null!=_owner.isParticipant(event.getPlayer())){
 		   event.getPlayer().sendMessage("You cannot place blocks when in an event, even as an Op.");
 		   event.setCancelled(true);
 	   }
@@ -377,7 +385,7 @@ public class PlayerDeathWatcher implements Listener{
 		   event.setCancelled(true);
 		   return;
 	   }
-	   if(null==_owner.isParticipant(event.getPlayer())){
+	   if(null!=_owner.isParticipant(event.getPlayer())){
 		   event.getPlayer().sendMessage("You cannot break blocks when in an event, even as an Op.");
 		   event.setCancelled(true);
 	   }
@@ -401,15 +409,16 @@ public class PlayerDeathWatcher implements Listener{
        
    }
    private HashMap<World,LinkedList<CachedFrameData>> CachedData = new HashMap<World,LinkedList<CachedFrameData>>();
-   @EventHandler
+
    public void onGameStart(GameStartEvent event)
    {
+	   System.out.println("Game Started");
 	   World Worldgrab = event.getParticipants().get(0).getWorld();
 	   //record itemframe locations.
 	   if(!CachedData.containsKey(Worldgrab))
 		   CachedData.put(Worldgrab, new LinkedList<CachedFrameData>());
 	   LinkedList<CachedFrameData> datagrab = CachedData.get(Worldgrab);
-	   
+	   int framescount = 0;
 	   for(Chunk iteratechunk:Worldgrab.getLoadedChunks()){
 		   
 		   for(Entity iterateentity :iteratechunk.getEntities()){
@@ -419,22 +428,25 @@ public class PlayerDeathWatcher implements Listener{
 				   ItemFrame g;
 				   ItemFrame foundframe = (ItemFrame)iterateentity;
 				   datagrab.add(new CachedFrameData(foundframe));
-				   
+				   framescount++;
 			   }
 			   
 		   }
 		   
 	   }
+	   System.out.println("Cached " + framescount + " Item frames.");
 	   
+	 
 	   
 	   
    }
 
 
    
-   @EventHandler
+ 
    public void onGameEnd(GameEndEvent event){
 	   //re-add the item frames.
+	   System.out.println("Game End");
 	   World worldevent = event.getAllParticipants().get(0).getWorld();
 	   
 	   if(!CachedData.containsKey(worldevent)) {
@@ -443,14 +455,68 @@ public class PlayerDeathWatcher implements Listener{
 	   }
 	   LinkedList<CachedFrameData> framedata = CachedData.get(worldevent); 
 	   
-	   
+	   System.out.println("restored " + framedata.size() + " Item frames.");
 	   for(CachedFrameData addme:framedata){
 		   
 		   addme.Regenerate(worldevent);
 		   
 	   }
 	   
-	
+	//find them all!
+	   for(Chunk loopchunk:event.getAllParticipants().get(0).getWorld().getLoadedChunks()){
+		   
+		   for(int x=0;x<15;x++){
+			   
+			   for(int y=0;y<255;y++){
+				   
+				   for(int z=0;z<15;z++){
+					   
+					   org.bukkit.block.Block acquired = loopchunk.getBlock(x,y,z);
+					   if(acquired.getType().equals(Material.GOLD_BLOCK)){
+						
+						   World owner = acquired.getWorld();
+						   
+						   //check +1 -1 x and +1 -1 Z combinations, look for existing air blocks.
+						   
+						   LinkedList<Location> CheckLocations = new LinkedList<Location>();
+						   CheckLocations.add(new Location(owner,x-1,y,z));
+						   CheckLocations.add(new  Location(owner,x,y,z-1));
+						   CheckLocations.add(new Location(owner,x,y,z+1));
+						   CheckLocations.add(new Location(owner,x+1,y,z));
+						   for(Location checloc:CheckLocations){
+							   
+							   if(checloc.getBlock().getType().equals(Material.AIR)){
+								   
+								   setAirLocations.add(checloc);
+								   
+							   }
+							   
+							   
+						   }
+						   
+						   
+						   
+					   }
+						   
+						   
+						   
+						   
+						   
+						   
+						   
+					   }
+					   
+					   
+				   }
+				   
+			   }
+			   
+		   }
+		   
+		   
+	   
+	   
+	   
 		
 	   for(Location setair : setAirLocations){
 		   

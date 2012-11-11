@@ -133,6 +133,24 @@ public class RandomizerCommand implements CommandExecutor {
 				return true;
 			}
 		}
+		if(arg2.equalsIgnoreCase("arenaborder1")){
+			
+			BorderA = p.getLocation();
+			p.sendMessage(ChatColor.AQUA + "BorderA set to (X,Z)=" + BorderA.getBlockX()+ "," + BorderA.getBlockZ());
+			
+		}
+		else if(arg2.equalsIgnoreCase("arenaborder2")){
+			
+			BorderB = p.getLocation();
+			p.sendMessage(ChatColor.AQUA + "BorderB set to (X,Z)=" + BorderB.getBlockX()+ "," + BorderB.getBlockZ());
+			
+		}
+		else if(arg2.equalsIgnoreCase("clearborder")){
+			
+			BorderA=BorderB=null;
+			p.sendMessage(ChatColor.AQUA + "Borders cleared.");
+			
+		}
 		if (arg2.equalsIgnoreCase("gamestate")){
 			//output information about running games.
 			int currgame=1;
@@ -401,6 +419,8 @@ public class RandomizerCommand implements CommandExecutor {
 		
 	
 	}
+	Location BorderA = null;
+	Location BorderB = null;
 	private void StartGame(Player p,int numseconds) {
 		accepting = false;
 		if (joinedplayers.size() == 0) {
@@ -464,7 +484,7 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 
 		}
-		
+		ChestRandomizer.resetStorage();
 		repopulateChests("", p.getWorld(),true);
 		ResumePvP.BroadcastWorld(grabworld, ChatColor.LIGHT_PURPLE + " Containers randomized.");
 		

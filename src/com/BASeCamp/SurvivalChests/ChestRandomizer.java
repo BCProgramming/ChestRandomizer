@@ -145,6 +145,27 @@ public class ChestRandomizer {
 		
 		
 	}
+	private static HashMap<Chest,ItemStack[]> StoredInventories = new HashMap<Chest,ItemStack[]>();
+	public static void resetStorage(){
+		
+		StoredInventories = new HashMap<Chest,ItemStack[]>();
+		
+	}
+	public static void resetStoredInventories(){
+		
+		for(Chest iterate:StoredInventories.keySet()){
+			
+			
+			iterate.getInventory().clear();
+			iterate.getInventory().setContents(StoredInventories.get(iterate));
+			
+			
+		}
+		
+		
+		
+	}
+	
 	public int Shuffle()
 	{
 		boolean PackedChest = false;
@@ -153,6 +174,16 @@ public class ChestRandomizer {
 			Location chestspot = mchest.getLocation();
 			Location spotbelow = new Location(mchest.getWorld(), chestspot.getX(), chestspot.getY()-1, chestspot.getZ());
 			if(mchest.getWorld().getBlockAt(spotbelow).getType()==Material.WOOL){
+				
+				ItemStack[] copythis = mchest.getBlockInventory().getContents();
+				ItemStack[] copied = new ItemStack[copythis.length];
+				for(int i=0;i<copythis.length;i++){
+					
+					copied[i] = copythis[i].clone();
+					
+				}
+				StoredInventories.put(mchest, copied);
+				
 			return 0;	
 			}
 			else if(mchest.getWorld().getBlockAt(spotbelow).getType()==Material.CLAY)

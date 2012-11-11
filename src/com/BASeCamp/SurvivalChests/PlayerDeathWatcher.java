@@ -1,6 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
 
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -26,9 +27,11 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
+import org.bukkit.util.Vector;
 import org.bukkit.*;
 
 
@@ -342,6 +345,94 @@ public class PlayerDeathWatcher implements Listener{
 	
 		
 	}
+   
+   @EventHandler 
+   public void onPlayerMove(PlayerMoveEvent event) {
+	   System.out.println("Player moved:" + event.getPlayer().getName());
+	   //check the borders...
+	   Location BorderA = _owner.Randomcommand.BorderA;
+	   Location BorderB = _owner.Randomcommand.BorderB;
+	   double XMinimum,XMaximum,ZMinimum,ZMaximum;
+	   if(BorderA!=null && BorderB !=null){
+		   System.out.println("BorderA And BorderB are not null...");
+		   XMinimum=Math.min(BorderA.getX(),BorderB.getX());
+		   XMaximum = Math.max(BorderA.getX(), BorderB.getX());
+		   ZMinimum = Math.min(BorderA.getZ(),BorderB.getZ());
+		   ZMaximum = Math.max(BorderA.getZ(), BorderB.getZ());
+		   
+		   System.out.println("XMin:" + XMinimum + " Xmax:" + XMaximum + " ZMin:" + ZMinimum + "ZMax:" + ZMaximum);
+		   
+		   Player p = event.getPlayer();
+		   if(null!=_owner.isParticipant(p)){
+			   System.out.println("moved player is a participant.");
+			   Location ploc = p.getLocation();
+			   if(ploc.getX() < XMinimum){
+				   System.out.println("lower than XMin");
+				   
+				    p.setVelocity(
+				    		new Vector(1+Math.abs(p.getVelocity().getX()+1),
+				    				p.getVelocity().getY(),
+				    				p.getVelocity().getZ()));
+				    
+				    p.teleport(new Location(p.getWorld(),XMinimum+1,ploc.getY(),ploc.getZ()));
+				   	
+				  
+			   }
+			   if(ploc.getZ() < ZMinimum){
+				   System.out.println("lower than ZMin");
+				   
+				   p.setVelocity(
+					new Vector(p.getVelocity().getX(),
+							p.getVelocity().getY(),
+							1+Math.abs(p.getVelocity().getZ())));
+				   
+				   
+				   
+				   
+				   
+				   p.teleport(new Location(p.getWorld(),ploc.getX(),ploc.getY(),ZMinimum+1));
+				   
+			   }
+			   
+			   
+			   
+			   if(ploc.getX() > XMaximum){
+				   System.out.println("higher than XMax");
+				   p.setVelocity(
+						   new Vector(-Math.abs(p.getVelocity().getX())-1,
+								   p.getVelocity().getY(),
+								   p.getVelocity().getZ()));
+						   
+				   
+				   p.teleport(new Location(p.getWorld(),XMaximum-1,ploc.getY(),ploc.getZ()));
+			   }
+			   if(ploc.getZ() > ZMaximum){
+				   System.out.println("higher than ZMax");
+				   
+				   p.setVelocity(
+						   new Vector(p.getVelocity().getX(),
+						   p.getVelocity().getY(),
+						   -Math.abs(p.getVelocity().getZ())-1));
+				   
+				p.teleport(new Location(p.getWorld(),ploc.getX(),ploc.getY(),ZMaximum-1));   
+				   
+			   }
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+		   }   
+	   }
+	   
+	   
+	   
+	   
+   }
+   
+   
    private Material KeySpotMaterial = Material.GOLD_BLOCK;
    LinkedList<Location> setAirLocations = new LinkedList<Location>();
    @EventHandler
@@ -359,7 +450,7 @@ public class PlayerDeathWatcher implements Listener{
 		   
 	   }
 	   else if(event.getItemInHand().getType().equals(Material.STONE_BUTTON)){
-		   event.getPlayer().sendMessage(ChatColor.WHITE + "This is a Key! Place it on a " + ChatColor.GOLD + FriendlizeName(KeySpotMaterial.name()) + ChatColor.WHITE + "To find treasures!");
+		   event.getPlayer().sendMessage(ChatColor.WHITE + "This is a Key! Place it on a " + ChatColor.GOLD + FriendlizeName(KeySpotMaterial.name()) + ChatColor.WHITE + " To find treasures!");
 		   event.setCancelled(true);
 		   return;
 	   }
@@ -448,6 +539,9 @@ public class PlayerDeathWatcher implements Listener{
 	   //re-add the item frames.
 	   System.out.println("Game End");
 	   World worldevent = event.getAllParticipants().get(0).getWorld();
+	   
+	   ChestRandomizer.resetStoredInventories();
+	   
 	   
 	   if(!CachedData.containsKey(worldevent)) {
 		   System.out.println("SurvivalChests:Key not found for world attempting to revive itemframes...");

@@ -20,3 +20,7 @@ commands:
         description: displays state of the game.
       friendly:
         description: show friendly name for held item.
+      arenaborder1:
+        description: sets the first corner of the arena border.
+      arenaborder2:
+        description: sets the second corner of the arena border.

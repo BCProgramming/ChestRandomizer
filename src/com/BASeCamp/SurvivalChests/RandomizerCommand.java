@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 
+import net.minecraft.server.TileEntityMobSpawner;
+
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.command.*;
@@ -505,6 +507,14 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		repopulateChests(Source,w,false);
 	}
+	private boolean hasBlockBeneath(Block testblock,Material testmaterial){
+		
+		
+		Location spotbelow = new Location(testblock.getWorld(),testblock.getX(),testblock.getY()-1,testblock.getZ());
+		return testblock.getWorld().getBlockAt(spotbelow).getType().equals(testmaterial);
+		
+		
+	}
 	private void repopulateChests(String Source, World w,boolean silent) {
 		int populatedamount = 0;
 		LinkedList<Chest> allchests = new LinkedList<Chest>();
@@ -534,11 +544,16 @@ public class RandomizerCommand implements CommandExecutor {
 				if (iteratestate instanceof Chest) {
 					Chest casted = (Chest) iteratestate;
 					// randomize!
-					allchests.add(casted);
-					ChestRandomizer cr = new ChestRandomizer(_Owner,
-							casted, sourcefile);
-					populatedamount += cr.Shuffle();
-
+					if(!hasBlockBeneath(iteratestate.getBlock(),Material.WOOL)){
+						allchests.add(casted);
+						ChestRandomizer cr = new ChestRandomizer(_Owner,
+								casted, sourcefile);
+						populatedamount += cr.Shuffle();
+					}	else{
+						System.out.println("Storing inventory for a chest");
+						ChestRandomizer.StoreInventory(casted);
+						
+					}
 				}
 				else if(iteratestate instanceof Furnace){
 					Furnace casted =(Furnace)iteratestate;
@@ -552,9 +567,17 @@ public class RandomizerCommand implements CommandExecutor {
 					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
 					populatedamount += cr.Shuffle();
 					
+						
+						
 				}
+				else if(iteratestate instanceof TileEntityMobSpawner){
+				TileEntityMobSpawner mspawner = (TileEntityMobSpawner)iteratestate;
+				//would be fun to randomize mob spawners, but that should be later and a different class and whatnot...
+				}
+					
+				
 
-			}
+			    }
 
 		}
 

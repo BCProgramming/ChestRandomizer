@@ -153,11 +153,14 @@ public class ChestRandomizer {
 	}
 	public static void resetStoredInventories(){
 		
+		System.out.println("Resetting inventories on " + StoredInventories.size() +  " Items.");
+		
 		for(Chest iterate:StoredInventories.keySet()){
 			
 			
-			iterate.getInventory().clear();
-			iterate.getInventory().setContents(StoredInventories.get(iterate));
+			//iterate.getInventory().clear();
+			ItemStack[] gotcontents = StoredInventories.get(iterate);
+			iterate.getInventory().setContents(gotcontents);
 			
 			
 		}
@@ -165,7 +168,23 @@ public class ChestRandomizer {
 		
 		
 	}
-	
+	public static void StoreInventory(Chest cheststore){
+		System.out.println("Storing inventory...");
+		ItemStack[] copythis = cheststore.getBlockInventory().getContents();
+		ItemStack[] copied = new ItemStack[copythis.length];
+		int itemcount =0;
+		for(int i=0;i<copythis.length;i++){
+			if(copythis[i]!=null)
+			{
+				copied[i] = copythis[i].clone();
+				itemcount++;
+			}
+		}
+		System.out.println("Stored " + itemcount + " items.");
+		StoredInventories.put(cheststore, copied);
+		
+		
+	}
 	public int Shuffle()
 	{
 		boolean PackedChest = false;
@@ -175,14 +194,7 @@ public class ChestRandomizer {
 			Location spotbelow = new Location(mchest.getWorld(), chestspot.getX(), chestspot.getY()-1, chestspot.getZ());
 			if(mchest.getWorld().getBlockAt(spotbelow).getType()==Material.WOOL){
 				
-				ItemStack[] copythis = mchest.getBlockInventory().getContents();
-				ItemStack[] copied = new ItemStack[copythis.length];
-				for(int i=0;i<copythis.length;i++){
-					
-					copied[i] = copythis[i].clone();
-					
-				}
-				StoredInventories.put(mchest, copied);
+		
 				
 			return 0;	
 			}

@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -83,12 +84,54 @@ public class PlayerDeathWatcher implements Listener{
 		return allCaps(source)?capitalizeString(source):source;
 		
 	}
+	HashMap<ItemFrame,ItemStack> repopulateFrames = new HashMap<ItemFrame,ItemStack>(); //key is the frame, value is what to repopulate with
+	
+	
+	@EventHandler
+	public void OnHangingBreakByEntityEvent(HangingBreakByEntityEvent event){
+		HangingBreakByEntityEvent edam = event;
+		
+		if(edam.getEntity() instanceof ItemFrame){
+			System.out.println("itemFrame broken");
+			if(edam.getRemover() instanceof Player){
+				Player theplayer = (Player)edam.getRemover();
+				if(_owner.isParticipant(theplayer)!=null){
+				
+				//if it has a button, give the player a button and remove the button from the itemframe.
+				//also add this itemframe to the list of frames to repopulate.
+				ItemFrame gotframe = (ItemFrame) edam.getEntity();
+				
+					 
+				ItemStack contents = gotframe.getItem();
+				if(contents!=null){
+				gotframe.setItem(null);
+				repopulateFrames.put(gotframe, contents);
+				//give the player the contents.
+				theplayer.getInventory().addItem(contents);
+				theplayer.sendMessage("You have acquired a " + getFriendlyNameFor(contents));
+				}
+				else{
+					//not a participant.
+					theplayer.sendMessage(ChatColor.YELLOW + "You cannot break item frames unless you are participating.");
+					
+					
+				}
+				}
+				
+			}
+			
+			
+			event.setCancelled(true);
+		return;	
+		}
+	}
+	
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event){
 		if(event instanceof EntityDamageByEntityEvent)
 		{
 			EntityDamageByEntityEvent edam = (EntityDamageByEntityEvent)event;
-		
+			
 		
 		if(edam.getEntity() instanceof Player){
 			
@@ -348,7 +391,7 @@ public class PlayerDeathWatcher implements Listener{
    
    @EventHandler 
    public void onPlayerMove(PlayerMoveEvent event) {
-	   System.out.println("Player moved:" + event.getPlayer().getName());
+	  // System.out.println("Player moved:" + event.getPlayer().getName());
 	   //check the borders...
 	   Location BorderA = _owner.Randomcommand.BorderA;
 	   Location BorderB = _owner.Randomcommand.BorderB;
@@ -443,7 +486,8 @@ public class PlayerDeathWatcher implements Listener{
 	   if(event.getBlockAgainst().getType().equals(KeySpotMaterial) &&
 			   event.getItemInHand().getType().equals(Material.STONE_BUTTON))
 	   {
-		   event.getPlayer().sendMessage("Key Placed!");
+		   event.getPlayer().sendMessage(ChatColor.GOLD + "Key Placed!");
+		   event.getPlayer().playEffect(event.getPlayer().getLocation(),Effect.EXTINGUISH,1);
 		   //save this Location to reset it to air.
 		   setAirLocations.add(event.getBlock().getLocation());
 		   return; //allow placement of buttons on gold blocks.
@@ -503,6 +547,7 @@ public class PlayerDeathWatcher implements Listener{
 
    public void onGameStart(GameStartEvent event)
    {
+	   
 	   System.out.println("Game Started");
 	   World Worldgrab = event.getParticipants().get(0).getWorld();
 	   //record itemframe locations.
@@ -549,12 +594,15 @@ public class PlayerDeathWatcher implements Listener{
 	   }
 	   LinkedList<CachedFrameData> framedata = CachedData.get(worldevent); 
 	   
-	   System.out.println("restored " + framedata.size() + " Item frames.");
-	   for(CachedFrameData addme:framedata){
+	   System.out.println("restoring " + repopulateFrames.size() + " Item Frame contents...");
+	   for(ItemFrame iterateframe : repopulateFrames.keySet()){
 		   
-		   addme.Regenerate(worldevent);
+		   
+		   iterateframe.setItem(repopulateFrames.get(iterateframe));
+		   
 		   
 	   }
+	  
 	   
 	//find them all!
 	   for(Chunk loopchunk:event.getAllParticipants().get(0).getWorld().getLoadedChunks()){

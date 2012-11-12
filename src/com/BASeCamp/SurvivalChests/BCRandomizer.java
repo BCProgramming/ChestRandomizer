@@ -162,6 +162,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("gamestate").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder1").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder2").setExecutor(Randomcommand);
+		         
 	    }
 	    @Override
 	    public void onDisable()

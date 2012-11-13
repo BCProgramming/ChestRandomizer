@@ -6,15 +6,15 @@ Permissions nodes:
 
 chestrandomizer.worldname.command
 
-available commands are repopchests, preparegame, startgame,joingame and spectategame
+available commands are repopchests, preparegame, startgame,joingame,spectategame,arenaborder1 and arenaborder2
 
 Game Tracking:
 
-Although outside the original scope of the plugin, I added the capability to track games to the plugin. This is done by somebody with permission to use the preparegame command. the preparegame command prepares a game to start; the command accepts a name of the world in which to start the event or if not provided it will use the world of the issuing player.
+Although outside the original scope of the plugin, I added the capability to track games to the plugin. This is done by somebody with permission to use the preparegame command. the preparegame command prepares a game to start; the command accepts a name of the world in which to start the event or if not provided it will use the world of the issuing player. The location of the player issuing the Preparegame command will be recorded as well.
 
 At this point,it is now announced and players that wish to participate (on the entire server) to use /joingame. Those who wish to spectate use /spectategame.
 
-If the player is outside the world in which the event occurs, in both cases they will be teleported to the spawn location of the world in which the event occurs.
+If the player is outside the world in which the event occurs, in both cases they will be teleported to the location stored when the game was prepared.
 
 when /startgame is issued (again, by somebody with the proper permissions), it can either be provided a time interval to delay (default is 30 seconds) in which all PvP combat will be disabled. All players will be put into adventure mode and their health and hunger bars will be refilled. After the time has expired, players will be incurred with 5 seconds of blindness (this is to help prevent kills immediately when PvP is re-enabled).
 

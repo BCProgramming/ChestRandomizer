@@ -256,6 +256,12 @@ public class RandomData {
 		
 		
 	}
+	public Material getItemMaterial(){
+		
+		ItemStack generated = Generate();
+		if(generated!=null) return generated.getType();
+		return null;
+	}
 	public ItemStack Generate()
 	{
 		//Potion.getBrewer().createEffect(PotionEffectType., arg1, arg2)

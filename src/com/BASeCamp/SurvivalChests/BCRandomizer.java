@@ -1,6 +1,9 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.io.File;
+import java.net.URL;
 import java.util.LinkedList;
+import java.util.Scanner;
 
 import net.minecraft.server.NBTTagList;
 
@@ -27,12 +30,13 @@ public class BCRandomizer extends JavaPlugin {
 	//possibly add tpall command to teleport all players or something. 
 	
 	public static VictoryTracker Victories = null;
-	
+	public static final String Prefix = ChatColor.WHITE + "[" + ChatColor.GOLD + "BCSurv" + ChatColor.WHITE + "]";
 	public final static String PluginName="BCRandomizer";
 	  public static String pluginMainDir = "./plugins/BCRandomizer";
 	  //TODO: use plugin.yml to retrieve configuration data- more precisely, to retrieve the file to use for the randomization data.
 	  //Another idea is to allow that to be changed via other commands, possibly referring to files in the plugin folder.
 	    public static String pluginConfigLocation = pluginMainDir + "/survivalchests.cfg";
+	    public static String SpawnerConfigLocation = pluginMainDir + "/spawners.cfg";
 	    public RandomizerCommand Randomcommand = null; 
 	    public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
 	    
@@ -59,6 +63,46 @@ public class BCRandomizer extends JavaPlugin {
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
 	    	
 	    }
+		public static Scanner acquireStream(String SourceName){
+			
+			
+			
+			try {
+				if(SourceName!=""){
+					
+					try {
+					return new Scanner(new URL(SourceName).openStream());
+					
+					
+					}
+					catch(Exception urlexception) {
+				
+				
+					String pathgrab = SourceName.substring(0,SourceName.lastIndexOf(File.separatorChar));
+					System.out.println("pathgrab=" + pathgrab);
+					return new Scanner(new File(SourceName));
+						
+					
+					
+					
+					}	
+					
+				}
+			}
+			catch(Exception exx){
+				//attempt to read it from our jar.
+				//first we only want the filename.
+				
+				
+				
+				
+			}
+			String onlyfile = SourceName.substring(SourceName.lastIndexOf(File.separatorChar)+1);
+			System.out.println("Onlyfile=" + onlyfile);
+			
+			return new Scanner(BCRandomizer.class.getClassLoader().getResourceAsStream(onlyfile));
+			
+		}
 	    public static String getItemMaterial(ItemStack item){
 	    	
 	    	Material mat = item.getType();
@@ -162,6 +206,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("gamestate").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder1").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder2").setExecutor(Randomcommand);
+		         this.getCommand("randomizespawners").setExecutor(Randomcommand);
 		         
 	    }
 	    @Override

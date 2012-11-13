@@ -72,6 +72,8 @@ public class ChestRandomizer {
 		}
 		
 	}
+
+	
 	private void reload()
 	{
 		randData = new LinkedList<RandomData>();
@@ -185,6 +187,9 @@ public class ChestRandomizer {
 		
 		
 	}
+	
+	
+	
 	public int Shuffle()
 	{
 		boolean PackedChest = false;

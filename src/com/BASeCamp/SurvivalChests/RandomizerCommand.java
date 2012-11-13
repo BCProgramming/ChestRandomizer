@@ -135,7 +135,14 @@ public class RandomizerCommand implements CommandExecutor {
 				return true;
 			}
 		}
-		if(arg2.equalsIgnoreCase("arenaborder1")){
+		
+		if(arg2.equalsIgnoreCase("randomizespawners")){
+		SpawnerRandomizer sr = new SpawnerRandomizer();
+		sr.RandomizeSpawners(p.getWorld());
+		
+		
+		}
+		else if(arg2.equalsIgnoreCase("arenaborder1")){
 			
 			BorderA = p.getLocation();
 			p.sendMessage(ChatColor.AQUA + "BorderA set to (X,Z)=" + BorderA.getBlockX()+ "," + BorderA.getBlockZ());
@@ -407,11 +414,11 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		for (Player px : getAllPlayers()) {
 
-			px.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
+			px.sendMessage(BCRandomizer.Prefix  + ChatColor.YELLOW
 					+ " A Survival game has started in "
 					+ playingWorld.getName());
 			px
-					.sendMessage(ChatColor.RED + "SURVIVAL:" + ChatColor.YELLOW
+					.sendMessage(BCRandomizer.Prefix + ChatColor.YELLOW
 							+ " use /joingame to participate before the game starts.");
 
 		}
@@ -427,7 +434,7 @@ public class RandomizerCommand implements CommandExecutor {
 		accepting = false;
 		if (joinedplayers.size() == 0) {
 			if(p!=null)
-				p.sendMessage("No players participating! Cannot start game.");
+				p.sendMessage(BCRandomizer.Prefix + "No players participating! Cannot start game.");
 			else
 				System.out.println("No players participating! Cannot start game.");
 			return;
@@ -436,7 +443,7 @@ public class RandomizerCommand implements CommandExecutor {
 			//this is for debugging. Right now it will only allow one game at a time.
 			if(p!=null)
 			p
-					.sendMessage(ChatColor.YELLOW
+					.sendMessage(BCRandomizer.Prefix + ChatColor.YELLOW
 							+ "Game is already in progress! use /stopallgames to stop current games.");
 			else
 				System.out.println("Game in progress. use /stopallgames to stop current games.");
@@ -456,7 +463,7 @@ public class RandomizerCommand implements CommandExecutor {
 		Bukkit.getServer().getPluginManager().callEvent(eventobj);
 		
 		
-		Bukkit.broadcastMessage(ChatColor.GOLD + "Survival Event "
+		Bukkit.broadcastMessage(BCRandomizer.Prefix + ChatColor.GOLD + "Survival Event "
 				+ ChatColor.GREEN + " has begun in world "
 				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
 		Bukkit.broadcastMessage(joinedplayers.size() + " Players.");
@@ -468,7 +475,7 @@ public class RandomizerCommand implements CommandExecutor {
 			if (pl.isOnline()) {
 
 				pl
-						.sendMessage(ChatColor.BLUE
+						.sendMessage(BCRandomizer.Prefix + ChatColor.BLUE
 								+ "Your Inventory has been cleared. No outside food, please.");
 				BCRandomizer.clearPlayerInventory(pl);
 				for (PotionEffect iterate : pl.getActivePotionEffects())
@@ -488,14 +495,14 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		ChestRandomizer.resetStorage();
 		repopulateChests("", p.getWorld(),true);
-		ResumePvP.BroadcastWorld(grabworld, ChatColor.LIGHT_PURPLE + " Containers randomized.");
+		ResumePvP.BroadcastWorld(grabworld,BCRandomizer.Prefix + ChatColor.LIGHT_PURPLE + " Containers randomized.");
 		
 		GameStartEvent evento= new GameStartEvent(joinedplayers,spectating);
 		rp.getTracker().deathwatcher.onGameStart(eventobj);
 		
 		
 		
-		ResumePvP.BroadcastWorld(grabworld, ChatColor.GREEN
+		ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix + ChatColor.GREEN
 				+ "PvP will be re-enabled in " + ChatColor.RED
 				+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
 		
@@ -515,13 +522,14 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		
 	}
+	
 	private void repopulateChests(String Source, World w,boolean silent) {
 		int populatedamount = 0;
 		LinkedList<Chest> allchests = new LinkedList<Chest>();
 		LinkedList<Furnace> allfurnaces = new LinkedList<Furnace>();
 		LinkedList<Dispenser> alldispensers = new LinkedList<Dispenser>();
 		World gotworld = w;
-		if(!silent) Bukkit.broadcastMessage("BASeCamp Chest Randomizer- Running...");
+		if(!silent) Bukkit.broadcastMessage(BCRandomizer.Prefix + "BASeCamp Chest Randomizer- Running...");
 		String sourcefile = Source;
 		
 		// randomize the enderchest contents, too :D
@@ -570,10 +578,7 @@ public class RandomizerCommand implements CommandExecutor {
 						
 						
 				}
-				else if(iteratestate instanceof TileEntityMobSpawner){
-				TileEntityMobSpawner mspawner = (TileEntityMobSpawner)iteratestate;
-				//would be fun to randomize mob spawners, but that should be later and a different class and whatnot...
-				}
+				
 					
 				
 
@@ -591,7 +596,7 @@ public class RandomizerCommand implements CommandExecutor {
 				+ allchests.size() + ChatColor.YELLOW
 				+ " Chests Populated.");
 		Bukkit.broadcastMessage(ChatColor.AQUA.toString() + 
-		allfurnaces.size() + ChatColor.RED + "Furnaces " + ChatColor.YELLOW + "Populated.");
+		allfurnaces.size() + ChatColor.RED + " Furnaces " + ChatColor.YELLOW + "Populated.");
 		
 		Bukkit.broadcastMessage(ChatColor.AQUA + "" + alldispensers.size() + ChatColor.GREEN + " Dispensers " + ChatColor.YELLOW + " Populated.");
 		

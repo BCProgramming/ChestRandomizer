@@ -24,3 +24,5 @@ commands:
         description: sets the first corner of the arena border.
       arenaborder2:
         description: sets the second corner of the arena border.
+      randomizespawners:
+        description: randomizes placed mob spawners.

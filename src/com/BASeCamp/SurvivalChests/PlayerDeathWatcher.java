@@ -165,7 +165,7 @@ public class PlayerDeathWatcher implements Listener {
 							Frametakers.put(gotframe, theplayer);
 							// give the player the contents.
 							theplayer.getInventory().addItem(contents);
-							theplayer.sendMessage("You have acquired a "
+							theplayer.sendMessage(BCRandomizer.Prefix + "You have acquired a "
 									+ getFriendlyNameFor(contents));
 						}
 
@@ -249,7 +249,15 @@ public class PlayerDeathWatcher implements Listener {
 			}
 		}
 	}
-
+	public void hidetoParticipants(Player useplayer){
+		
+		GameTracker gt = _owner.getPlayerGame(useplayer);
+		for(Player hideto:gt.getStillAlive()){
+			
+			hideto.hidePlayer(useplayer);
+		}
+		
+	}
 	public static String getFriendlyNameFor(ItemStack Item) {
 
 		if (Item == null)
@@ -275,7 +283,12 @@ public class PlayerDeathWatcher implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 
-		if (_owner.Randomcommand.getaccepting()) {
+		if(null!=_owner.isSpectator(event.getPlayer())){
+		
+			hidetoParticipants(event.getPlayer());
+			
+		}
+		else if (_owner.Randomcommand.getaccepting()) {
 
 			event.getPlayer().sendMessage(BCRandomizer.Prefix +
 					ChatColor.YELLOW + "Welcome! A game is being prepared. ");
@@ -532,7 +545,7 @@ public class PlayerDeathWatcher implements Listener {
 							.getY(), ZMaximum - 1));
 					boinged=true;
 				}
-				if(boinged) p.sendMessage(BCRandomizer.Prefix + "BOING! You hit the arena border!");
+				if(boinged) p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + "BOING!" + ChatColor.YELLOW + " You hit the arena border!");
 			}
 		}
 

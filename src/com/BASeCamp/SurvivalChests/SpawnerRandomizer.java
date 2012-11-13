@@ -16,15 +16,24 @@ public class SpawnerRandomizer {
 	
 	
 	LinkedList<SpawnerRandomData> randomdata = null;
+	
+	private BCRandomizer _owner;
+	public BCRandomizer getOwner() { return _owner;}
+	public SpawnerRandomizer(BCRandomizer owner){ _owner = owner;}
+	
 	private void reload(){
 		
 		randomdata = new LinkedList<SpawnerRandomData>();
-		Scanner readfrom = new Scanner(getClass().getClassLoader().getResourceAsStream("survivalchests.cfg"));
+		Scanner readfrom = _owner.acquireStream("spawners.cfg");
 		while(readfrom.hasNext()){
 			try {
 				String gotline=readfrom.nextLine();
-				if(!(gotline.trim().length()!=0) && !gotline.startsWith("//")){
-			SpawnerRandomData addelement = new SpawnerRandomData(gotline);
+				SpawnerRandomData addelement=null;
+				if(gotline.trim().length()>0 && !gotline.startsWith("//")){
+					{
+					System.out.println("Spawner init string:'" + gotline + "'");
+					addelement = new SpawnerRandomData(this,gotline);
+					}
 			if(addelement!=null){
 				randomdata.add(addelement);
 			}

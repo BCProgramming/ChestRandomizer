@@ -63,7 +63,7 @@ public class BCRandomizer extends JavaPlugin {
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
 	    	
 	    }
-		public static Scanner acquireStream(String SourceName){
+		public Scanner acquireStream(String SourceName){
 			
 			
 			
@@ -100,7 +100,7 @@ public class BCRandomizer extends JavaPlugin {
 			String onlyfile = SourceName.substring(SourceName.lastIndexOf(File.separatorChar)+1);
 			System.out.println("Onlyfile=" + onlyfile);
 			
-			return new Scanner(BCRandomizer.class.getClassLoader().getResourceAsStream(onlyfile));
+			return new Scanner(this.getClass().getClassLoader().getResourceAsStream(onlyfile));
 			
 		}
 	    public static String getItemMaterial(ItemStack item){
@@ -243,5 +243,33 @@ public class BCRandomizer extends JavaPlugin {
 	    	
 	    	
 	    }
+	    public GameTracker getWorldGame(World testworld) {
+	    	
+	    	
+	    	for(GameTracker gt:ActiveGames){
+	    		if(gt.getStillAlive().getFirst().getWorld().equals(testworld)){
+	    			
+	    			return gt;
+	    			
+	    		}
+	    	}
+	    	return null;
+	    	
+	    }
+		public GameTracker getPlayerGame(Player useplayer) {
+			// TODO Auto-generated method stub
+			
+			for(GameTracker gt:ActiveGames){
+				
+				if(gt.getStillAlive().contains(useplayer) || gt.getSpectating().contains(useplayer) || gt.getDead().contains(useplayer)){
+					
+					return gt;
+					
+				}
+				
+			}
+			return null;
+			
+		}
 	    
 }

@@ -124,7 +124,7 @@ public class GameTracker implements Runnable {
 			//move players back to their original spots where desired.
 			for(Player pp:_Owner.Randomcommand.returninfo.keySet()){
 				
-				pp.sendMessage(ChatColor.BLUE + "You will be returned to your before-game position in 5 seconds.");
+				pp.sendMessage(BCRandomizer.Prefix +  ChatColor.BLUE + "You will be returned to your before-game position in 5 seconds.");
 				
 				
 			}
@@ -160,14 +160,18 @@ public class GameTracker implements Runnable {
 			Bukkit.broadcastMessage("Remaining:" + buildnamelist.substring(0,buildnamelist.length()-1));
 			
 			if(StillAlive.size()==3){
+				gavecompasses=true;
 				for(Player givecompass:StillAlive){
+					ItemStack CompassItem = new ItemStack(Material.COMPASS);
+					ItemNamer.load(CompassItem);
+					ItemNamer.setName("BASeCamp" + ChatColor.ITALIC + "(r)" + ChatColor.RESET + " Player Finder");
+					CompassItem = ItemNamer.getItemStack();
+					givecompass.getInventory().addItem(CompassItem);
+					givecompass.sendMessage(BCRandomizer.Prefix +ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
+					givecompass.sendMessage(BCRandomizer.Prefix +ChatColor.GREEN + "it points towards the closest participant.");
 					
-					givecompass.getInventory().addItem(new ItemStack(Material.COMPASS));
-					givecompass.sendMessage(ChatColor.GREEN + "You have been given a Compass.");
-					givecompass.sendMessage(ChatColor.GREEN + "it points towards the closest player.");
 					
-					
-				}
+				}	
 				
 				
 			}
@@ -199,8 +203,8 @@ public class GameTracker implements Runnable {
 							ItemNamer.setName("BASeCamp" + ChatColor.ITALIC + "(r)" + ChatColor.RESET + " Player Finder");
 							CompassItem = ItemNamer.getItemStack();
 							givecompass.getInventory().addItem(CompassItem);
-							givecompass.sendMessage(ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
-							givecompass.sendMessage(ChatColor.GREEN + "it points towards the closest participant.");
+							givecompass.sendMessage(BCRandomizer.Prefix +ChatColor.GREEN + "You have been given a BASeCamp Player Finder!");
+							givecompass.sendMessage(BCRandomizer.Prefix +ChatColor.GREEN + "it points towards the closest participant.");
 							
 							
 						}	

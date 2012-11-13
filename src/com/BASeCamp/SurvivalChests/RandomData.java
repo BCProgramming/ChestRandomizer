@@ -29,6 +29,12 @@ import org.bukkit.potion.PotionType;
 public class RandomData {
 
 	
+		
+		
+		
+		
+	
+	
 	private int _SpawnType=0; //0 == normal, 1==potion,2==Head
 	private float _Weighting = 1f;
 	private String _Name;
@@ -652,7 +658,26 @@ public class RandomData {
 	
 	
 	public static Random rgen = new Random();
-	
+	public static RandomData Choose(List<RandomData> rdata){
+		
+		
+		//create arrays...
+		RandomData[] choosefrom = new RandomData[rdata.size()];
+		float[] weights = new float[rdata.size()];
+		
+		for(int i=0;i<choosefrom.length;i++){
+			choosefrom[i] = rdata.get(i);
+			weights[i] = choosefrom[i].getWeighting();
+			
+			
+		}
+		
+		return Choose(choosefrom,weights);
+		
+		
+		
+		
+	}
 	public static <T> T Choose(T[] selectfrom){
 		float[] probabilities = new float[selectfrom.length];
 		for(int i=0;i<probabilities.length;i++)

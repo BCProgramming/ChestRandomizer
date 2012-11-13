@@ -42,6 +42,7 @@ public class RandomizerCommand implements CommandExecutor {
 																		// game.
 	private boolean accepting = false;
 	private Location _SpawnSpot = null;
+	
 	public boolean getaccepting() { return accepting;}
 	public LinkedList<Player> getjoinedplayers() {
 		return joinedplayers;
@@ -98,6 +99,20 @@ public class RandomizerCommand implements CommandExecutor {
 		return retval;
 		
 	}
+	private void addSpectator(Player p){
+		
+		spectating.add(p);
+		//if there is a game in progress, we need to also give them fly and vanish them.
+		if(isGameActive()){
+		p.setAllowFlight(true);
+		for(Player pp:joinedplayers){
+			
+			pp.hidePlayer(p);
+			
+		}
+		}
+		
+	}
 	@Override
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2,
 			String[] arg3) {
@@ -125,11 +140,11 @@ public class RandomizerCommand implements CommandExecutor {
 					Bukkit
 							.broadcastMessage(ChatColor.RED
 									+ p.getName()
-									+ " tried to use Chest Randomizer, but isn't an op. punishment applied.");
+									+ " tried to use a SurvivalChest command, but isn't an op. punishment applied.");
 				} else {
 					p
-							.sendMessage("You do not have permission to use that command.");
-					p.sendMessage(ChatColor.GREEN + "NODE:" + permnode);
+							.sendMessage(BCRandomizer.Prefix + "You do not have permission to use that command.");
+					p.sendMessage(BCRandomizer.Prefix + ChatColor.GREEN + "NODE:" + permnode);
 
 				}
 				return true;
@@ -137,7 +152,7 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		
 		if(arg2.equalsIgnoreCase("randomizespawners")){
-		SpawnerRandomizer sr = new SpawnerRandomizer();
+		SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 		sr.RandomizeSpawners(p.getWorld());
 		
 		
@@ -145,31 +160,31 @@ public class RandomizerCommand implements CommandExecutor {
 		else if(arg2.equalsIgnoreCase("arenaborder1")){
 			
 			BorderA = p.getLocation();
-			p.sendMessage(ChatColor.AQUA + "BorderA set to (X,Z)=" + BorderA.getBlockX()+ "," + BorderA.getBlockZ());
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "BorderA set to (X,Z)=" + BorderA.getBlockX()+ "," + BorderA.getBlockZ());
 			
 		}
 		else if(arg2.equalsIgnoreCase("arenaborder2")){
 			
 			BorderB = p.getLocation();
-			p.sendMessage(ChatColor.AQUA + "BorderB set to (X,Z)=" + BorderB.getBlockX()+ "," + BorderB.getBlockZ());
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "BorderB set to (X,Z)=" + BorderB.getBlockX()+ "," + BorderB.getBlockZ());
 			
 		}
 		else if(arg2.equalsIgnoreCase("clearborder")){
 			
 			BorderA=BorderB=null;
-			p.sendMessage(ChatColor.AQUA + "Borders cleared.");
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Borders cleared.");
 			
 		}
 		if (arg2.equalsIgnoreCase("gamestate")){
 			//output information about running games.
 			int currgame=1;
-			p.sendMessage(ChatColor.RED + "Currently running games:" + _Owner.ActiveGames.size());
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + "Currently running games:" + _Owner.ActiveGames.size());
 			for(GameTracker gt: _Owner.ActiveGames){
-				p.sendMessage(ChatColor.RED + "Game:" + currgame);
+				p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + "Game:" + currgame);
 				
-				p.sendMessage(ChatColor.RED + "Alive:" + StringUtil.Join(getPlayerNames(gt.getStillAlive()),","));
-				p.sendMessage(ChatColor.GRAY + "Dead:" + StringUtil.Join(getPlayerNames(gt.getDead()), ","));
-				p.sendMessage(ChatColor.AQUA + "Spectating:" + StringUtil.Join(getPlayerNames(gt.getSpectating()), ","));
+				p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + "Alive:" + StringUtil.Join(getPlayerNames(gt.getStillAlive()),","));
+				p.sendMessage(BCRandomizer.Prefix + ChatColor.GRAY + "Dead:" + StringUtil.Join(getPlayerNames(gt.getDead()), ","));
+				p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Spectating:" + StringUtil.Join(getPlayerNames(gt.getSpectating()), ","));
 				
 			}
 			
@@ -206,7 +221,7 @@ public class RandomizerCommand implements CommandExecutor {
 			if(!accepting)
 			{
 				
-				p.sendMessage( ChatColor.RED + "You cannot join a game still in progress. use /spectategame if you want to observe.");
+				p.sendMessage(BCRandomizer.Prefix +  ChatColor.RED + "You cannot join a game still in progress. use /spectategame if you want to observe.");
 				return false;
 				
 			}
@@ -265,8 +280,7 @@ public class RandomizerCommand implements CommandExecutor {
 					
 				}
 				if (!spectating.contains(p)) {
-					spectating.add(p);
-
+					addSpectator(p);
 				}
 				else {
 					p.sendMessage(ChatColor.YELLOW + "you are already spectating!");
@@ -284,7 +298,9 @@ public class RandomizerCommand implements CommandExecutor {
 			//if a game is in progress, make them invisible and flying.
 			if(!accepting){
 				p.setAllowFlight(true);
-				BCRandomizer.VanishPlayer(p);
+				GameTracker gotgt = _Owner.getWorldGame(p.getWorld());
+				if(gotgt!=null)
+					gotgt.deathwatcher.hidetoParticipants(p);
 				
 				
 			}
@@ -428,6 +444,17 @@ public class RandomizerCommand implements CommandExecutor {
 		
 	
 	}
+	
+	public boolean isGameActive(){
+		
+		
+		return _Owner.ActiveGames.size() > 0;
+		
+		
+	}
+	
+	
+	private ResumePvP rp = null;
 	Location BorderA = null;
 	Location BorderB = null;
 	private void StartGame(Player p,int numseconds) {
@@ -456,7 +483,7 @@ public class RandomizerCommand implements CommandExecutor {
 	
 		
 		
-		ResumePvP rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
+		rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
 				joinedplayers, spectating);
 		
 		GameStartEvent eventobj =new GameStartEvent(joinedplayers,spectating);
@@ -604,7 +631,7 @@ public class RandomizerCommand implements CommandExecutor {
 				+ ChatColor.AQUA.toString() + populatedamount
 				+ ChatColor.YELLOW + " slots.");
 		}
-		for (RandomData iterate : ChestRandomizer.addall) {
+		for (RandomData iterate : ChestRandomizer.getRandomData(_Owner)) {
 
 			ItemStack result = iterate.Generate();
 			if (result != null) {

@@ -80,35 +80,7 @@ public class ResumePvP implements Runnable{
 			timediff = System.currentTimeMillis()-starttime;	
 		}
 		
-		int numactive = 0;
-		useWorld.setPVP(true);
-		
-		//TODO: refactor code to only affect/modify non-spectator, non-moderator players.
-		
-		
-		for(Player iterate:_Players)
-		{
-			if(iterate.isOnline()) {
-				numactive++;
-		       Location currlocation = iterate.getLocation();
-		       currlocation = new Location(useWorld,currlocation.getX()+5,currlocation.getY()-15,currlocation.getZ()-5);
-		       useWorld.playEffect(currlocation, Effect.GHAST_SHRIEK, 10);
-		
-		       //useWorld.strikeLightning(currlocation);
-		     
-		       
-		       
-		       
-		       
-		       iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.BLINDNESS, 500, 1));
-		       iterate.sendMessage(ChatColor.BOLD.toString() +ChatColor.LIGHT_PURPLE + "You have been temporarily blinded!");
-			}
-		}
-		
-		
-		
-		Bukkit.broadcastMessage(ChatColor.RED + "PvP Re-Enabled in World + " + useWorld.getName());
-		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
+		usetracker.TimeoutExpired();
 		
 		//format is /startgame <seconds> <moderator> <spectators>
 		

@@ -1,15 +1,27 @@
 package com.BASeCamp.SurvivalChests;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
+import net.minecraft.server.EntityLiving;
 import net.minecraft.server.TileEntityMobSpawner;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemStack;
 
 //this class needs a LOT of work. (different weights, give mobs special abilities, etc.)
 public class SpawnerRandomizer {
@@ -54,6 +66,101 @@ public class SpawnerRandomizer {
      	{ EntityType.BAT,EntityType.BLAZE,EntityType.CAVE_SPIDER,EntityType.ENDERMAN,EntityType.CREEPER,
      		EntityType.GHAST,EntityType.PIG_ZOMBIE,EntityType.WITCH,EntityType.SKELETON,EntityType.MAGMA_CUBE,EntityType.ZOMBIE
      	};
+	
+		public void RandomizeEntityEquipment(LivingEntity le){
+			if(le instanceof CraftLivingEntity){
+				CraftLivingEntity cle = (CraftLivingEntity)le;
+				EntityLiving el = cle.getHandle();
+				//Order is Weapon,Boots,Leggings,Chestplate,Helmet
+				
+				//Armor/weapons are only equipable by Zombies, Skeletons, and Pigmen.
+				
+				
+				if(le instanceof Creeper){
+					
+					
+					((Creeper)le).setPowered(RandomData.rgen.nextBoolean());
+				}
+				
+				if(le instanceof Zombie || le instanceof Skeleton || le instanceof PigZombie){
+					
+					//choose random Weapon, Boots, Leggings, Chestplate, and Helmet.
+					//each item has a 20 percent chance of being blank.
+					
+					
+					//weapon.
+					if(RandomData.rgen.nextFloat() > 0.2f){
+						//choose a random weapon.
+						List<RandomData> Weapons = ChestRandomizer.getWeaponsData(_owner);
+						//choose one element.
+						RandomData chosenweapon = RandomData.ChooseRandomData(Weapons);
+						ItemStack acquiredweapon = chosenweapon.Generate();
+						if(acquiredweapon!=null)
+							el.setEquipment(0, new CraftItemStack(acquiredweapon).getHandle());
+						
+						
+					}
+					//boots (index 1)
+					if(RandomData.rgen.nextFloat() > 0.2f){
+						List<RandomData> Boots = ChestRandomizer.getBootsData(_owner);
+						//choose one element...
+						RandomData chosenboots = RandomData.ChooseRandomData(Boots);
+						ItemStack acquiredboots = chosenboots.Generate();
+						if(acquiredboots!=null) 
+							el.setEquipment(1,new CraftItemStack(acquiredboots).getHandle());
+						
+						
+					}
+					//leggings.
+					if(RandomData.rgen.nextFloat() > 0.2f){
+						List<RandomData> Leggings = ChestRandomizer.getBootsData(_owner);
+						RandomData chosenLeggings = RandomData.ChooseRandomData(Leggings);
+						ItemStack acquiredleggings = chosenLeggings.Generate();
+						if(acquiredleggings!=null) 
+							el.setEquipment(2,new CraftItemStack(acquiredleggings).getHandle());
+						
+						
+						
+						
+					}
+					//chestplate.
+					if(RandomData.rgen.nextFloat() > 0.2f){
+						List<RandomData> chestplates = ChestRandomizer.getChestplateData(_owner);
+						RandomData chosenchestplate = RandomData.ChooseRandomData(chestplates);
+						ItemStack acquiredchestplate = chosenchestplate.Generate();
+						if(acquiredchestplate!=null) el.setEquipment(3,new CraftItemStack(acquiredchestplate).getHandle());
+						
+						
+					}
+					
+					
+					
+					//lastly, helmet.
+					if(RandomData.rgen.nextFloat() > 0.2f) {
+						List<RandomData> Helmets = ChestRandomizer.getHelmetData(_owner);
+						RandomData chosenHelmet = RandomData.ChooseRandomData(Helmets);
+						ItemStack acquiredHelmet = chosenHelmet.Generate();
+						if(acquiredHelmet!=null) el.setEquipment(4,new CraftItemStack(acquiredHelmet).getHandle());
+						
+						
+						
+					}
+					
+					
+					
+				}
+				
+				
+				
+				
+				
+				
+			}
+			
+			
+			
+			
+		}
      	public void RandomizeSpawner(CreatureSpawner modify){
      		
      		if(randomdata==null) reload();

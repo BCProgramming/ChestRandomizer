@@ -11,6 +11,9 @@ public class GameEndEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private String message;
     private Player _winner = null;
+    
+    
+    
     private HashMap<Integer,Player> Placers;
     /**
      * @Deprecated use getWinner() method instead.

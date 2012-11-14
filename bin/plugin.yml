@@ -26,3 +26,5 @@ commands:
         description: sets the second corner of the arena border.
       randomizespawners:
         description: randomizes placed mob spawners.
+      mobmode:
+        description: (test). Sets game mode to Mob Arena Mode. Mob spawning should be enabled.

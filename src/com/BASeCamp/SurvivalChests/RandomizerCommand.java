@@ -41,6 +41,7 @@ public class RandomizerCommand implements CommandExecutor {
 																		// preparing
 																		// game.
 	private boolean accepting = false;
+	private boolean MobArenaMode = false;
 	private Location _SpawnSpot = null;
 	
 	public boolean getaccepting() { return accepting;}
@@ -307,6 +308,13 @@ public class RandomizerCommand implements CommandExecutor {
 			
 
 		}
+		else if(arg2.equalsIgnoreCase("mobmode")){
+			
+			MobArenaMode=!MobArenaMode;
+			p.sendMessage("mob arena mode set to '" + MobArenaMode + "'");
+			
+			
+		}
 		if (arg2.equalsIgnoreCase("teamsplit")) {
 			// get all online Players.
 				//unused!
@@ -364,11 +372,11 @@ public class RandomizerCommand implements CommandExecutor {
 			}
 			catch(Exception exx){ numseconds=30;}
 			}
-			StartGame(p,numseconds);
+			StartGame(p,numseconds,MobArenaMode);
 			return false;
 		}
 		if (arg2.equalsIgnoreCase("friendly")) {
-			String friendly = (PlayerDeathWatcher.getFriendlyNameFor(p
+			String friendly = (CoreEventHandler.getFriendlyNameFor(p
 					.getItemInHand()));
 			p.sendMessage(ChatColor.YELLOW + "Name of item is " + friendly);
 
@@ -457,7 +465,7 @@ public class RandomizerCommand implements CommandExecutor {
 	private ResumePvP rp = null;
 	Location BorderA = null;
 	Location BorderB = null;
-	private void StartGame(Player p,int numseconds) {
+	private void StartGame(Player p,int numseconds,boolean MobArena) {
 		accepting = false;
 		if (joinedplayers.size() == 0) {
 			if(p!=null)
@@ -486,7 +494,7 @@ public class RandomizerCommand implements CommandExecutor {
 		rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
 				joinedplayers, spectating);
 		
-		GameStartEvent eventobj =new GameStartEvent(joinedplayers,spectating);
+		GameStartEvent eventobj =new GameStartEvent(joinedplayers,spectating,MobArena);
 		Bukkit.getServer().getPluginManager().callEvent(eventobj);
 		
 		
@@ -524,7 +532,7 @@ public class RandomizerCommand implements CommandExecutor {
 		repopulateChests("", p.getWorld(),true);
 		ResumePvP.BroadcastWorld(grabworld,BCRandomizer.Prefix + ChatColor.LIGHT_PURPLE + " Containers randomized.");
 		
-		GameStartEvent evento= new GameStartEvent(joinedplayers,spectating);
+		GameStartEvent evento= new GameStartEvent(joinedplayers,spectating,MobArena);
 		rp.getTracker().deathwatcher.onGameStart(eventobj);
 		
 		

@@ -48,11 +48,7 @@ public class GameTracker implements Runnable {
 	
 	public HashMap<Player,Integer> getScoreTally() { return ScoreTally;}
 	
-	public GameTracker(BCRandomizer Owner, World applicableWorld,List<Player> Participants,List<Player> spectators){
-		
-		this(Owner,applicableWorld,Participants,spectators,false);
-		
-	}
+	
 	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants, List<Player> spectators,boolean MobArena){
 		//initialize StillAlive List.
 	      deathwatcher= new CoreEventHandler(Owner,this,applicableWorld);
@@ -380,7 +376,7 @@ public class GameTracker implements Runnable {
 	public void TimeoutExpired() {
 		
 		
-	
+		if(runningWorld==null) runningWorld = StillAlive.getFirst().getWorld();
 		if(!_MobArenaMode){
 		for(Player iterate:StillAlive)
 		{

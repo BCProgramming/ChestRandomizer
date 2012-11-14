@@ -437,14 +437,25 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		
 		for (Player px : getAllPlayers()) {
-
+			
+			if(MobArenaMode){
+				px.sendMessage(BCRandomizer.Prefix  + ChatColor.YELLOW
+						+ " A Mob Arena game is being prepared in "
+						+ playingWorld.getName());
+				px
+						.sendMessage(BCRandomizer.Prefix + ChatColor.YELLOW
+								+ " use /joingame to participate before the game starts.");
+			}
+			
+			else {
+			
 			px.sendMessage(BCRandomizer.Prefix  + ChatColor.YELLOW
-					+ " A Survival game has started in "
+					+ " A Survival game is being prepared in "
 					+ playingWorld.getName());
 			px
 					.sendMessage(BCRandomizer.Prefix + ChatColor.YELLOW
 							+ " use /joingame to participate before the game starts.");
-
+			}
 		}
 		
 		
@@ -655,5 +666,9 @@ public class RandomizerCommand implements CommandExecutor {
 		if(!silent) Bukkit.broadcastMessage(ChatColor.YELLOW + "Added "
 				+ ChatColor.AQUA.toString() + StaticAdded
 				+ ChatColor.YELLOW + " Static items.");
+	}
+	public boolean getMobArenaMode() {
+		// TODO Auto-generated method stub
+		return MobArenaMode;
 	}
 }

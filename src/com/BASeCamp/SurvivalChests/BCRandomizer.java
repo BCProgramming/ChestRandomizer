@@ -40,6 +40,16 @@ public class BCRandomizer extends JavaPlugin {
 	    public RandomizerCommand Randomcommand = null; 
 	    public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
 	    
+	    public GameTracker getGame(Player p) {
+	    	//returns true of the player is a participant or spectator of a game.
+	    	//null otherwise.
+	    	GameTracker participant = isParticipant(p);
+	    	if(participant!=null) return participant;
+	    	GameTracker spectator = isSpectator(p);
+	    	return spectator;
+	    	
+	    	
+	    }
 	    
 	    public GameTracker isParticipant(Player testplayer){
 	    	for(GameTracker gt:ActiveGames){
@@ -207,7 +217,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("arenaborder1").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder2").setExecutor(Randomcommand);
 		         this.getCommand("randomizespawners").setExecutor(Randomcommand);
-		         
+		         this.getCommand("mobmode").setExecutor(Randomcommand);
 	    }
 	    @Override
 	    public void onDisable()

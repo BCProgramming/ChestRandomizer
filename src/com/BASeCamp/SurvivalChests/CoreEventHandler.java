@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -468,6 +469,9 @@ public class CoreEventHandler implements Listener {
 			};
 
 		} else if (Killer != null) {
+			
+			
+			
 			// ok, get the item the Killer has.
 			if (Killer instanceof Player) {
 				String weapon = getFriendlyNameFor(Killer.getItemInHand());
@@ -491,6 +495,13 @@ public class CoreEventHandler implements Listener {
 				usemessage = RandomData.Choose(possiblemessages);
 
 			}
+			
+			
+		}
+		if (_owner.isParticipant(dyingPlayer) != null) {
+			Bukkit.getPluginManager().callEvent(
+					new ParticipantDeathEvent(dyingPlayer, null,
+							""));
 		}
 		usemessage = usemessage.replace(DyingName, ChatColor.RED + DyingName
 				+ usecolor);
@@ -651,7 +662,21 @@ public class CoreEventHandler implements Listener {
 		}
 
 	}
-
+	@EventHandler
+	public void onSignChange(SignChangeEvent event){
+		
+		
+		if(null!=_owner.getGame(event.getPlayer())){
+			event.setCancelled(false);
+			event.getPlayer().sendMessage("You cannot place signs.");
+			
+			
+			
+		}
+		
+		
+	}
+	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		// can't break blocks if participating.

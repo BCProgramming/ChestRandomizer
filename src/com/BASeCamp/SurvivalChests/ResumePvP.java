@@ -32,7 +32,7 @@ public class ResumePvP implements Runnable{
 		_Players=ActivePlayers;
 		_Spectators = Spectators;
 		useWorld=target;
-		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators);
+		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators,bcr.Randomcommand.getMobArenaMode());
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
 		

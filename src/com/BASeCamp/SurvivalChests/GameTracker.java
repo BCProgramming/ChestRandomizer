@@ -3,6 +3,7 @@ package com.BASeCamp.SurvivalChests;
 import java.security.acl.Owner;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,13 +12,21 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import net.minecraft.server.EntityLiving;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
@@ -33,7 +42,7 @@ public class GameTracker implements Runnable {
 	public  LinkedList<Player> getStillAlive(){return StillAlive;} 
 	private HashMap<Integer,Player> FinishPositions = new HashMap<Integer,Player>();
 	BCRandomizer _Owner = null;
-	public CoreEventHandler deathwatcher = null;
+	public static CoreEventHandler deathwatcher = null;
 	private boolean _MobArenaMode = false; //MobArena Mode is when PvP is disabled completely.
 	
 	
@@ -51,8 +60,14 @@ public class GameTracker implements Runnable {
 	
 	public GameTracker(BCRandomizer Owner,World applicableWorld,List<Player> Participants, List<Player> spectators,boolean MobArena){
 		//initialize StillAlive List.
-	      deathwatcher= new CoreEventHandler(Owner,this,applicableWorld);
-	      Owner.getServer().getPluginManager().registerEvents(deathwatcher, Owner);
+	     if(deathwatcher==null)
+	     {
+	    	 deathwatcher= new CoreEventHandler(Owner,this,applicableWorld);
+	    	 Owner.getServer().getPluginManager().registerEvents(deathwatcher, Owner);
+	     }
+	     else
+	    	 deathwatcher.getTrackers().add(this);
+	      
 		_MobArenaMode = MobArena;
 		_Owner = Owner;
 		_Owner.ActiveGames.add(this);
@@ -134,7 +149,7 @@ public class GameTracker implements Runnable {
 				if(_MobArenaMode) broadcastresults();
 				addprize(deadPlayer);
 				gamecomplete=true;
-				GameEndEvent eventobj = new GameEndEvent(deadPlayer,FinishPositions);
+				GameEndEvent eventobj = new GameEndEvent(deadPlayer,FinishPositions,this);
 				Bukkit.getServer().getPluginManager().callEvent(eventobj);
 				deathwatcher.onGameEnd(eventobj);
 				deathwatcher._Trackers.remove(this);
@@ -148,7 +163,7 @@ public class GameTracker implements Runnable {
 			//raise custom event.
 			
 			
-			GameEndEvent eventobj = new GameEndEvent(winner,FinishPositions);
+			GameEndEvent eventobj = new GameEndEvent(winner,FinishPositions,this);
 			Bukkit.getServer().getPluginManager().callEvent(eventobj);
 			deathwatcher.onGameEnd(eventobj);
 			gamecomplete=true;
@@ -259,13 +274,14 @@ public class GameTracker implements Runnable {
 		
 		
 	}
+	private int delayspawnnearby = 0;
 	public boolean gamecomplete=false;
 	private boolean gavecompasses = false;
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 	
-		
+		int delayresetmidnight=0;
 		
 		
 		
@@ -275,7 +291,7 @@ public class GameTracker implements Runnable {
 			try {
 				synchronized(StillAlive) {
 					
-					if(StillAlive.size()<=3 && !gavecompasses){
+					if(StillAlive.size()<=3 && !gavecompasses && !_MobArenaMode){
 						gavecompasses=true;
 						for(Player givecompass:StillAlive){
 							ItemStack CompassItem = new ItemStack(Material.COMPASS);
@@ -290,9 +306,21 @@ public class GameTracker implements Runnable {
 						}	
 						
 					}
-					
+				
+				
 					
 				for(Player pa:StillAlive){
+					
+					//if in MobArena Mode, force a mob to spawn near the player!
+					delayspawnnearby++;
+					if(delayspawnnearby==60){
+						delayspawnnearby=0;
+					if(_Owner.Randomcommand.getMobArenaMode()){
+						for(int i=0;i<15;i++)
+							ForceNearbySpawn(pa);
+					}
+					}
+					
 					
 					//find the nearest player.
 					double MinDistance = Float.MAX_VALUE;
@@ -324,6 +352,7 @@ public class GameTracker implements Runnable {
 				
 				if(gamecomplete) break;
 				
+			
 				
 				Thread.sleep(500); //sleep, so as to prevent being CPU intensive.
 				//compasses don't need to be super accurate anyway.
@@ -364,6 +393,42 @@ public class GameTracker implements Runnable {
 		deathwatcher._Trackers.remove(this);}
 		
 	}
+	@SuppressWarnings("deprecation")
+	private void ForceNearbySpawn(Player pa) {
+		// TODO Auto-generated method stub
+		Location CenterPoint = pa.getLocation();
+		//Random radius away.
+		
+		float useRadius = RandomData.rgen.nextFloat()*8 + 5;
+		
+		//random angle...
+		float Angle = (float)(RandomData.rgen.nextDouble() * Math.PI*2);
+		
+		float useX = (float)Math.cos(Angle)*useRadius;
+		float useZ = (float)Math.sin(Angle)*useRadius;
+		float useY = (float) CenterPoint.getY();
+		Location uselocation = new Location(pa.getWorld(),useX,useY,useZ);
+		useY = pa.getWorld().getHighestBlockYAt(uselocation);
+		//recreate it. The effect here is that over time, a player hiding in a building will find the area just outside it teeming with mobs :P
+		uselocation = new Location(pa.getWorld(),useX,useY,useZ);
+		
+		//now, we spawn a mob.
+		
+		EntityType[] choosetype = new EntityType[] { EntityType.CREEPER,EntityType.ZOMBIE,EntityType.SKELETON,EntityType.PIG_ZOMBIE};
+		EntityType selected = RandomData.Choose(choosetype);
+		//spawn this feller...
+		
+		LivingEntity result = pa.getWorld().spawnCreature(uselocation, selected); //the hook we already have will randomize them...
+		
+		
+		System.out.println("Spawned a " + selected.getName() + " near " + pa.getName());
+		
+		
+		
+		
+	}
+
+
 	//tracks game state, updating the list of still active players when players are killed (GameTracker is notified through PlayerDeathWatcher)
 	public List<Player> getSpectating() {
 		// TODO Auto-generated method stub
@@ -378,10 +443,13 @@ public class GameTracker implements Runnable {
 		
 		if(runningWorld==null) runningWorld = StillAlive.getFirst().getWorld();
 		if(!_MobArenaMode){
+			
+		Bukkit.broadcastMessage(ChatColor.RED + "PvP Enabled in World + " + runningWorld.getName());
 		for(Player iterate:StillAlive)
 		{
 			int numactive = 0;
 			runningWorld.setPVP(true);
+		
 			if(iterate.isOnline()) {
 				numactive++;
 		       Location currlocation = iterate.getLocation();
@@ -401,12 +469,40 @@ public class GameTracker implements Runnable {
 		
 		
 		
-		Bukkit.broadcastMessage(ChatColor.RED + "PvP Enabled in World + " + runningWorld.getName());
+		
 		Bukkit.broadcastMessage(ChatColor.GREEN + "Good luck to all contestants! May luck favour you! ;)");
 		}
 		else
 		{
+			String[] possiblemessages = new String[] {"A Cold chill runs down your spine",
+					"It is a good night to " + ChatColor.RED + " die.",
+					"The Black wind howls. One of you will shortly perish."};	
 			
+			runningWorld.setTime(18000); //make it night.
+			runningWorld.setMonsterSpawnLimit(32000); //80 hostile mobs? That's no fun. Let's crank it up...
+			runningWorld.setTicksPerMonsterSpawns(60);
+			
+			String chosenmessage = RandomData.Choose(possiblemessages);
+			ResumePvP.BroadcastWorld(runningWorld,BCRandomizer.Prefix + ChatColor.RED + chosenmessage);				
+			ResumePvP.BroadcastWorld(runningWorld, BCRandomizer.Prefix + "The Animals knew what was coming and killed themselves.");
+			
+			//kill all animals in the world, too. Because, why not.
+			for(Entity loopentity: runningWorld.getEntities()){
+				if(loopentity instanceof org.bukkit.entity.Animals){
+					
+					Animals animal = ((Animals)loopentity);
+					animal.damage(10000); //BAM! Smite you Mr. Animal. Could be a sheep. Poor sheep.
+					
+					
+				}
+				else if(loopentity instanceof org.bukkit.entity.Creature) {
+					((LivingEntity)loopentity).damage(10000);
+				}
+				
+			}
+			
+			
+			}
 			
 			
 			
@@ -416,4 +512,4 @@ public class GameTracker implements Runnable {
 	}
 	
 
-}
+

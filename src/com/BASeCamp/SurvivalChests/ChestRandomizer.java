@@ -377,8 +377,14 @@ public class ChestRandomizer {
 		for (int i = 1; i < _numgenerate; i++) {
 			RandomData rdata = RandomData.ChooseRandomData(randData);
 			if (rdata != null) {
-
+				
 				ItemStack created = rdata.Generate();
+				if(created==null) {
+					
+					//System.out.println("generated item is null. ID=" + rdata.getItemID());
+					Bukkit.broadcastMessage(BCRandomizer.Prefix + " Error in configuration. (ID=" + rdata.getItemID() + " Name=" + rdata.getName());
+					continue;
+				}
 				BCRandomizer.emitmessage("Data:" + created.getData().getData());
 				if (created != null) {
 					// get all empty slots.

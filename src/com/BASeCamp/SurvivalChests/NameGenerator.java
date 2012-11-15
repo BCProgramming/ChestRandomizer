@@ -23,6 +23,8 @@ public class NameGenerator {
 	public static String[] Pants = new String[]{"Leggings","Pants","Greaves","Trousers","Britches","Slacks","Pantaloons"};
 	public static String[] Boots = new String[]{"Boots","Shoes","Flip-Flops","Clogs","Booties","Moccasins","Sneakers","Cleats","Loafers","Slippers"};
 	public static String[] Sword = new String[] {"Slasher","Sword","Blade","Slicer","Cutter","Katana","Cutlass","Foil","Rapier","Scimitar","Knife","Bodkin"};
+	public static String[] Axe = new String[] {"Battle Axe","Axe","Hatchet","Woodcutter"};
+	public static String[] Pickaxe = new String[] { "Pick","Pickaxe","Pickaxe","Pickaxe","Pickaxe","Nosepicker"};
 	
 	
 	
@@ -203,7 +205,8 @@ public class NameGenerator {
 		"Canadian","american","british","Hispanic","Jewish","Irish","Scottish","Incredible","Ordinary",
 		"asgard","ancient","dwarven",
 		"Ethiopian","martian","turkish","vegatative"};
-		
+	public static String[] Hoe = new String[] { "Hoe","Till","Trowel"};
+		public static String[] Shovel = new String[] {"Shovel","Digger"};
 	
 	
 	//adds verbs from an existing file. return values less than 0 indicate failure.

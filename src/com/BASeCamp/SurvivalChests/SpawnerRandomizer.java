@@ -14,6 +14,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.entity.CraftSkeleton;
+import org.bukkit.craftbukkit.entity.CraftZombie;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
@@ -67,7 +69,7 @@ public class SpawnerRandomizer {
      		EntityType.GHAST,EntityType.PIG_ZOMBIE,EntityType.WITCH,EntityType.SKELETON,EntityType.MAGMA_CUBE,EntityType.ZOMBIE
      	};
 	
-		public void RandomizeEntityEquipment(LivingEntity le){
+		public void RandomizeEntity(LivingEntity le){
 			if(le instanceof CraftLivingEntity){
 				CraftLivingEntity cle = (CraftLivingEntity)le;
 				EntityLiving el = cle.getHandle();
@@ -81,11 +83,27 @@ public class SpawnerRandomizer {
 					
 					((Creeper)le).setPowered(RandomData.rgen.nextBoolean());
 				}
+				if(le instanceof Skeleton){
+					
+					//((Skeleton)le).
+					CraftSkeleton cs = (CraftSkeleton)le;
+					cs.getHandle().setSkeletonType(RandomData.rgen.nextBoolean()?1:0);
+					
+				}
+				if(le instanceof Zombie){
+					
+					CraftZombie cz = (CraftZombie)le;
+					cz.getHandle().setBaby(RandomData.rgen.nextBoolean());
+					
+					
+				}
+				
 				
 				if(le instanceof Zombie || le instanceof Skeleton || le instanceof PigZombie){
 					
 					//choose random Weapon, Boots, Leggings, Chestplate, and Helmet.
 					//each item has a 20 percent chance of being blank.
+					CraftLivingEntity craftliving = (CraftLivingEntity) le;
 					
 					
 					//weapon.

@@ -11,10 +11,13 @@ public class GameEndEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private String message;
     private Player _winner = null;
-    
+    private GameTracker _Tracker = null;
     
     
     private HashMap<Integer,Player> Placers;
+    
+    
+    public GameTracker getTracker(){ return _Tracker;}
     /**
      * @Deprecated use getWinner() method instead.
      * @return
@@ -56,10 +59,10 @@ public class GameEndEvent extends Event {
     	
     }
     
-    public GameEndEvent(Player winner,HashMap<Integer,Player> PlaceOrder) {
+    public GameEndEvent(Player winner,HashMap<Integer,Player> PlaceOrder,GameTracker trackerobject) {
         _winner=winner;
         Placers = PlaceOrder;
-        
+        _Tracker = trackerobject;
     }
  
     public String getMessage() {

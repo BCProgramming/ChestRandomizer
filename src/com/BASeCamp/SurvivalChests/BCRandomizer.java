@@ -89,7 +89,7 @@ public class BCRandomizer extends JavaPlugin {
 				
 				
 					String pathgrab = SourceName.substring(0,SourceName.lastIndexOf(File.separatorChar));
-					System.out.println("pathgrab=" + pathgrab);
+					//System.out.println("pathgrab=" + pathgrab);
 					return new Scanner(new File(SourceName));
 						
 					
@@ -108,7 +108,7 @@ public class BCRandomizer extends JavaPlugin {
 				
 			}
 			String onlyfile = SourceName.substring(SourceName.lastIndexOf(File.separatorChar)+1);
-			System.out.println("Onlyfile=" + onlyfile);
+			//System.out.println("Onlyfile=" + onlyfile);
 			
 			return new Scanner(this.getClass().getClassLoader().getResourceAsStream(onlyfile));
 			
@@ -203,8 +203,8 @@ public class BCRandomizer extends JavaPlugin {
 		         
 
 		         
-		         PluginCommand teamsplit = this.getCommand("teamsplit");
-		         teamsplit.setExecutor(Randomcommand);
+		         //PluginCommand teamsplit = this.getCommand("teamsplit");
+		         //teamsplit.setExecutor(Randomcommand);
 		   
 		         PluginCommand friendly = this.getCommand("friendly");
 		         friendly.setExecutor(Randomcommand);
@@ -216,6 +216,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("gamestate").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder1").setExecutor(Randomcommand);
 		         this.getCommand("arenaborder2").setExecutor(Randomcommand);
+		         this.getCommand("clearborders").setExecutor(Randomcommand);
 		         this.getCommand("randomizespawners").setExecutor(Randomcommand);
 		         this.getCommand("mobmode").setExecutor(Randomcommand);
 	    }
@@ -257,10 +258,12 @@ public class BCRandomizer extends JavaPlugin {
 	    	
 	    	
 	    	for(GameTracker gt:ActiveGames){
+	    		if(gt.getStillAlive().size() > 0){
 	    		if(gt.getStillAlive().getFirst().getWorld().equals(testworld)){
 	    			
 	    			return gt;
 	    			
+	    		}
 	    		}
 	    	}
 	    	return null;

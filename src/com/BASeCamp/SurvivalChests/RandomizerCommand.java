@@ -483,6 +483,8 @@ public class RandomizerCommand implements CommandExecutor {
 				p.sendMessage(BCRandomizer.Prefix + "No players participating! Cannot start game.");
 			else
 				System.out.println("No players participating! Cannot start game.");
+			
+			accepting=true;
 			return;
 		}
 		if (_Owner.ActiveGames.size() > 0) {
@@ -493,6 +495,9 @@ public class RandomizerCommand implements CommandExecutor {
 							+ "Game is already in progress! use /stopallgames to stop current games.");
 			else
 				System.out.println("Game in progress. use /stopallgames to stop current games.");
+			
+			
+			return;
 		}
 
 		
@@ -500,7 +505,7 @@ public class RandomizerCommand implements CommandExecutor {
 	
 		World grabworld = p.getWorld();
 	
-		
+		if(_Owner.Randomcommand.MobArenaMode) numseconds=0;
 		
 		rp = new ResumePvP(_Owner, p.getWorld(), numseconds,
 				joinedplayers, spectating);
@@ -543,14 +548,18 @@ public class RandomizerCommand implements CommandExecutor {
 		repopulateChests("", p.getWorld(),true);
 		ResumePvP.BroadcastWorld(grabworld,BCRandomizer.Prefix + ChatColor.LIGHT_PURPLE + " Containers randomized.");
 		
-		GameStartEvent evento= new GameStartEvent(joinedplayers,spectating,MobArena);
+		//GameStartEvent eventobj= new GameStartEvent(joinedplayers,spectating,MobArena);
 		rp.getTracker().deathwatcher.onGameStart(eventobj);
 		
 		
-		
+		if(!_Owner.Randomcommand.getMobArenaMode()){
 		ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix + ChatColor.GREEN
 				+ "PvP will be re-enabled in " + ChatColor.RED
 				+ numseconds + ChatColor.GREEN + " Seconds! get ready.");
+		}
+		
+		
+		
 		
 		Thread thr = new Thread(rp);
 		thr.start();
@@ -614,6 +623,7 @@ public class RandomizerCommand implements CommandExecutor {
 					allfurnaces.add(casted);
 					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
 					populatedamount+= cr.Shuffle();
+					casted.getInventory().setResult(null);
 				}
 				else if(iteratestate instanceof Dispenser){
 					Dispenser casted = (Dispenser)iteratestate;

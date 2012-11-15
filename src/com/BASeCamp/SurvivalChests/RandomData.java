@@ -390,48 +390,79 @@ public class RandomData {
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
 		//BCRandomizer.emitmessage("usename=" + usename);
-		if(usename.equalsIgnoreCase("%CLEVERSHEARSNAME%")){
-			usename = NameGenerator.GenerateName(new String[]{"Shears","Scissors","Cutters","Safety Scissors"},NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERAXENAME%")){
+			
+			usename = usename.replace("%CLEVERAXENAME%",
+					NameGenerator.GenerateName(NameGenerator.Axe, NameGenerator.Adjectives,NameGenerator.Verbs));
+			
+		}
+		if(usename.contains("%CLEVERPICKAXENAME")) {
+			
+			usename = usename.replace("%CLEVERPICKAXENAME%",
+					NameGenerator.GenerateName(NameGenerator.Pickaxe,NameGenerator.Adjectives,NameGenerator.Verbs));
 			
 			
 		}
-		if(usename.equalsIgnoreCase("%CLEVERSIGNNAME%"))
+		if(usename.contains("%CLEVERHOENAME%")) {
+			
+			usename = usename.replace("%CLEVERHOENAME%",
+					NameGenerator.GenerateName(NameGenerator.Hoe, NameGenerator.Adjectives,NameGenerator.Verbs));
+			
+			
+		}
+		if(usename.contains("%CLEVERSHOVELNAME%")){
+			usename = usename.replace("%CLEVERSHOVELNAME%",
+					NameGenerator.GenerateName(NameGenerator.Shovel,NameGenerator.Adjectives,NameGenerator.Verbs));
+			
+			
+		}
+		if(usename.contains("%CLEVERSHEARSNAME%")){
+			usename = usename.replace("%CLEVERSHEARSNAME%",
+					NameGenerator.GenerateName(new String[]{"Shears","Scissors","Cutters","Safety Scissors"},NameGenerator.Adjectives,NameGenerator.Verbs));
+			
+			
+		}
+		if(usename.contains("%CLEVERSIGNNAME%"))
 		{
-		usename = NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage","Hinter"}, NameGenerator.Adjectives, NameGenerator.Verbs);	
+		usename = usename.replace("%CLEVERSIGNNAME%", 
+				NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage","Hinter"}, NameGenerator.Adjectives, NameGenerator.Verbs));	
 			
 		
 		}
 		
-		if(usename.equalsIgnoreCase("%CLEVERHATNAME%")){
-			usename = NameGenerator.GenerateName(NameGenerator.Hats, 
-					NameGenerator.Adjectives, NameGenerator.Verbs);
+		if(usename.contains("%CLEVERHATNAME%")){
+			usename = usename.replace("%CLEVERHATNAME%",
+					NameGenerator.GenerateName(NameGenerator.Hats, 
+					NameGenerator.Adjectives, NameGenerator.Verbs));
 			}
 			
 			
 		
-		else if(usename.equalsIgnoreCase("%CLEVERCHESTPLATENAME%"))	{
-			usename = NameGenerator.GenerateName(NameGenerator.Chestplates,
-					NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERCHESTPLATENAME%"))	{
+			usename = usename.replace("%CLEVERCHESTPLATENAME%",NameGenerator.GenerateName(NameGenerator.Chestplates,
+					NameGenerator.Adjectives,NameGenerator.Verbs));
 			
 			
 		}
-		else if(usename.equalsIgnoreCase("%CLEVERLEGGINGSNAME%")) {
-			usename = NameGenerator.GenerateName(NameGenerator.Pants,
-					NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERLEGGINGSNAME%")) {
+			usename = usename.replace("%CLEVERLEGGINGSNAME%",
+					NameGenerator.GenerateName(NameGenerator.Pants,
+					NameGenerator.Adjectives,NameGenerator.Verbs));
 			
 		}
-		else if(usename.equalsIgnoreCase("%CLEVERBOOTSNAME%")) {
-			usename = NameGenerator.GenerateName(NameGenerator.Boots,
-					NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERBOOTSNAME%")) {
+			usename = usename.replace("%CLEVERBOOTSNAME%",
+					NameGenerator.GenerateName(NameGenerator.Boots,
+					NameGenerator.Adjectives,NameGenerator.Verbs));
 			
 		}
-		else if(usename.equalsIgnoreCase("%CLEVERSWORDNAME%")){
-			usename = NameGenerator.GenerateName(NameGenerator.Sword
-			,NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERSWORDNAME%")){
+			usename = usename.replace("%CLEVERSWORDNAME%",NameGenerator.GenerateName(NameGenerator.Sword
+			,NameGenerator.Adjectives,NameGenerator.Verbs));
 		}
-		else if(usename.equalsIgnoreCase("%CLEVERBOWNAME%")){
-			usename = NameGenerator.GenerateName(NameGenerator.Bow,
-					NameGenerator.Adjectives,NameGenerator.Verbs);
+		if(usename.contains("%CLEVERBOWNAME%")){
+			usename = usename.replace("%CLEVERBOWNAME%",NameGenerator.GenerateName(NameGenerator.Bow,
+					NameGenerator.Adjectives,NameGenerator.Verbs));
 			
 			
 		}
@@ -442,7 +473,7 @@ public class RandomData {
 			if(RandomData.rgen.nextFloat()>0.9f){
 				
 				uselore = createSpecialLore();
-				Bukkit.getLogger().info("Created random Lore, " + uselore);
+				//Bukkit.getLogger().info("Created random Lore, " + uselore);
 				
 			}
 			

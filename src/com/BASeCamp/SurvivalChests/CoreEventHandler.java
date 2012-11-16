@@ -20,6 +20,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.entity.CraftMonster;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creature;
@@ -48,6 +49,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -159,7 +162,15 @@ public class CoreEventHandler implements Listener {
 		}
 		
 	}
-	
+	@EventHandler
+	public void OnHangingBreak(HangingBreakEvent event){
+		
+		if(event.getCause().equals(RemoveCause.ENTITY)) return; //will call or has called the BreakByEntity event.
+		
+		event.setCancelled(true); //otherwise... INVINCIBLE! MWA HAHA
+		
+		
+	}
 	@EventHandler
 	public void OnHangingBreakByEntityEvent(HangingBreakByEntityEvent event) {
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
@@ -193,7 +204,7 @@ public class CoreEventHandler implements Listener {
 
 					} else {
 						ItemStack contents = gotframe.getItem();
-						if (contents != null) {
+						if (contents != null && !contents.getType().equals(Material.AIR)) {
 							gotframe.setItem(null);
 							repopulateFrames.put(gotframe, contents);
 							Frametakers.put(gotframe, theplayer);
@@ -202,7 +213,13 @@ public class CoreEventHandler implements Listener {
 							theplayer.sendMessage(BCRandomizer.Prefix + "You have acquired a "
 									+ getFriendlyNameFor(contents));
 						}
-
+						else if(contents.getType().equals(Material.AIR)){
+							
+							
+							theplayer.sendMessage(BCRandomizer.Prefix + " That item Frame is empty.");
+							
+							
+						}
 						else {
 							//item frame contents are null.
 							
@@ -261,6 +278,9 @@ public class CoreEventHandler implements Listener {
 				int currscore = tally.get(awardplayer);
 				int addedvalue = getMonsterValue((LivingEntity)(event.getEntity()));
 				addedvalue += getMonsterValue(awardplayer);
+				
+				event.setDroppedExp((event.getDroppedExp()+1)*addedvalue);
+				
 				currscore+= addedvalue;
 				tally.put(awardplayer, currscore);
 				//inform the player.
@@ -494,7 +514,21 @@ else if(monster instanceof CaveSpider) {
 		
 		
 	}
-	
+	public void onEntityDamagePlayer(EntityDamageByEntityEvent event){
+		
+		
+		if(event.getEntity() instanceof Player){
+			
+			if(event.getDamager() instanceof LivingEntity){
+				
+				event.setDamage(event.getDamage()*2);
+				
+			}
+			
+			
+		}
+		
+	}
 	
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event) {
@@ -983,10 +1017,17 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 	}
 
 	@EventHandler
-	public void onCreatureSpawn(CreatureSpawnEvent event){
+	public void onCreatureSpawn(final CreatureSpawnEvent event){
 		
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
+		
+		if(event.getEntity() instanceof Animals) {
+			event.setCancelled(true);
+			
+			
+		}
+		
 		Location BorderA = _owner.Randomcommand.BorderA;
 		Location BorderB = _owner.Randomcommand.BorderB;
 		if(BorderA!=null && BorderB!=null){
@@ -997,14 +1038,32 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			float ZMaximum = (float) Math.max(BorderA.getZ(), BorderB.getZ());
 			Location uselocation = event.getEntity().getLocation();
 			//check X Coordinate.
-			if(uselocation.getX() < XMinimum || uselocation.getX() > XMaximum){
+			if((uselocation.getX() < XMinimum || uselocation.getX() > XMaximum) 
+				|| (uselocation.getZ() < ZMinimum || uselocation.getZ() > ZMaximum)){
 				
-				event.setCancelled(true);
 				
-			}
-			else if(uselocation.getZ() < ZMinimum || uselocation.getZ() > ZMaximum){
+				//move it into range. Generate a random X and Z.
 				
-				event.setCancelled(true);
+				int randomX = (int) ((RandomData.rgen.nextDouble()*(XMaximum-XMinimum)) + XMinimum);
+				int randomZ = (int) ((RandomData.rgen.nextDouble()*(ZMaximum-ZMinimum)) + ZMinimum);
+				
+				int chosenY = event.getEntity().getWorld().getHighestBlockYAt(randomX,randomZ);
+				
+				final Location newLocation = new Location(event.getEntity().getWorld(),randomX,chosenY+3,randomZ);
+				
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(_owner, new Runnable() {
+					
+					public void run(){
+						event.getEntity().teleport(newLocation);		
+						
+					}
+					
+				});
+				
+				
+				
+				
+				
 				
 			}
 			

@@ -17,11 +17,15 @@ import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftSkeleton;
 import org.bukkit.craftbukkit.entity.CraftZombie;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.Blaze;
+import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Spider;
 import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
 
@@ -76,15 +80,23 @@ public class SpawnerRandomizer {
 				//Order is Weapon,Boots,Leggings,Chestplate,Helmet
 				
 				//Armor/weapons are only equipable by Zombies, Skeletons, and Pigmen.
+				int baseXP = 0;
+				
+				if(le instanceof Creeper || le instanceof Blaze || 
+						le instanceof Enderman || le instanceof Spider 
+						|| le instanceof CaveSpider || le instanceof Zombie){
+					baseXP =5;
+				}
 				
 				
 				if(le instanceof Creeper){
 					
-					
+					baseXP*=2;
 					((Creeper)le).setPowered(RandomData.rgen.nextBoolean());
 				}
 				if(le instanceof Skeleton){
 					
+					baseXP*=2.5;
 					//((Skeleton)le).
 					CraftSkeleton cs = (CraftSkeleton)le;
 					cs.getHandle().setSkeletonType(RandomData.rgen.nextBoolean()?1:0);

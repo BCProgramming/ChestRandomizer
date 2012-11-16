@@ -8,6 +8,7 @@ import java.util.Scanner;
 import net.minecraft.server.NBTTagList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -71,6 +72,41 @@ public class BCRandomizer extends JavaPlugin {
 	    public static void clearPlayerInventory(Player p){
 	    	
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
+	    	
+	    }
+	    public static void ExtinguishFlames(World exWorld){
+	    	
+	    	for(Chunk iteratechunk:exWorld.getLoadedChunks()){
+	    		
+	    		
+	    		for(int x=0;x<15;x++){
+	    			for(int y=0;y<255;y++)
+	    				for(int z=0;z<15;z++){
+	    					//get block at this position.
+	    					Block getblock = iteratechunk.getBlock(x,y, z);
+	    					if(getblock.getType().equals(Material.FIRE)){
+	    						
+	    						//extinguish
+	    						
+	    						Block blockbelow = iteratechunk.getBlock(x, y-1, z);
+	    						if(!blockbelow.getType().equals(Material.NETHERRACK)){
+	    							getblock.setType(Material.AIR);
+	    							
+	    							
+	    							
+	    						}
+	    						
+	    					}
+	    					
+	    					
+	    					
+	    				}
+	    		}
+	    		
+	    		
+	    		
+	    	}
+	    	
 	    	
 	    }
 		public Scanner acquireStream(String SourceName){

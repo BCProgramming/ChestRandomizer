@@ -140,14 +140,41 @@ public class GameTracker implements Runnable {
 		_deadPlayers.add(deadPlayer);
 		Integer theposition = StillAlive.size()+1;
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is " + ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:" + theposition + ")");
-		BCRandomizer.Victories.madePlace(deadPlayer, theposition);
-		if(deathwatcher==null) return;
-		FinishPositions.put(theposition, deadPlayer);
+		Player WinningPlayer = deadPlayer;
+		if(_MobArenaMode) {
+		
+			Stack<KeyValuePair<Integer,Player>> sortedScores = SortScoreTally();
+			//FinishPositions = new HashMap<Integer,Player>();
+			int currpos=1;
+			while(!sortedScores.isEmpty()){
+				KeyValuePair<Integer,Player> popped = sortedScores.pop();
+				FinishPositions.put(currpos, popped.getValue());
+				
+				
+				currpos++;
+				
+			}
+			
+			
+		}
+		else{
+			BCRandomizer.Victories.madePlace(deadPlayer, theposition);
+			if(deathwatcher==null) return;
+			FinishPositions.put(theposition, deadPlayer);
+		}
+		
+	
 		synchronized(StillAlive) { //synch on StillAlive List.
 			if(StillAlive.size()==0){
-				Bukkit.broadcastMessage("All players participating died.");
-				if(_MobArenaMode) broadcastresults();
-				addprize(deadPlayer);
+				//Bukkit.broadcastMessage("All players participating died.");
+				if(_MobArenaMode){
+					
+					broadcastresults();
+					//Bukkit.broadcastMessage(ChatColor.AQUA + "This games winner is " + ChatColor.GREEN + FinishPositions.keySet() 
+				
+				
+				}
+				//addprize(deadPlayer);
 				gamecomplete=true;
 				GameEndEvent eventobj = new GameEndEvent(deadPlayer,FinishPositions,this);
 				Bukkit.getServer().getPluginManager().callEvent(eventobj);
@@ -230,13 +257,8 @@ public class GameTracker implements Runnable {
 		}
 		
 	}
-	private void broadcastresults() {
-		// TODO Auto-generated method stub
-		
-		//broadcast the game points!
-		
-		//we need to sort it by the score.
-		SortedSet<KeyValuePair<Integer,Player>> sortset = new TreeSet<KeyValuePair<Integer,Player>>();
+	private Stack<KeyValuePair<Integer,Player>> SortScoreTally(){
+SortedSet<KeyValuePair<Integer,Player>> sortset = new TreeSet<KeyValuePair<Integer,Player>>();
 		
 		//iterate through ScoreTally.
 		//iterate through the keys.
@@ -257,6 +279,15 @@ public class GameTracker implements Runnable {
 			
 			
 		}
+		return reversing;
+	}
+	private void broadcastresults() {
+		// TODO Auto-generated method stub
+		
+		//broadcast the game points!
+		
+		//we need to sort it by the score.
+		Stack<KeyValuePair<Integer,Player>> reversing = SortScoreTally();
 		int Position = 1;
 		Bukkit.broadcastMessage(BCRandomizer.Prefix +   "--Results--");
 		while(!reversing.isEmpty()){
@@ -485,6 +516,9 @@ public class GameTracker implements Runnable {
 			String chosenmessage = RandomData.Choose(possiblemessages);
 			ResumePvP.BroadcastWorld(runningWorld,BCRandomizer.Prefix + ChatColor.RED + chosenmessage);				
 			ResumePvP.BroadcastWorld(runningWorld, BCRandomizer.Prefix + "The Animals knew what was coming and killed themselves.");
+			
+			//extinguish all flames.
+			BCRandomizer.ExtinguishFlames(runningWorld);
 			
 			//kill all animals in the world, too. Because, why not.
 			for(Entity loopentity: runningWorld.getEntities()){

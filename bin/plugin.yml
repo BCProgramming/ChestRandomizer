@@ -4,6 +4,8 @@ version: 1.5
 commands:
       repopchests:
         description: repopulates chests in loaded chunks.
+      prepareinfo:
+        description: shows information about players that have joined or are spectating a game being prepared.  
       preparegame:
         description: prepares a game to start, and announces the game to players as well as those that join.
       joingame:
@@ -26,3 +28,5 @@ commands:
         description: set's second border corner.
       clearborders:
         description: clears any set borders.
+      setfly:
+        description: sets playing flying or not. /setfly <player> <true|false>

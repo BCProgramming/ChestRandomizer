@@ -165,7 +165,31 @@ public class RandomizerCommand implements CommandExecutor {
 		if (arg2.equalsIgnoreCase("randomizespawners")) {
 			SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 			sr.RandomizeSpawners(p.getWorld());
-
+		}
+		else if(arg2.equalsIgnoreCase("setfly")){
+			if(arg3.length < 2) {
+				
+				p.sendMessage("Insufficient arguments.");
+				
+			}
+			else {
+				String playername = arg3[0];
+				boolean flyset = Boolean.parseBoolean(arg3[1]);
+				
+				for(Player pl:Bukkit.getOnlinePlayers()){
+					
+					
+					pl.setAllowFlight(flyset);
+					pl.setFlying(flyset);
+					p.sendMessage("Player " + pl.getName() + " flying set to " + flyset);
+					
+					
+				}
+				
+			
+			}
+			
+		
 		} else if (arg2.equalsIgnoreCase("arenaborder1")) {
 
 			BorderA = p.getLocation();
@@ -173,7 +197,10 @@ public class RandomizerCommand implements CommandExecutor {
 					+ "BorderA set to (X,Z)=" + BorderA.getBlockX() + ","
 					+ BorderA.getBlockZ());
 
-		} else if (arg2.equalsIgnoreCase("arenaborder2")) {
+		} 
+		
+		
+		else if (arg2.equalsIgnoreCase("arenaborder2")) {
 
 			BorderB = p.getLocation();
 			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
@@ -287,7 +314,39 @@ public class RandomizerCommand implements CommandExecutor {
 
 			Bukkit.broadcastMessage("Current participants:"
 					+ StringUtil.Join(getPlayerNames(joinedplayers), ","));
-
+		}
+		else if(arg2.equalsIgnoreCase("prepareinfo")){
+			if(p==null) return false;
+			
+			String[] Participants = new String[joinedplayers.size()];
+			String[] Spectators = new String[spectating.size()];
+			int currparticipant = 0;
+			for(Player participant:joinedplayers){
+				
+				Participants[currparticipant] = participant.getDisplayName();
+				
+				
+			}
+			
+			int currspectator = 0;
+			for(Player spectator:spectating){
+				
+				Spectators[currspectator] = spectator.getDisplayName();
+				
+			}
+			
+			
+			String Joined = StringUtil.Join(Participants, ",");
+			String spectates = StringUtil.Join(Spectators, ",");
+			
+			p.sendMessage(BCRandomizer.Prefix +  joinedplayers.size() + " participants:");
+			p.sendMessage(BCRandomizer.Prefix + Joined);
+			p.sendMessage(BCRandomizer.Prefix + spectating.size() + " Spectating:");
+			p.sendMessage(BCRandomizer.Prefix + spectates);
+			
+			
+			
+			
 		} else if (arg2.equalsIgnoreCase("spectategame")) {
 
 			if (p == null)
@@ -313,7 +372,7 @@ public class RandomizerCommand implements CommandExecutor {
 				p.setBedSpawnLocation(_SpawnSpot);
 			}
 
-			Bukkit.broadcastMessage(Color.MAGENTA + p.getDisplayName()
+			Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + p.getDisplayName()
 					+ " is spectating.");
 
 			// if a game is in progress, make them invisible and flying.
@@ -555,11 +614,31 @@ public class RandomizerCommand implements CommandExecutor {
 				pl.setExhaustion(20);
 				pl.setSaturation(20);
 				pl.setGameMode(GameMode.ADVENTURE);
-
+				pl.setAllowFlight(false);
 				pl.playSound(pl.getLocation(), Sound.ENDERMAN_HIT, 1.0f, 1.0f);
 			}
 
 		}
+		for(Player spectator : spectating){
+			
+			//set flying.
+			spectator.setAllowFlight(true);
+			
+			//hide this spectator to all participants.
+			for(Player pl:joinedplayers){
+				
+				pl.hidePlayer(spectator);
+				
+				
+			}
+			
+			
+			
+			
+			
+		}
+		
+		
 		ChestRandomizer.resetStorage();
 		repopulateChests("", p.getWorld(), true);
 		ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix

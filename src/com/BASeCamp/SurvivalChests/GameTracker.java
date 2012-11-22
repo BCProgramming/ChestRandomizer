@@ -154,6 +154,7 @@ public class GameTracker implements Runnable {
 		}
 		StillAlive.remove(deadPlayer);
 		_deadPlayers.add(deadPlayer);
+		_Spectators.add(deadPlayer);
 		Integer theposition = StillAlive.size() + 1;
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is "
 				+ ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:"
@@ -214,7 +215,7 @@ public class GameTracker implements Runnable {
 				gamecomplete = true;
 				// dead player explodes inexplicably.
 
-				addprize(deadPlayer);
+				//addprize(deadPlayer);
 				gamecomplete = true;
 				deathwatcher._Trackers.remove(this);
 				// move players back to their original spots where desired.
@@ -254,7 +255,7 @@ public class GameTracker implements Runnable {
 						+ buildnamelist
 								.substring(0, buildnamelist.length() - 1));
 
-				if (StillAlive.size() == 3 && !_MobArenaMode) {
+				if (StillAlive.size() < 4 && !_MobArenaMode) {
 					gavecompasses = true;
 					for (Player givecompass : StillAlive) {
 						ItemStack CompassItem = new ItemStack(Material.COMPASS);
@@ -566,18 +567,7 @@ public class GameTracker implements Runnable {
 
 		}
 
-		for (Entity loopentity : runningWorld.getEntities()) {
-			if (loopentity instanceof org.bukkit.entity.Animals) {
 
-				Animals animal = ((Animals) loopentity);
-				animal.damage(10000); // BAM! Smite you Mr. Animal. Could be a
-										// sheep. Poor sheep.
-
-			} else if (loopentity instanceof org.bukkit.entity.Creature) {
-				((LivingEntity) loopentity).damage(10000);
-			}
-
-		}
 
 	}
 }

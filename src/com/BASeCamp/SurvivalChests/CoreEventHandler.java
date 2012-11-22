@@ -61,6 +61,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
 import org.bukkit.potion.PotionEffect;
@@ -830,6 +831,42 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		}
 	}
 
+	public void onPlayerRespawn(PlayerRespawnEvent event){
+		
+		
+		
+		if(null!=_owner.isSpectator(event.getPlayer())){
+			event.getPlayer().setAllowFlight(true);
+			
+			//hide to participants.
+			for(Player p:_owner.getGame(event.getPlayer()).getStillAlive()){
+				p.hidePlayer(event.getPlayer());
+				
+				
+			}
+			
+			
+			
+			
+		}
+		else
+		{
+			event.getPlayer().setAllowFlight(false);
+			event.getPlayer().setFlying(false);
+			for(Player p:Bukkit.getOnlinePlayers()){
+				
+				if(p!=event.getPlayer());
+					p.showPlayer(event.getPlayer());
+				
+				
+				
+			}
+			
+			
+		}
+	}
+	
+	
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
@@ -1349,6 +1386,20 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		}
 		System.out.println("Cached " + framescount + " Item frames.");
 
+		for (Entity loopentity : Worldgrab.getEntities()) {
+			if (loopentity instanceof org.bukkit.entity.Animals) {
+
+				Animals animal = ((Animals) loopentity);
+				animal.damage(10000); // BAM! Smite you Mr. Animal. Could be a
+										// sheep. Poor sheep.
+
+			} else if (loopentity instanceof org.bukkit.entity.Creature) {
+				((LivingEntity) loopentity).damage(10000);
+			}
+
+		}
+		
+		
 	}
 
 	public void onGameEnd(GameEndEvent event) {

@@ -15,12 +15,17 @@ import net.minecraft.server.NBTTagString;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
  
-public class ItemNamer {
+public final class ItemNamer {
    
     private static CraftItemStack                    craftStack;
     private static net.minecraft.server.ItemStack    itemStack;
    
-    public static void load(ItemStack item) {
+    public ItemNamer(ItemStack item){
+    	
+    	load(item);
+    }
+    
+    protected void load(ItemStack item) {
         if (item instanceof CraftItemStack) {
             craftStack = (CraftItemStack) item;
             ItemNamer.itemStack = craftStack.getHandle();
@@ -37,19 +42,19 @@ public class ItemNamer {
         }
     }
    
-    public static void setName(String name) {
+    public void setName(String name) {
     	if(name=="") return;
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         tag.setString("Name", name);
         itemStack.tag.setCompound("display", tag);
     }
    
-    public static String getName() {
+    public String getName() {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         return tag.getString("Name");
     }
    
-    public static void addLore(String lore) {
+    public void addLore(String lore) {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         NBTTagList list = tag.getList("Lore");
         if (list == null) list = new NBTTagList();
@@ -58,7 +63,7 @@ public class ItemNamer {
         itemStack.tag.setCompound("display", tag);
     }
     
-    public static void setLore(String lore) {
+    public void setLore(String lore) {
         NBTTagCompound tag = itemStack.tag.getCompound("display");
         tag.set("Lore", new NBTTagList());
         
@@ -119,7 +124,7 @@ public class ItemNamer {
 	   return ""; //empty string indicates no NBT tag data.
 	   
    }
-    public static String[] getLore() {
+    public String[] getLore() {
         NBTTagCompound tag = itemStack.tag;
         NBTTagList list = tag.getCompound("display").getList("Lore");
         ArrayList<String> strings = new ArrayList<String>();
@@ -129,8 +134,43 @@ public class ItemNamer {
         strings.toArray(lores);
         return lores;
     }
-   
-    public static org.bukkit.inventory.ItemStack getItemStack() {
+    public static ItemStack renameItem(ItemStack renameit,String Name){
+    	
+    	return renameItem(renameit,(String)null);
+    	
+    	
+    }
+    public static ItemStack renameItem(ItemStack renameit,String Name,String Lore){
+    	
+    	String[] useLore = null;
+    	if(Lore!=null)
+    		useLore = Lore.split("\n");
+    	
+    	return renameItem(renameit,Name,useLore);
+    	
+    	
+    }
+   public static ItemStack renameItem(ItemStack renameit,String Name,String[] Lore){
+	   
+	   
+	   ItemNamer setter = new ItemNamer(renameit);
+	   if(Name!=null) setter.setName(Name);
+	   if(Lore!=null) {
+		   
+		   for(int i=0;i<Lore.length;i++){
+			   
+			   setter.addLore(Lore[i]);
+			   
+		   }
+		   
+		   
+	   }
+	   
+	   
+	   return setter.getItemStack();
+	   
+   }
+    public org.bukkit.inventory.ItemStack getItemStack() {
         return craftStack;
     }
 }

@@ -1,33 +1,134 @@
 package com.BASeCamp.SurvivalChests;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.bukkit.enchantments.*;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
-public class EnchantmentProbability {
+public class EnchantmentProbability implements Cloneable {
 
+	public class EnchantmentAssignmentData implements Cloneable{
+		
+		private String Name;
+		private int Level;
+		private float Weight;
+		public String getName() { return Name;}
+		public int getLevel() { return Level;}
+		public float getWeight() { return Weight;}
+		public EnchantmentAssignmentData clone(){
+			
+			return new EnchantmentAssignmentData(Name,Level,Weight);
+			
+			
+		}
+		public EnchantmentAssignmentData(String pName,int pLevel,float pWeight){
+			
+			Name=pName.toUpperCase();
+			Level=pLevel;
+			Weight=pWeight;
+			
+			
+		}
+		
+	}
+	public Object clone(){
+		
+		
+		EnchantmentProbability ep = new EnchantmentProbability();
+		ep.Enchantprobabilities = (LinkedList<EnchantmentAssignmentData>) Enchantprobabilities.clone();
+	
+		ep.preCache();
+		return ep;
+		
+	}
 	public static HashMap<String,Enchantment> EnchantmentMapping = null;
-	private HashMap<String,Float> Enchantprobabilities = new HashMap<String,Float>();
-	private HashMap<Integer,Float> EnchantLevelProbabilities = new HashMap<Integer,Float>();
+	protected LinkedList<EnchantmentAssignmentData> Enchantprobabilities = new LinkedList<EnchantmentAssignmentData>();
+	protected HashMap<Integer,Float> EnchantLevelProbabilities = new HashMap<Integer,Float>();
+	
+	
+	
 	public void setProbability(String EnchantmentName,float Probability)
 	{
-		Enchantprobabilities.put(EnchantmentName, new Float(Probability));
+		//no level was specified, so we'll assume we are to set a bunch of levels...
+		float calcsum=0;
+		for(Float getsum:EnchantLevelProbabilities.values()){
+			calcsum+=getsum;
+			
+		}
+		
+		
+		for(Integer iterate:EnchantLevelProbabilities.keySet()){
+			
+			
+			float useprobability = Probability*(EnchantLevelProbabilities.get(iterate)/calcsum);
+			
+			
+			
+		   Enchantprobabilities.add(new EnchantmentAssignmentData(EnchantmentName,
+				   iterate,useprobability));	
+			
+		}
 		
 		
 	
 	}
-	public float getProbability(String EnchantmentName){
-		if(Enchantprobabilities.containsKey(EnchantmentName)){
-			
-		return Enchantprobabilities.get(EnchantmentName);
-		}
-		else
-		{
-		return 0;	
+	public void setProbability(String EnchantmentName,int Level,float Probability){
 		
+		Enchantprobabilities.add(new EnchantmentAssignmentData(EnchantmentName,Level,Probability));
+		
+		
+	}
+	float[] cacheprobabilities = null;
+	EnchantmentAssignmentData[] enchantdata = null;
+	public void Apply(ItemStack applyitem){
+		
+		if(Enchantprobabilities.size()==0) return; //no enchants to choose from.
+		//otherwise, simplez. create an array of floats and a corresponding array of EnchantmentAssignmentData's...
+		
+		//System.out.println("Applying enchantment. Choosing from " + Enchantprobabilities.size());
+		preCache();
+		//now, use the infamous Choose routine...
+		
+		Enchantment useenchant = null;
+		EnchantmentAssignmentData chosen =null;
+
+        chosen = RandomData.Choose(enchantdata,cacheprobabilities);
+        if(chosen==null) return; //no enchant selected.
+		useenchant = EnchantmentMapping.get(chosen.getName());
+		//System.out.println("chosen enchant:" + useenchant.getName());
+
+		if(useenchant==null) {
+			//System.out.println("Null enchantment....");
+			return;
+			
 		}
+		if(!applyitem.containsEnchantment(useenchant)){
+		applyitem.addUnsafeEnchantment(useenchant, chosen.getLevel());
+		}
+		
+		
+	}
+	public void preCache() {
+		
+		if(cacheprobabilities ==null){
+			System.out.println("Precache enchantmentprobabilities->" + Enchantprobabilities.size());
+		cacheprobabilities = new float[Enchantprobabilities.size()];
+		enchantdata = new EnchantmentAssignmentData[Enchantprobabilities.size()];
+		int index=0;
+		for(EnchantmentAssignmentData ead:Enchantprobabilities){
+			
+			cacheprobabilities[index] = ead.getWeight();
+			enchantdata[index] = ead;
+			index++;
+			
+			
+			
+		}
+		}
+		
 	}
 	//applies a random enchantment to the given item.
+	/*
 	public void Apply(ItemStack applyitem, boolean superEnchantment)
 	{
 		//first, select a random enchantment.
@@ -85,12 +186,12 @@ public class EnchantmentProbability {
 		}
 		
 		
-	}
+	}*/
 	public EnchantmentProbability()
 	{
-		EnchantLevelProbabilities.put(1,500f);
-		EnchantLevelProbabilities.put(2,75f);
-		EnchantLevelProbabilities.put(3,50f);
+		EnchantLevelProbabilities.put(1,100f);
+		EnchantLevelProbabilities.put(2,50f);
+		EnchantLevelProbabilities.put(3,45f);
 		EnchantLevelProbabilities.put(4,25f);
 		EnchantLevelProbabilities.put(5,13f);
 		EnchantLevelProbabilities.put(6,7f);

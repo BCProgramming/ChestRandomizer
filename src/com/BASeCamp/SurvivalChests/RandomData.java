@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.potion.CraftPotionBrewer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
@@ -22,6 +23,10 @@ import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 //RandomData class. Holds random probability data for a single item.
 //This item can optionally have an additional list of possible enchantments.
@@ -65,7 +70,7 @@ public class RandomData {
 	public void setMaxCount(int value){_MaxCount=value;}
 	public String getLore(){return _Lore;}
 	public void setLore(String value){ _Lore=value;}
-	
+	public EnchantmentProbability getEnchantmentInformation() { return _enchantmentprob;}
 	public HashMap<String,Integer> staticenchants = new HashMap<String,Integer>();
 	
 	public static RandomData ChooseRandomData(List<RandomData> FromList){
@@ -300,10 +305,16 @@ public class RandomData {
 			Potion makepotion = new Potion(pt);
 			// Potions: Type is DataValue, Extended is DamageMin, Level is DamageMax, and Splash is MinCount.
 			try {
-			makepotion.setHasExtendedDuration(_DamageMin>0);
+				if(_DamageMin==1) _DamageMin=(int)(20f*(1.5f*60f)); //default 1 minute 3 seconds.
+				CraftPotionBrewer cp = new CraftPotionBrewer();
+				PotionEffect effect = cp.createEffect(pet, (int)_DamageMin, (int)_DamageMax);
+				
+				makepotion.getEffects().clear();
+				makepotion.getEffects().add(effect);
+				
+				makepotion.setSplash(_MinCount > 0);
+				
 			}catch(IllegalArgumentException ex){}
-			try {makepotion.setLevel((int)_DamageMax);}catch(IllegalArgumentException ex){}
-			try {makepotion.setSplash(_MinCount>0);}catch(IllegalArgumentException ex){}
 			try {makepotion.apply(createitem);}catch(IllegalArgumentException ex){}
 			}
 		}
@@ -379,10 +390,18 @@ public class RandomData {
 		try {
 		for(int i=0;i<numints;i++){
 			
-		_enchantmentprob.Apply(createitem,_SuperEnchantment);
+		_enchantmentprob.Apply(createitem);
 		}
+		
 		}
-		catch(Exception exx){} //ignore errors...
+		
+		
+		catch(Exception exx){
+			
+			exx.printStackTrace();
+			
+			
+		} //ignore errors...
 		String usename=_Name;
 		String uselore = _Lore;
 		
@@ -510,18 +529,8 @@ public class RandomData {
 	public ItemStack setItemNameAndLore(ItemStack item,String name,String Lore){
 		
 		
+		return ItemNamer.renameItem(item,name,Lore);
 		
-		if(!name.trim().equalsIgnoreCase("")){
-			ItemNamer.load(item);
-		
-		ItemNamer.setName(name);
-		}
-		if(!Lore.trim().equalsIgnoreCase("")){
-			//ItemNamer.load(item);
-		
-		    ItemNamer.setLore(Lore); 
-		}
-		return ItemNamer.getItemStack();
 	}
 	 public static ItemStack setColor(ItemStack item, int color){
 		 CraftItemStack craftStack = null;
@@ -588,7 +597,154 @@ public class RandomData {
 		
 	}
 		
-	
+	public RandomData(Element xmlelement){
+		
+		
+		//the "core" element type tagname isn't particularly important, but we do need
+		//to inspect the "type" attribute.
+		//<RandomData type="item" Name="Wooden Sword" ID=
+		String typeattr = "item";
+		if(xmlelement.hasAttribute("type"))
+			typeattr = xmlelement.getAttribute("type");
+		
+		if(xmlelement.hasAttribute("Name")){
+			
+			_Name = xmlelement.getAttribute("Name");
+			
+		}
+		if(xmlelement.hasAttribute("Lore")){
+			_Lore = xmlelement.getAttribute("Lore");
+			
+		}
+		if(xmlelement.hasAttribute("Weight")){
+			_Weighting = Float.parseFloat(xmlelement.getAttribute("Weight")); 
+			
+		}
+
+		//type can be item, potion or head.
+		if(typeattr.equalsIgnoreCase("item")){
+			//item Random Data type.
+			
+			//Attributes:
+			//name, ID, Data,MinDamage,MaxDamage,MinCount,MaxCount,Weight
+			
+			
+			if(xmlelement.hasAttribute("id")){
+				
+				_ItemID = Integer.parseInt(xmlelement.getAttribute("id"));
+				
+			}if(xmlelement.hasAttribute("data")){
+				
+				_Data = Byte.parseByte(xmlelement.getAttribute("data"));
+				
+			}
+			if(xmlelement.hasAttribute("mindamage")){
+				
+				_DamageMin = Integer.parseInt(xmlelement.getAttribute("minfamage"));
+			}
+			if(xmlelement.hasAttribute("maxdamage")){
+				_DamageMax = Integer.parseInt(xmlelement.getAttribute("maxdamage"));
+				
+			}
+			if(xmlelement.hasAttribute("mincount")){
+				_MinCount = Integer.parseInt(xmlelement.getAttribute("mincount"));
+				
+			}
+			if(xmlelement.hasAttribute("maxcount")){
+				_MaxCount = Integer.parseInt(xmlelement.getAttribute("maxcount"));
+			}
+		
+			
+			
+		}
+		else if(typeattr.equalsIgnoreCase("potion")){
+			//potion random data type.
+			
+			//potion type is _Data, extendedduration is DamageMin, Level is DamageMax, Splash is MinCount.
+			//
+			//effect
+			_ItemID = Material.POTION.getId();
+			if(xmlelement.hasAttribute("effect")){
+				_Data = Byte.parseByte(xmlelement.getAttribute("effect"));
+			}
+			if(xmlelement.hasAttribute("duration")){
+				_DamageMin = Integer.parseInt(xmlelement.getAttribute("duration"));
+				
+			}
+			if(xmlelement.hasAttribute("level")){
+				
+				_DamageMax = Integer.parseInt(xmlelement.getAttribute("level"));
+				
+			}
+			if(xmlelement.hasAttribute("splash")){
+				
+				_MinCount = Boolean.parseBoolean(xmlelement.getAttribute("splash"))?1:0;
+				
+				
+			}
+		}
+		else if(typeattr.equalsIgnoreCase("head")){
+			
+			//head item type.
+			//Head Person name is Name, Weight is, well, weight.
+			_ItemID = Material.SKULL_ITEM.getId();
+
+			
+			
+			
+		}
+		
+		//enchantments are listed as a "<enchant>" subkey.
+		NodeList enchantments = xmlelement.getElementsByTagName("enchant");
+		
+		for(int i=0;i<enchantments.getLength();i++){
+			
+			
+			Node gotnode = enchantments.item(i);
+			if(gotnode instanceof Element){
+				//example: example
+				Element enchantelement = (Element)gotnode;
+				//<enchant name="SHARPNESS" Level="2" Weight="100" /> 
+				
+				String enchantname = "NONE";
+					enchantname = enchantelement.getAttribute("name");
+				int useLevel=1;
+				if(enchantelement.hasAttribute("level"))
+					useLevel = Integer.parseInt(enchantelement.getAttribute("level"));
+				
+				float useWeight=100; ;
+				if(enchantelement.hasAttribute("weight"))
+					useWeight = Float.parseFloat(enchantelement.getAttribute("weight"));
+				
+				
+				boolean isstatic = false;
+				if(enchantelement.hasAttribute("static")){
+					
+					isstatic = Boolean.parseBoolean(enchantelement.getAttribute("static"));
+					
+					
+				}
+				
+				if(isstatic){
+					staticenchants.put(enchantname, useLevel);	
+				
+				}
+				else {
+					if(_enchantmentprob==null) _enchantmentprob = new EnchantmentProbability();
+				_enchantmentprob.setProbability(enchantname, useLevel,useWeight);
+				}
+				//_enchantmentprob.setProbability(EnchantmentName, Probability)
+				
+			}
+			
+			
+			
+		}
+		
+		
+		
+		
+	}
 	
 	public RandomData(String Initializer){
 		//initialize a RandomData instance. Initializer String is provided from the configuration file, and applies to all non-
@@ -667,7 +823,7 @@ public class RandomData {
 				}
 				
 			}
-		
+			_enchantmentprob.preCache();
 		}
 			
 			

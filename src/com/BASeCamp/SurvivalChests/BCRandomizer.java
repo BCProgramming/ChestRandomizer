@@ -255,6 +255,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("clearborders").setExecutor(Randomcommand);
 		         this.getCommand("randomizespawners").setExecutor(Randomcommand);
 		         this.getCommand("mobmode").setExecutor(Randomcommand);
+		         ChestRandomizer.reload(this,null);
 	    }
 	    @Override
 	    public void onDisable()
@@ -275,19 +276,13 @@ public class BCRandomizer extends JavaPlugin {
 	    }
 	    public static void main(String[] args){
 	    	
-	    	String[] choosefrom = new String[] { "StringA","StringB","StringC","StringD"};
-	    	float[] probdata = new float[] {100f,100f,100f,100f};
-	    	String chosen = RandomData.Choose(choosefrom, probdata);
-	    	
-	    	BCRandomizer.emitmessage(chosen);
-	    	
-	    	for(int i=0;i<20;i++){
-	    	String generatedLore = NameGenerator.GenerateLore();
-	    	BCRandomizer.emitmessage(generatedLore);
+	    	SpawnRandomizerConfig src = new SpawnRandomizerConfig(new File("D:\\testspawndata.xml"));
+	    	System.out.println(src.SpawnData.size());
 	    	
 	    	
-	    	}
-	    	
+	    	//ChestRandomizer.reloadXML(null);
+	    	System.out.println(ChestRandomizer.getRandomData().size() + " RandomData items...");
+	    	System.out.println(ChestRandomizer.getStaticData().size() + " Static Data items...");
 	    	
 	    }
 	    public GameTracker getWorldGame(World testworld) {

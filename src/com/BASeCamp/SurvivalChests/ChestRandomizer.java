@@ -9,12 +9,18 @@ import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.BASeCamp.SurvivalChests.BCRandomizer;
 import com.BASeCamp.SurvivalChests.RandomData;
@@ -49,19 +55,23 @@ public class ChestRandomizer {
 															// once.
 	private String _SourceFile = "";
 
+	
+	public static LinkedList<RandomData> getRandomData() { return randData;}
+	public static LinkedList<RandomData> getStaticData() { return addall;}
+	
 	public static LinkedList<RandomData> getRandomData(BCRandomizer owner) {
 		if (randData == null)
-			reload(owner);
+			reload(owner,null);
 		return randData;
 
 	}
-
+	
 	public static List<RandomData> getHelmetData(BCRandomizer _owner) {
 
-		return Filters.FilterList(ChestRandomizer.getRandomData(_owner),
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
 				new IFilterPredicate<RandomData>() {
 
-					public boolean Predicate(RandomData rd) {
+					public boolean predicate(RandomData rd) {
 						// filter out helmets.
 						return HelmetFilter(rd);
 
@@ -73,10 +83,10 @@ public class ChestRandomizer {
 
 	public static List<RandomData> getChestplateData(BCRandomizer _owner) {
 
-		return Filters.FilterList(ChestRandomizer.getRandomData(_owner),
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
 				new IFilterPredicate<RandomData>() {
 
-					public boolean Predicate(RandomData rd) {
+					public boolean predicate(RandomData rd) {
 						// filter out helmets.
 						return ChestplateFilter(rd);
 
@@ -88,10 +98,10 @@ public class ChestRandomizer {
 
 	public static List<RandomData> getLeggingsData(BCRandomizer _owner) {
 
-		return Filters.FilterList(ChestRandomizer.getRandomData(_owner),
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
 				new IFilterPredicate<RandomData>() {
 
-					public boolean Predicate(RandomData rd) {
+					public boolean predicate(RandomData rd) {
 						// filter out helmets.
 						return LeggingsFilter(rd);
 
@@ -102,10 +112,10 @@ public class ChestRandomizer {
 	}
 	public static List<RandomData> getBootsData(BCRandomizer _owner) {
 
-		return Filters.FilterList(ChestRandomizer.getRandomData(_owner),
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
 				new IFilterPredicate<RandomData>() {
 
-					public boolean Predicate(RandomData rd) {
+					public boolean predicate(RandomData rd) {
 						// filter out helmets.
 						return BootsFilter(rd);
 
@@ -116,10 +126,10 @@ public class ChestRandomizer {
 	}
 	public static List<RandomData> getWeaponsData(BCRandomizer _owner) {
 
-		return Filters.FilterList(ChestRandomizer.getRandomData(_owner),
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
 				new IFilterPredicate<RandomData>() {
 
-					public boolean Predicate(RandomData rd) {
+					public boolean predicate(RandomData rd) {
 						// filter out helmets.
 						return WeaponsFilter(rd);
 
@@ -137,7 +147,8 @@ public class ChestRandomizer {
 				|| m.equals(Material.CHAINMAIL_HELMET)
 				|| m.equals(Material.IRON_HELMET)
 				|| m.equals(Material.GOLD_HELMET)
-				|| m.equals(Material.DIAMOND_HELMET);
+				|| m.equals(Material.DIAMOND_HELMET) ||
+				m.equals(Material.SKULL_ITEM);
 
 	}
 
@@ -188,7 +199,10 @@ public class ChestRandomizer {
 				|| m.equals(Material.SHEARS);
 
 	}
-
+	public ChestRandomizer(){
+		
+	}
+	
 	public ChestRandomizer(BCRandomizer owner, Chest pChest, String pURL) {
 		_owner = owner;
 		mchest = pChest;
@@ -203,9 +217,9 @@ public class ChestRandomizer {
 		}
 
 		mInventory = mchest.getBlockInventory();
-		if (randData == null || _SourceFile != pURL) {
+		if (randData == null) {
 			_SourceFile = pURL;
-			reload(owner);
+			reload(owner,_SourceFile);
 
 		}
 	}
@@ -216,15 +230,134 @@ public class ChestRandomizer {
 		_owner = owner;
 		mchest = null;
 		mInventory = sourceinventory;
-		if (randData == null || _SourceFile != pURL) {
+		if (randData == null || _SourceFile!=pURL) {
 			_SourceFile = pURL;
-			reload(owner);
-
+			reload(owner,_SourceFile);
+			
 		}
 
 	}
-
-	private static void reload(BCRandomizer owner) {
+	public static void reloadXML(BCRandomizer owner){
+		randData = new LinkedList<RandomData>();
+		addall = new LinkedList<RandomData>();
+		
+		
+		
+		File sourcefile = new File("D:\\survivalchests.xml");
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		try {
+		  DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+          Document doc = docBuilder.parse (sourcefile);
+      	  doc.getDocumentElement().normalize();
+      	  
+      	  //"standard" items are found in <items> entity.
+      	  //"static" items are in "<static>" entity.
+      	  
+      	  
+      	  
+      	  
+      	  
+      	  
+      	  NodeList standards = doc.getElementsByTagName("items");
+      	  NodeList statics = doc.getElementsByTagName("static");
+      	  //iterate through standards, generate a RandomData from each element.
+      	  for(int se = 0;se<standards.getLength();se++){
+      		  
+      		  ////only if this is an element.
+      		  if(standards.item(se) instanceof Element){
+      			  
+      			  Element useelement = (Element)standards.item(se);
+      			  NodeList RandomDatas = useelement.getElementsByTagName("randomdata");
+      			  
+      			  //now iterate through RandomDatas...
+      			  for(int rd = 0;rd<RandomDatas.getLength();rd++){
+      				  
+      				  //get the element...
+      				  Element rdelement = (Element)RandomDatas.item(rd);
+      				  //construct a new RandomData...
+      				  try {
+      				  
+      					  RandomData created = new RandomData(rdelement);
+      					  randData.add(created);
+      					  created.getEnchantmentInformation().preCache();
+      				  
+      				  }
+      				  catch(Exception exx){
+      					  System.out.println("Exception in Inner loop loading RandomData...");
+      					  exx.printStackTrace();
+      					  
+      					  
+      				  }
+      			  }
+      			  
+      			  
+      		  }
+      		  
+      		  
+      	  } //for(int se = 0;se<standards.getLength();se++){
+      	  
+      	  //we need to do the same thing for statics.
+      	  
+      	  for(int statloop =0;statloop < statics.getLength();statloop++){
+      		  
+      		  
+      		  if(statics.item(statloop) instanceof Element){
+      			  
+      			  Element useelement = (Element)statics.item(statloop);
+      			  NodeList RandomDatas = useelement.getElementsByTagName("RandomData");
+      			  //now iterate through RandomDatas...
+      			  for(int rd = 0;rd<RandomDatas.getLength();rd++){
+      				  
+      				  //get the element...
+      				  Element rdelement = (Element)RandomDatas.item(rd);
+      				  //construct a new RandomData...
+      				  try {
+      				  
+      					  RandomData created = new RandomData(rdelement);
+      					  addall.add(created);
+      					  created.getEnchantmentInformation().preCache();
+      				  
+      				  }
+      				  catch(Exception exx){
+      					  System.out.println("Exception in Inner loop loading RandomData...");
+      					  exx.printStackTrace();
+      					  
+      					  
+      				  }
+      			  }
+      			  
+      			  
+      			  
+      			  
+      			  
+      		  }
+      		  
+      		  
+      		  
+      	  }
+      	  
+      	  
+      	  
+      	  
+		}
+		catch(Exception exx){
+			
+			exx.printStackTrace();
+			
+			
+		}
+		
+		
+		
+		
+	}
+	public static void reload(BCRandomizer owner,String Source) {
+		
+		
+		
+		System.out.println("ChestRandomizer::reload()");
+		Thread.dumpStack();
+		
 		randData = new LinkedList<RandomData>();
 		addall = new LinkedList<RandomData>();
 
@@ -261,12 +394,13 @@ public class ChestRandomizer {
 
 					RandomData gendata = new RandomData(lineread);
 					randData.add(gendata);
+					gendata.getEnchantmentInformation().preCache();
 				}
 			}
 
 		}
 
-		BCRandomizer.emitmessage("Read in " + randData.size() + " elements");
+		System.out.println("Read in " + randData.size() + " elements");
 
 	}
 
@@ -347,7 +481,7 @@ public class ChestRandomizer {
 		}
 
 		// select a random number of items.
-
+		System.out.println("Randomizing chest...");
 		if (_owner != null) {
 			try {
 				FileConfiguration fc = _owner.getConfig();

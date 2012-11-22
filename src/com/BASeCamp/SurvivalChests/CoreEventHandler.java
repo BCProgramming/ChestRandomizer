@@ -1,6 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.entity.CraftCreeper;
+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftMonster;
+import org.bukkit.craftbukkit.entity.CraftSkeleton;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
@@ -112,7 +116,153 @@ public class CoreEventHandler implements Listener {
 		}
 		return String.valueOf(chars);
 	}
+	
+		
+			
+			
+		
+		
+		
+		
+	
+	private static String getEntityDescription(LivingEntity entityfor,boolean useentitycolor){
+		
+		//retrieves a description; instead of Skeleton, for example, if the skeleton is a Wither skeleton, it returns Wither Skeleton;
+		//if it has armour, it will be a "armoured Skeleton" if a Charged Creeper, it will be described thus, etcetera.
+		
+		
+		//useentitycolour is whether the returned value should be coloured.
+		ChatColor tcolor = ChatColor.RED;
+		
+		//first, we sorta need a special case for certain types. Oh well.
+		//first, Skeleton...
+		String BuildDescription = "";
+		
+		if(entityfor.getType().equals(EntityType.SKELETON)){
+			tcolor=ChatColor.GRAY;
+			BuildDescription = "Skeleton";
+			CraftSkeleton cs = (CraftSkeleton)entityfor;
+			if(cs.getHandle().getSkeletonType()==1){
+				
+				//Wither...
+				BuildDescription="Wither Skeleton";
+				tcolor = ChatColor.BLACK;
+				
+				
+			}
+			
+			
+			
+		}
+		else if(entityfor.getType().equals(EntityType.PIG_ZOMBIE)){
+			tcolor = ChatColor.DARK_GREEN;
+			BuildDescription = "Zombie Pigman";
+			
+			
+		}
+		else if(entityfor.getType().equals(EntityType.ZOMBIE)){
+			
+			tcolor = ChatColor.GREEN;	
+			BuildDescription = "Zombie";
+		}
+		else if(entityfor.getType().equals(EntityType.BLAZE)){
+			
+			tcolor = ChatColor.GOLD;
+		}
+		else if(entityfor.getType().equals(EntityType.CAVE_SPIDER)){
+		tcolor=ChatColor.DARK_AQUA;	
+			BuildDescription = "Cave Spider";
+		}
+		else if(entityfor.getType().equals(EntityType.CREEPER)){
+			CraftCreeper cc = (CraftCreeper)entityfor;	
+			if(cc.getHandle().isPowered()){
+				BuildDescription = "Charged Creeper";
+				tcolor = ChatColor.BLUE;
+			}
+			else{
+				BuildDescription = "Creeper";
+				tcolor = ChatColor.GREEN;
+			}
+			
+		}
+		else if(entityfor.getType().equals(EntityType.SPIDER)){
+		BuildDescription="Spider";
+		tcolor = ChatColor.DARK_GRAY;
+			
+		}
+		else if(entityfor.getType().equals(EntityType.ENDERMAN)){
+		tcolor = ChatColor.BLACK;
+		BuildDescription = "Enderman";
+			
+			
+		}
+		else if(entityfor.getType().equals(EntityType.MAGMA_CUBE)){
+		BuildDescription = "Magma Cube";
+		tcolor = ChatColor.RED;
+			
+		}
+		else if(entityfor.getType().equals(EntityType.GHAST)){
+		BuildDescription = "Ghast";
+		tcolor = ChatColor.WHITE;
+			
+		}
+		else{
+			
+			BuildDescription = entityfor.getType().toString();
+			
+			
+		}
+		
+		if(((CraftLivingEntity)entityfor).getHandle().isBaby()){
+			
+			BuildDescription = "baby " + BuildDescription;
+			
+		}
+		
+		
+		
+		if(useentitycolor){
+			
+			BuildDescription = tcolor + BuildDescription + ChatColor.RESET;
+		}
+		String[] armourprefix = new String[] {"","Lightly Armoured","Armoured","Armoured","Fully Armoured"};
+		
+		String postfix = "";
+		String useprefix = "";
+		if(entityfor instanceof Zombie || entityfor instanceof Skeleton){
+		CraftLivingEntity cle = (CraftLivingEntity)entityfor;
+		net.minecraft.server.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
+		net.minecraft.server.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
+		net.minecraft.server.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
+		net.minecraft.server.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
+		net.minecraft.server.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
+		
+		int armourcount = 
+			(EntityBoots==null?0:1) +
+			(EntityLeggings==null?0:1) +
+			(EntityChestplate==null?0:1) + 
+			(EntityHelmet==null?0:1);
+		
+		
+		useprefix = armourprefix[armourcount];
+		
+		
+		if(EntityWeapon!=null){
+			if(useprefix.equals("")) useprefix = "armed"; else useprefix = "Armed and ";
+			
+			
+		}
 
+		
+		}
+		if(entityfor.getActivePotionEffects().size() > 0)
+			BuildDescription = "Buffed " + BuildDescription ;
+		return useprefix + BuildDescription + postfix;
+		
+		
+		
+		
+	}
 	private static String FriendlizeName(String source) {
 		source = source.replace("item_", " ");
 		source = source.replace('_', ' ');
@@ -612,8 +762,10 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			return "Nothing";
 		String weapon = Item.getType().name();
 
-		ItemNamer.load(Item);
-		String gotname = ItemNamer.getName();
+		
+		ItemNamer renamer = new ItemNamer(Item);
+		
+		String gotname = renamer.getName();
 		if (gotname != null && gotname != "")
 			weapon = gotname;
 		else {
@@ -686,6 +838,9 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		if(!event.getEntity().getWorld().equals(watchworld)) return;
 		if (_Trackers == null || _Trackers.size() == 0)
 			return;
+		
+		
+		
 		// Bukkit.broadcastMessage(event.getEntity().getName() +
 		// " has been slain!");
 		ChatColor usecolor = ChatColor.YELLOW;
@@ -694,6 +849,9 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 		String DyingName = dyingPlayer.getName();
 		String KillerName = "";
+		
+		
+		
 		final Player Killer = dyingPlayer.getKiller();
 		if (Killer != null)
 			KillerName = Killer.getName();
@@ -795,9 +953,29 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 				usemessage = RandomData.Choose(possiblemessages);
 
 			}
+			else {
+				usemessage = DyingName + " was killed by a " + getEntityDescription(Killer,true);
+			}
+				
 			
 			
 		}
+		else if(Killer==null){
+			EntityDamageEvent damageEvent = dyingPlayer.getLastDamageCause();
+			if((damageEvent instanceof EntityDamageByEntityEvent)){
+			
+			Entity damager = ((EntityDamageByEntityEvent)damageEvent).getDamager();
+			if(damager instanceof LivingEntity){
+			//System.out.println("dyingPlayer.getDisplayName() was killed by a " + get)
+			
+			usemessage = DyingName + " was killed by a " + getEntityDescription((LivingEntity)damager,true);
+			}
+			//if(damager instanceof Spider)
+			
+			}
+			
+		}
+		
 		if (_owner.isParticipant(dyingPlayer) != null) {
 			Bukkit.getPluginManager().callEvent(
 					new ParticipantDeathEvent(dyingPlayer, null,
@@ -818,7 +996,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		Enchantment useenchant;
 
 		EnchantmentProbability ep = new EnchantmentProbability();
-		ep.Apply(createdhead, true);
+		ep.Apply(createdhead);
 
 		// event.getDrops().add(createdhead);
 		// we need to return first, so the death message can be issued first,
@@ -1047,6 +1225,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 				int randomX = (int) ((RandomData.rgen.nextDouble()*(XMaximum-XMinimum)) + XMinimum);
 				int randomZ = (int) ((RandomData.rgen.nextDouble()*(ZMaximum-ZMinimum)) + ZMinimum);
 				
+				
+				
 				int chosenY = event.getEntity().getWorld().getHighestBlockYAt(randomX,randomZ);
 				
 				final Location newLocation = new Location(event.getEntity().getWorld(),randomX,chosenY+3,randomZ);
@@ -1092,9 +1272,15 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		if(RandomData.rgen.nextFloat() < 0.3f)
 		{
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED,32767,RandomData.rgen.nextInt(3)));
-		if(RandomData.rgen.nextFloat() < 0.33f)
+		if(RandomData.rgen.nextFloat() < 0.1f)
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,32767,RandomData.rgen.nextInt(1)));
 		}
+		if(RandomData.rgen.nextFloat() < 0.4f){
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE,32767,RandomData.rgen.nextInt(1)));
+		}
+		if (RandomData.rgen.nextFloat() < 0.3)
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,32767,RandomData.rgen.nextInt(2)));
+		
 		sr.RandomizeEntity(event.getEntity());
 		
 		
@@ -1128,9 +1314,10 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		MidnighttaskID = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(_owner, new Runnable() {
 			
 			public void run() {
-				
+				try {
 				event.getParticipants().get(0).getWorld().setTime(18000);
-				
+				}
+				catch(ConcurrentModificationException exx){}
 			}
 			
 			

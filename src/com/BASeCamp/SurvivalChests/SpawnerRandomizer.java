@@ -3,10 +3,8 @@ package com.BASeCamp.SurvivalChests;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-
 import net.minecraft.server.EntityLiving;
 import net.minecraft.server.TileEntityMobSpawner;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -30,6 +28,9 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
 
 //this class needs a LOT of work. (different weights, give mobs special abilities, etc.)
+/**
+ * class for Randomizing Spawners as well as Randomizing Monsters in various ways.
+ */
 public class SpawnerRandomizer {
 	
 	

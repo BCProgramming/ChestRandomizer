@@ -25,6 +25,7 @@ import org.bukkit.craftbukkit.entity.CraftSkeleton;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creature;
@@ -39,6 +40,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -69,6 +71,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.bukkit.*;
 import org.bukkit.entity.Monster;
+//TODO: change all references to Player that are within HashMaps or lists to Strings- index Players by name, rather than
+//the Player object itself.
 public class CoreEventHandler implements Listener {
 	private BCRandomizer _owner = null;
 	private World watchworld;
@@ -169,6 +173,7 @@ public class CoreEventHandler implements Listener {
 		else if(entityfor.getType().equals(EntityType.BLAZE)){
 			
 			tcolor = ChatColor.GOLD;
+			BuildDescription = "Blaze";
 		}
 		else if(entityfor.getType().equals(EntityType.CAVE_SPIDER)){
 		tcolor=ChatColor.DARK_AQUA;	
@@ -249,7 +254,7 @@ public class CoreEventHandler implements Listener {
 		
 		
 		if(EntityWeapon!=null){
-			if(useprefix.equals("")) useprefix = "armed"; else useprefix = "Armed and ";
+			if(useprefix.equals("")) useprefix = "armed "; else useprefix = "Armed and ";
 			
 			
 		}
@@ -272,6 +277,38 @@ public class CoreEventHandler implements Listener {
 
 	}
 
+	
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event){
+		
+		
+		if(event.getItem().getType().equals(Material.WOOD_HOE)){
+			
+			//event.getPlayer().launchProjectile(WitherSkull.class);
+			event.getPlayer().launchProjectile(Arrow.class);
+			
+			/*
+			Player p = event.getPlayer();
+			WitherSkull f = (WitherSkull)p.getWorld().spawnEntity(p.getEyeLocation(), EntityType.WITHER_SKULL);
+			f.setDirection(p.getEyeLocation().getDirection());
+			f.setVelocity(f.getDirection().multiply(5));
+			f.teleport(new Location(p.getWorld(),  f.getLocation().getX() + f.getVelocity().getX()*2,
+					f.getLocation().getY() + f.getVelocity().getY()*2,
+					f.getLocation().getZ() + f.getVelocity().getZ()*2));
+			p.getWorld().playSound(p.getLocation(),Sound.PISTON_EXTEND, 1.0f, 0);
+			*/
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+	}
+	
 	@EventHandler
 	public void OnPlayerInteractEntity(PlayerInteractEntityEvent event) {
 		GameTracker applicablegame = _owner.getWorldGame(event.getPlayer().getWorld());
@@ -419,7 +456,8 @@ public class CoreEventHandler implements Listener {
 			if(event.getEntity().getKiller()!=null){
 				
 				Player awardplayer = (Player)event.getEntity().getKiller();
-				String entityname = FriendlizeName(event.getEntity().getType().getName());
+				//String entityname = FriendlizeName(event.getEntity().getType().getName());
+				String entityname = getEntityDescription(event.getEntity(),true);
 				//also, we can only award a player that is actually participating.
 				if(applicablegame.getStillAlive().contains(awardplayer)){
 				
@@ -469,7 +507,7 @@ else if(monster instanceof CaveSpider) {
 		}
 		
 		else if(monster instanceof Blaze){
-			basescore*=5;
+			basescore*=25;
 		}
 		else if(monster instanceof MagmaCube) {
 			basescore*=2;
@@ -486,7 +524,7 @@ else if(monster instanceof CaveSpider) {
 		}
 		else if(monster instanceof Ghast){
 			
-			basescore*=10; //Ghasts are worth a lot of points :P
+			basescore*=100; //Ghasts are worth a lot of points :P
 			
 			
 		}

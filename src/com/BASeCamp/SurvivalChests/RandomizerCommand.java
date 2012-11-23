@@ -161,7 +161,12 @@ public class RandomizerCommand implements CommandExecutor {
 				return true;
 			}
 		}
-
+		if(arg2.equalsIgnoreCase("fixup")){
+			
+			doFixUp(p);
+			
+			
+		}
 		if (arg2.equalsIgnoreCase("randomizespawners")) {
 			SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 			sr.RandomizeSpawners(p.getWorld());
@@ -179,7 +184,6 @@ public class RandomizerCommand implements CommandExecutor {
 				for(Player pl:Bukkit.getOnlinePlayers()){
 					
 					
-					pl.setAllowFlight(flyset);
 					pl.setFlying(flyset);
 					p.sendMessage("Player " + pl.getName() + " flying set to " + flyset);
 					
@@ -475,6 +479,122 @@ public class RandomizerCommand implements CommandExecutor {
 		return false;
 	}
 
+	private void doFixUp(Player p) {
+		//this method has a simple task:
+		//It attempts to "fix" all running games.
+		
+		//this consists of making sure all spectators can fly and participants cannot, and ensuring consistent visibility settings
+		//between them.
+		//of p is a Player, it will send any relevant information to them.
+		//particularly when a fixup needs to be applied.
+		
+		//first, check fly and not flying...
+		if(_Owner.ActiveGames.size() ==0 ){
+			if (p!=null) p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + " No Active games to apply fixups. resetting all players.");
+			
+			if(p!=null){
+				
+				for(Player fixplayer:p.getWorld().getPlayers()){
+					
+					if(fixplayer.getAllowFlight()){
+						if(p!=null) p.sendMessage("Reverting AllowFlight and Flight for " + fixplayer.getDisplayName());
+					
+						fixplayer.setAllowFlight(false);
+						fixplayer.setFlying(false);
+					}
+					
+				}
+				
+				
+			}
+			
+			return;
+			
+			
+		}
+		if (p!=null) p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + " Attempting fixups on "
+				+ ChatColor.AQUA + _Owner.ActiveGames.size() + " Games...");
+		for(GameTracker iterate :_Owner.ActiveGames){
+			
+		//make sure all participants are "grounded"...
+			for(Player participant:iterate.getStillAlive()){
+				
+				
+				if(participant.getAllowFlight()){
+					if(p!=null) p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + 
+							" clearing set Flight for participant " + participant.getDisplayName());
+					
+					
+					participant.setAllowFlight(false);
+					participant.setFlying(false);
+					
+					
+				}
+				
+			}
+			//make sure spectators can fly...
+			
+			for(Player spectator: iterate.getSpectating()){
+				
+				if(!spectator.getAllowFlight()){
+					
+					if(p!=null) p.sendMessage(BCRandomizer.Prefix + ChatColor.RED + " setting flight for spectator " + spectator.getDisplayName());
+					spectator.setAllowFlight(true);
+					
+				}
+				
+				
+			}
+			
+			//now, we first reset ALL visibility statuses...
+			for(Player x:iterate.getWorld().getPlayers()){
+			    for(Player y:iterate.getWorld().getPlayers()){
+			    	
+			    	
+			    	if(x!=y){
+			    		x.showPlayer(y);
+			    		
+			    	}
+			    	
+			    	
+			    }
+				
+				
+				
+				
+				
+			}
+			
+			//and now, we make spectators invisible to participants.
+			
+			for(Player participator:iterate.getStillAlive()){
+				
+			for(Player hidespectator:iterate.getSpectating()){
+				
+				
+				participator.hidePlayer(hidespectator);
+				
+				
+			}
+				
+				
+				
+			}
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+	}
+
 	private int stopAllGames() {
 		int retval = 0;
 		for (GameTracker iterate : _Owner.ActiveGames) {
@@ -614,7 +734,7 @@ public class RandomizerCommand implements CommandExecutor {
 				pl.setExhaustion(20);
 				pl.setSaturation(20);
 				pl.setGameMode(GameMode.ADVENTURE);
-				pl.setAllowFlight(false);
+				pl.setFlying(false);
 				pl.playSound(pl.getLocation(), Sound.ENDERMAN_HIT, 1.0f, 1.0f);
 			}
 
@@ -622,16 +742,8 @@ public class RandomizerCommand implements CommandExecutor {
 		for(Player spectator : spectating){
 			
 			//set flying.
+			spectator.setFlying(false);
 			spectator.setAllowFlight(true);
-			
-			//hide this spectator to all participants.
-			for(Player pl:joinedplayers){
-				
-				pl.hidePlayer(spectator);
-				
-				
-			}
-			
 			
 			
 			

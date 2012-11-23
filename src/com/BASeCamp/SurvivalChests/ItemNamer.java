@@ -136,7 +136,7 @@ public final class ItemNamer {
     }
     public static ItemStack renameItem(ItemStack renameit,String Name){
     	
-    	return renameItem(renameit,(String)null);
+    	return renameItem(renameit,Name,(String)null);
     	
     	
     }

@@ -40,7 +40,7 @@ public class GameTracker implements Runnable {
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
 	private List<Player> _Spectators = null;
 	private LinkedList<Player> _deadPlayers = null;
-
+	private boolean _Accepting = false;
 	public LinkedList<Player> getStillAlive() {
 		return StillAlive;
 	}
@@ -50,7 +50,7 @@ public class GameTracker implements Runnable {
 	public static CoreEventHandler deathwatcher = null;
 	private boolean _MobArenaMode = false; // MobArena Mode is when PvP is
 											// disabled completely.
-
+	public World getWorld() { return runningWorld;}
 	private HashMap<Player, Integer> ScoreTally = new HashMap<Player, Integer>();
 
 	// Note that gameTracker also tracks Mob Arena style games.
@@ -255,7 +255,7 @@ public class GameTracker implements Runnable {
 						+ buildnamelist
 								.substring(0, buildnamelist.length() - 1));
 
-				if (StillAlive.size() < 4 && !_MobArenaMode) {
+				if (StillAlive.size() < 4 && !_MobArenaMode && !gavecompasses) {
 					gavecompasses = true;
 					for (Player givecompass : StillAlive) {
 						ItemStack CompassItem = new ItemStack(Material.COMPASS);
@@ -326,13 +326,14 @@ public class GameTracker implements Runnable {
 	}
 
 	private int delayspawnnearby = 0;
+	private int BossSpawnDelay = 0;
 	public boolean gamecomplete = false;
 	private boolean gavecompasses = false;
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
+		gavecompasses=false;
 		int delayresetmidnight = 0;
 
 		while (!gamecomplete) {
@@ -341,7 +342,7 @@ public class GameTracker implements Runnable {
 				synchronized (StillAlive) {
 
 					if (StillAlive.size() <= 3 && !gavecompasses
-							&& !_MobArenaMode) {
+							&& !_Owner.Randomcommand.getMobArenaMode()) {
 						gavecompasses = true;
 						for (Player givecompass : StillAlive) {
 							ItemStack CompassItem = new ItemStack(
@@ -372,10 +373,13 @@ public class GameTracker implements Runnable {
 						// player!
 						delayspawnnearby++;
 						if (delayspawnnearby == 60) {
+							BossSpawnDelay++;
 							delayspawnnearby = 0;
 							if (_Owner.Randomcommand.getMobArenaMode()) {
-								for (int i = 0; i < 15; i++)
-									ForceNearbySpawn(pa);
+								
+									for (int i = 0; i < 15; i++)
+										ForceNearbySpawn(pa);
+								
 							}
 						}
 
@@ -479,11 +483,14 @@ public class GameTracker implements Runnable {
 				EntityType.ZOMBIE, EntityType.SKELETON, EntityType.PIG_ZOMBIE };
 		EntityType selected = RandomData.Choose(choosetype);
 		// spawn this feller...
-
-		LivingEntity result = pa.getWorld()
-				.spawnCreature(uselocation, selected); // the hook we already
+		
+	//	LivingEntity result = pa.getWorld()
+//				.spawnCreature(uselocation, selected); // the hook we already
 														// have will randomize
 														// them...
+		
+		LivingEntity result = (LivingEntity) pa.getWorld().spawnEntity(uselocation,selected);
+		
 
 		System.out.println("Spawned a " + selected.getName() + " near "
 				+ pa.getName());
@@ -527,9 +534,15 @@ public class GameTracker implements Runnable {
 
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(
 							PotionEffectType.BLINDNESS, 500, 1));
+					iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+					iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
 					iterate.sendMessage(ChatColor.BOLD.toString()
 							+ ChatColor.LIGHT_PURPLE
 							+ "You have been temporarily blinded!");
+					
+					
+					
+					
 				}
 			}
 			runningWorld.setAnimalSpawnLimit(0);
@@ -549,7 +562,7 @@ public class GameTracker implements Runnable {
 			runningWorld.setMonsterSpawnLimit(32000); // 80 hostile mobs? That's
 														// no fun. Let's crank
 														// it up...
-			runningWorld.setTicksPerMonsterSpawns(60);
+			runningWorld.setTicksPerMonsterSpawns(40);
 
 			String chosenmessage = RandomData.Choose(possiblemessages);
 			ResumePvP.BroadcastWorld(runningWorld, BCRandomizer.Prefix
@@ -560,9 +573,14 @@ public class GameTracker implements Runnable {
 							BCRandomizer.Prefix
 									+ "The Animals knew what was coming and killed themselves.");
 
+
 			// extinguish all flames.
 			BCRandomizer.ExtinguishFlames(runningWorld);
-
+			
+			for (Player iterate : StillAlive) {
+			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
+			}
 			// kill all animals in the world, too. Because, why not.
 
 		}

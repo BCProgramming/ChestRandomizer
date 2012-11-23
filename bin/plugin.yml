@@ -30,3 +30,5 @@ commands:
         description: clears any set borders.
       setfly:
         description: sets playing flying or not. /setfly <player> <true|false>
+      fixup:
+        description: hack. used during a running game to forcibly set spectators to fly and participants to not fly, as well as resetting visibility.

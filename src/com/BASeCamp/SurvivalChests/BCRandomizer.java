@@ -257,6 +257,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("mobmode").setExecutor(Randomcommand);
 		         this.getCommand("setfly").setExecutor(Randomcommand);
 		         this.getCommand("prepareinfo").setExecutor(Randomcommand);
+		         this.getCommand("fixup").setExecutor(Randomcommand);
 		         
 		         ChestRandomizer.reload(this,null);
 	    }

@@ -3,6 +3,7 @@ package com.BASeCamp.SurvivalChests;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 
 import net.minecraft.server.TileEntityMobSpawner;
@@ -13,6 +14,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.StorageMinecart;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.fusesource.jansi.Ansi.Color;
@@ -714,7 +716,10 @@ public class RandomizerCommand implements CommandExecutor {
 				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
 		Bukkit.broadcastMessage(joinedplayers.size() + " Players.");
 		grabworld.setPVP(false);
-
+		
+		
+		
+		
 		// iterate through all online players.
 		for (Player pl : joinedplayers) {
 
@@ -753,6 +758,7 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		ChestRandomizer.resetStorage();
 		repopulateChests("", p.getWorld(), true);
+		ShufflePlayers(joinedplayers);
 		ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix
 				+ ChatColor.LIGHT_PURPLE + " Containers randomized.");
 
@@ -771,6 +777,57 @@ public class RandomizerCommand implements CommandExecutor {
 		thr.start();
 	}
 
+private void ShufflePlayers(List<Player> shufflethese){
+		
+		//shuffle all players that are "StillAlive" within the arena border.
+		//if no border is set, we don't shuffle, and log to the console.
+		if(_Owner.Randomcommand.BorderA!=null && _Owner.Randomcommand.BorderB!=null){
+			
+			
+			
+			double XMinimum = Math.min(BorderA.getX(), BorderB.getX());
+			double XMaximum = Math.max(BorderA.getX(), BorderB.getX());
+			double ZMinimum = Math.min(BorderA.getZ(), BorderB.getZ());
+			double ZMaximum = Math.max(BorderA.getZ(), BorderB.getZ());
+
+			//iterate through each Player...
+			Random rgen = RandomData.rgen;
+			for(Player participant:shufflethese){
+				
+				double chosenY=0;
+				double chosenX=0,chosenZ=0;
+				while(chosenY==0){
+				//choose a random X and Z...
+				chosenX = rgen.nextDouble()*(XMaximum-XMinimum)+XMinimum;
+				chosenZ = rgen.nextDouble()*(ZMaximum-ZMinimum)+ZMinimum;
+				
+				
+				
+				//now, our task: get the highest block at...
+				chosenY = (double)participant.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
+				}
+				Location chosenlocation = new Location(participant.getWorld(),chosenX,chosenY,chosenZ);
+				participant.teleport(chosenlocation);
+				
+				System.out.println("Teleported " + participant.getName() + " to " + chosenlocation.toString());
+				
+				
+				
+				
+				
+				
+			}
+			
+			
+			
+			
+		}
+		
+		
+		
+	}
+	
+	
 	private void repopulateChests(String Source, World w) {
 
 		repopulateChests(Source, w, false);
@@ -792,6 +849,7 @@ public class RandomizerCommand implements CommandExecutor {
 		LinkedList<Chest> allchests = new LinkedList<Chest>();
 		LinkedList<Furnace> allfurnaces = new LinkedList<Furnace>();
 		LinkedList<Dispenser> alldispensers = new LinkedList<Dispenser>();
+		LinkedList<StorageMinecart> allstoragecarts = new LinkedList<StorageMinecart>();
 		World gotworld = w;
 		if (!silent)
 			Bukkit.broadcastMessage(BCRandomizer.Prefix
@@ -815,6 +873,14 @@ public class RandomizerCommand implements CommandExecutor {
 			// go through all tileentities and look for Chests.
 			BlockState[] entities = iteratechunk.getTileEntities();
 			for (BlockState iteratestate : entities) {
+				if(iteratestate instanceof StorageMinecart){
+					StorageMinecart casted = (StorageMinecart)iteratestate;
+					allstoragecarts.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					populatedamount+=cr.Shuffle();
+					
+					
+				}
 				if (iteratestate instanceof Chest) {
 					Chest casted = (Chest) iteratestate;
 					// randomize!

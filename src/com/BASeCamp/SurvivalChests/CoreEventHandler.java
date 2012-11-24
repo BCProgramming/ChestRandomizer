@@ -33,10 +33,12 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
@@ -44,6 +46,7 @@ import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -251,7 +254,8 @@ public class CoreEventHandler implements Listener {
 		
 		
 		useprefix = armourprefix[armourcount];
-		
+		if(entityfor.getActivePotionEffects().size() > 0)
+			BuildDescription = "Buffed " + BuildDescription ;
 		
 		if(EntityWeapon!=null){
 			if(useprefix.equals("")) useprefix = "armed "; else useprefix = "Armed and ";
@@ -261,8 +265,7 @@ public class CoreEventHandler implements Listener {
 
 		
 		}
-		if(entityfor.getActivePotionEffects().size() > 0)
-			BuildDescription = "Buffed " + BuildDescription ;
+	
 		return useprefix + BuildDescription + postfix;
 		
 		
@@ -277,17 +280,80 @@ public class CoreEventHandler implements Listener {
 
 	}
 
+	private HashMap<Material,ProjectileMapper> ProjectileItems = null;
 	
-	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event){
 		
+		if(ProjectileItems==null){
+			
+			ProjectileItems = new HashMap<Material,ProjectileMapper>();
+			
+			
+			ProjectileItems.put(Material.WOOD_HOE, new ProjectileMapper(Material.WOOD_HOE,Material.ARROW,Arrow.class,Sound.SHOOT_ARROW));
+			ProjectileItems.put(Material.WOOD_SPADE, 
+					new ProjectileMapper(Material.WOOD_SPADE,Material.FIREBALL,WitherSkull.class,Sound.GHAST_FIREBALL));
+			
+			
+		}
 		
+		
+		
+		
+		
+		
+		if(event.getItem()!=null){
+		
+			if (event.getAction().equals(Action.RIGHT_CLICK_AIR)){
+			
+		//check if the held material is in the hashmap.
+			
+			if(ProjectileItems.containsKey(event.getItem().getType())){
+				
+				ProjectileMapper pm = ProjectileItems.get(event.getItem().getType());
+				//make sure it has the required item.
+				if(event.getPlayer().getInventory().contains(pm.getItemRequire(),1)){
+					Projectile shotProjectile = event.getPlayer().launchProjectile(pm.getProjectileClass());
+					event.getPlayer().playSound(event.getPlayer().getLocation(), pm.getSound(), 1.0f, 0f);
+					ItemStack removethis = new ItemStack(pm.getItemRequire(),1);
+					event.getPlayer().getInventory().removeItem(removethis);
+					event.getPlayer().updateInventory();
+					shotProjectile.setVelocity(new Vector(shotProjectile.getVelocity().getX()*5,
+							shotProjectile.getVelocity().getY()*5,shotProjectile.getVelocity().getZ()*5));
+					
+					
+					
+				} else
+				{
+					event.getPlayer().sendMessage(ChatColor.GOLD + " You need more " + 
+							ChatColor.GREEN + FriendlizeName(pm.getItemRequire().name()) + ".");
+					
+				}
+				
+			}
+			}
+		/*	
 		if(event.getItem().getType().equals(Material.WOOD_HOE)){
-			
+			if(event.getPlayer().getInventory().contains(Material.ARROW,1)){
 			//event.getPlayer().launchProjectile(WitherSkull.class);
-			event.getPlayer().launchProjectile(Arrow.class);
+			Arrow shotarrow = event.getPlayer().launchProjectile(Arrow.class);
+			event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.SHOOT_ARROW, 1.0f, 0f);
 			
+			ItemStack m = new ItemStack(Material.ARROW, 1);
+			
+			event.getPlayer().getInventory().removeItem(m);
+			event.getPlayer().updateInventory();
+			shotarrow.setVelocity(new Vector(shotarrow.getVelocity().getX()*5,shotarrow.getVelocity().getY()*5,
+					shotarrow.getVelocity().getZ()*5));			
+			}
+			else
+			{
+				event.getPlayer().sendMessage(ChatColor.GOLD +  "You need more" + ChatColor.GREEN + " Arrows.");
+				
+				
+			}
+		}*/
 			/*
 			Player p = event.getPlayer();
 			WitherSkull f = (WitherSkull)p.getWorld().spawnEntity(p.getEyeLocation(), EntityType.WITHER_SKULL);
@@ -732,10 +798,28 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			return; //item Frames are INVINCIBLE! MWAHAHA...
 			
 		}
-		
+		;
 		if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent edam = (EntityDamageByEntityEvent) event;
-
+			
+			System.out.println("EntityDamageByEntity, getEntity=" + edam.getEntity().getType().toString() + " Damager:" + edam.getDamager());
+			
+			
+			if((edam.getEntity() instanceof LivingEntity) && edam.getDamager() instanceof Player){
+				
+				//tell player damage amount...
+				
+				Player pdamager = (Player)edam.getDamager();
+				LivingEntity damaged = (LivingEntity)event.getEntity();
+				pdamager.sendMessage(BCRandomizer.Prefix + ChatColor.RED + 
+				damaged.getLastDamage() + " damage to a " + getEntityDescription(damaged,true));
+				
+				
+				
+				
+			}
+			
+			
 			if (edam.getEntity() instanceof Player) {
 
 				// entity is the player that is damaged.
@@ -1095,6 +1179,10 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 	}
 
+	//data structure, maps items to their special projectile.
+	
+	
+	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		if(!event.getPlayer().getWorld().equals(watchworld)) return;
@@ -1102,6 +1190,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		// check the borders...
 		GameTracker applicablegame = _owner.getWorldGame(event.getPlayer().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
+		
+		
 		
 		
 		Location BorderA = _owner.Randomcommand.BorderA;
@@ -1433,6 +1523,11 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 			} else if (loopentity instanceof org.bukkit.entity.Creature) {
 				((LivingEntity) loopentity).damage(10000);
+			}
+			else if(loopentity instanceof Item){
+				((Item)loopentity).remove();
+				
+			
 			}
 
 		}

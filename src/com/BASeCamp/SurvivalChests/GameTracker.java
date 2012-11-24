@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -443,7 +444,7 @@ public class GameTracker implements Runnable {
 			runningWorld.setPVP(false);
 		}
 		Bukkit.broadcastMessage(ChatColor.YELLOW
-				+ "Game Over. PvP re-disabled.");
+				+ "Game Over. PvP disabled.");
 
 		if (_Owner != null && _Owner.ActiveGames != null) {
 			_Owner.ActiveGames.remove(this);
@@ -456,7 +457,11 @@ public class GameTracker implements Runnable {
 		}
 
 	}
-
+	
+	
+	
+	
+	
 	@SuppressWarnings("deprecation")
 	private void ForceNearbySpawn(Player pa) {
 		// TODO Auto-generated method stub
@@ -480,7 +485,7 @@ public class GameTracker implements Runnable {
 		// now, we spawn a mob.
 
 		EntityType[] choosetype = new EntityType[] { EntityType.CREEPER,
-				EntityType.ZOMBIE, EntityType.SKELETON, EntityType.PIG_ZOMBIE };
+				EntityType.ZOMBIE, EntityType.SKELETON, EntityType.PIG_ZOMBIE,EntityType.BLAZE,EntityType.WITCH };
 		EntityType selected = RandomData.Choose(choosetype);
 		// spawn this feller...
 		
@@ -575,7 +580,7 @@ public class GameTracker implements Runnable {
 
 
 			// extinguish all flames.
-			BCRandomizer.ExtinguishFlames(runningWorld);
+			_Owner.ExtinguishFlames(runningWorld);
 			
 			for (Player iterate : StillAlive) {
 			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));

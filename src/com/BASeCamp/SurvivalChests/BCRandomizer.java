@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
 
 import net.minecraft.server.NBTTagList;
 
@@ -74,7 +75,12 @@ public class BCRandomizer extends JavaPlugin {
 	    	((CraftPlayer)p).getHandle().inventory.b(new NBTTagList());
 	    	
 	    }
-	    public static void ExtinguishFlames(World exWorld){
+	    public void ExtinguishFlames(final World exWorld){
+	    	
+	    	
+	    	Bukkit.getScheduler().callSyncMethod(this,new Callable<Integer>() {
+	    		
+	    	public Integer call() {
 	    	
 	    	for(Chunk iteratechunk:exWorld.getLoadedChunks()){
 	    		
@@ -106,6 +112,10 @@ public class BCRandomizer extends JavaPlugin {
 	    		
 	    		
 	    	}
+	    	return 0;
+	    	}
+	    	}
+	    	);
 	    	
 	    	
 	    }

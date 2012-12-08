@@ -1,6 +1,22 @@
 BASeCamp 'Survival Chests' Chest Randomizer plugin
 Version 1.0 (initial release)
 
+Dec 07,2012 UPDATE:
+
+The Bukkit API has introduced a change that would mean I need to update this plugin for every single version, and change the import directives
+in every source file that uses the Net.Minecraft.Server APIs to take advantage of functionality that bukkit decides we don't need.
+
+As a result I'm not sure if I'll be bothered to work on this plugin any further. It's always been a back-burner project and
+was never really intended to become as "large" as it now is, it still needs some refactoring and support for features such as multiple
+games across worlds, and I imagine there are still countless showstopping bugs that need fixed. I'll make the appropriate updates when I decide to edit it, but
+I'm not going to make any special effort to keep up with the API.
+
+When the Minecraft API is released, I'll probably port this over to that, assuming it provides the appropriate functionality and does not
+arbitrarily lock people out of necessary functions under the guise of "it's not part of the API" while not actually providing an alternative.
+
+
+
+
 
 Permissions nodes:
 

@@ -486,7 +486,7 @@ public class ChestRandomizer {
 		}
 
 		// select a random number of items.
-		System.out.println("Randomizing chest...");
+		//System.out.println("Randomizing chest...");
 		if (_owner != null) {
 			try {
 				FileConfiguration fc = _owner.getConfig();

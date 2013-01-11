@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.server.v1_4_6.Block;
 import net.minecraft.server.v1_4_6.EntityItemFrame;
@@ -45,6 +47,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
+import org.bukkit.entity.Squid;
 import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
@@ -74,6 +77,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -82,6 +86,112 @@ import org.bukkit.entity.Monster;
 //TODO: change all references to Player that are within HashMaps or lists to Strings- index Players by name, rather than
 //the Player object itself.
 public class CoreEventHandler implements Listener {
+	private class WitherRunner implements Runnable {
+		
+		private List<Wither> spawnedWithers=null;
+		private Player Target = null;
+		private BCRandomizer jp;
+		private int TaskID;
+		public void setTaskID(int pTaskID)
+		{
+			TaskID = pTaskID;
+			
+			
+		}
+		private WitherRunner(List<Wither> pspawnedWithers,Player pTarget,BCRandomizer pjp)
+		{
+			
+			spawnedWithers = pspawnedWithers;
+			Target = pTarget;
+			jp = pjp;
+			
+			
+			
+		}
+		public void run() {
+			//iterate through all the spawnedWithers.
+				int validcount=0;
+				for(Wither existent:spawnedWithers){
+				if(!existent.isDead() && Target.isOnline() && jp.getGame(Target)!=null)
+				{
+					String[] availablemessages = new String[]
+					                                        {
+							"I'm coming to get you, %s...",
+							"Your skin will make a lovely snack, %s",
+							"%s, they say home is where the heart is. I wonder where it is if I eat your heart?",
+							"I don't wanna hurt you, %s, just eat your skin.",
+							"You cannot hide from me, %s.",
+							"It's peanut butter Jelly time, %s"
+							
+							
+							
+					                                        };
+					
+					
+					String ChosenMessage = RandomData.Choose(availablemessages).replace("%s", Target.getDisplayName());
+					
+					validcount++;
+					//retarget the Wither.
+					existent.setTarget(Target);
+					if(RandomData.rgen.nextFloat() > 0.95f)
+					{
+					ResumePvP.BroadcastWorld(Target.getWorld(), ChatColor.DARK_GRAY + "<Wither> " + ChosenMessage );	
+						
+					
+					}
+					
+				}
+				//otherwise, invalid...
+				
+				
+				
+				}
+				if(validcount==0){
+					
+					Bukkit.getScheduler().cancelTask(TaskID);
+					
+				}
+			}
+	}
+				
+				
+			
+	
+	
+	private class WitherAttack	{
+		
+		
+		public int Count;
+		public Player Target;
+		private LinkedList<Wither> spawnedWithers = new LinkedList<Wither>();
+		public WitherAttack(int pCount,Player pTarget){
+			
+			Count=pCount;
+			Target=pTarget;
+			
+		}
+		public void WitherSpawned(Wither spawnedWither){
+			spawnedWithers.add(spawnedWither);
+			
+			
+		}
+		private boolean quickbreak=false;
+		public void Activate(final BCRandomizer jp)		{
+			//activate: install a repeating task.
+			if(quickbreak) return;
+			WitherRunner wr = new WitherRunner(spawnedWithers, Target, jp);
+			int task = Bukkit.getScheduler().scheduleSyncRepeatingTask(jp,wr, 
+					60, 200);
+			
+			wr.setTaskID(task);
+			
+			
+			
+		}
+		
+	}
+	
+	private Queue<WitherAttack> WitherSpawnQueue  = new ConcurrentLinkedQueue<WitherAttack>(); 
 	private BCRandomizer _owner = null;
 	private World watchworld;
 	public static LinkedList<GameTracker> _Trackers = new LinkedList<GameTracker>();
@@ -503,7 +613,7 @@ public class CoreEventHandler implements Listener {
 			return;
 		}
 	}
-	private int NextTarget = 1000;
+
 	private int NextWithers = 0;
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event){
@@ -534,7 +644,7 @@ public class CoreEventHandler implements Listener {
 				if(applicablegame.getStillAlive().contains(awardplayer)){
 				
 				HashMap<Player,Integer> tally = applicablegame.getScoreTally();
-				
+				int NextTarget = applicablegame.getNextLevel(awardplayer);
 				//retrieve current score.
 				int currscore = tally.get(awardplayer);
 				int addedvalue = getMonsterValue((LivingEntity)(event.getEntity()));
@@ -553,6 +663,10 @@ public class CoreEventHandler implements Listener {
 					ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " Withers aren't fond of success...");
 					 applicablegame.getWorld();
 					NextWithers = NextTarget/1000;
+					WitherAttack wa = new WitherAttack(NextWithers,awardplayer);
+					//add it to the Queue...
+					WitherSpawnQueue.add(wa);
+					
 					
 				NextTarget+=1000; //move to next target.
 
@@ -1405,16 +1519,29 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 		if(event.getEntity() instanceof Animals) {
 			event.setCancelled(true);
-			
-			
+			return;
 		}
+			else if(event.getEntity() instanceof Squid) {
+				event.setCancelled(true);
+				return;
+			}
+			
+		
 		synchronized(this){
-		if(NextWithers > 0){
-			NextWithers--;
+		if(!WitherSpawnQueue.isEmpty() ){
+			
+			
+			final WitherAttack peekitem = WitherSpawnQueue.peek();
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(_owner, new Runnable() {
 			public void run() {
-				event.getEntity().getWorld().spawnEntity(event.getLocation(),EntityType.WITHER);	
+				//spawn a wither, and pass the resulting Wither to the "WitherAttack" class.
+				peekitem.WitherSpawned((Wither)(event.getEntity().getWorld().spawnEntity(event.getLocation(),EntityType.WITHER)));
+				//decrement the classes count field.
+				peekitem.Count--;
+				//if the field is zero, we spawned all their Withers. Remove it from the queue, and Activate it.
+				if(peekitem.Count==0) WitherSpawnQueue.remove();
+				peekitem.Activate(_owner);
 			}
 				
 			}
@@ -1504,6 +1631,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 		sr.RandomizeEntity(event.getEntity());
 		}
+		
+	
 		
 	}
 	

@@ -110,8 +110,8 @@ public class EnchantmentProbability implements Cloneable {
 	}
 	public void preCache() {
 		
-		if(cacheprobabilities ==null){
-			System.out.println("Precache enchantmentprobabilities->" + Enchantprobabilities.size());
+		/*if(cacheprobabilities ==null){
+			System.out.println("Precache enchantmentprobabilities->" + Enchantprobabilities.size());*/
 		cacheprobabilities = new float[Enchantprobabilities.size()];
 		enchantdata = new EnchantmentAssignmentData[Enchantprobabilities.size()];
 		int index=0;

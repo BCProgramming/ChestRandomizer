@@ -42,6 +42,7 @@ public final class ItemNamer {
    public static ItemStack renameItem(ItemStack renameit,String Name,String[] Lore){
 	   
 	   ArrayList<String> createlist = new ArrayList<String>(); 
+	   if(Lore!=null){
 	   for(String iterate : Lore)
 	   {
 		   if(iterate!=null && iterate.length() > 0)
@@ -50,6 +51,8 @@ public final class ItemNamer {
 	   
 	   }
 	   createlist.toArray(Lore);
+	   }
+	   
 	   ItemMeta im = renameit.getItemMeta();
 	   if(Name!=null) im.setDisplayName(Name);
 	    

@@ -67,7 +67,31 @@ public class GameTracker implements Runnable {
 	public boolean getMobArenaMode() {
 		return _MobArenaMode;
 	}
-
+	private static final int defaultscoreincrement=1000;
+	private HashMap<Player,Integer> nextScoreLevel = new HashMap<Player,Integer>();
+	
+		
+	public int getNextLevel(Player p) {
+		
+		if(nextScoreLevel.containsKey(p)){
+			return nextScoreLevel.get(p).intValue();
+		}
+		else{
+			
+			nextScoreLevel.put(p, defaultscoreincrement);
+			return defaultscoreincrement;
+			
+		}
+		
+		
+	}
+	public void setNextLevel(Player p,int Value){
+		nextScoreLevel.put(p, Value);
+		
+		
+		
+	}
+	
 	public HashMap<Player, Integer> getScoreTally() {
 		return ScoreTally;
 	}

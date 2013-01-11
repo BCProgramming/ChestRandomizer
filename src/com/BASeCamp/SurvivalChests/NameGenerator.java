@@ -17,6 +17,12 @@ import net.minecraft.server.v1_4_6.Path;
 
 public class NameGenerator {
 
+	public static String[] MobNames = new String[]{
+	"Timmy","Bobby","Wally","Peter","Chris","Chuck","Ralph"	
+	};
+	public static String[] MobTitles = new String[] {"Vindicating","Bad","Terrible","Evil","Cursed","Unkind","Impolite","Curt",
+		"Trite"
+	};
 	
 	public static String[] Hats = new String[]{"Hat","Cap","Helmet","Topper","Fez","Sombrero"};
 	public static String[] Chestplates = new String[]{"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"};
@@ -57,7 +63,7 @@ public class NameGenerator {
 		"digestions","dimes","dinners","dinosaurs","directions","dirts","discoveries","discussions","diseases",
 		"disgusts","distances","distributions","divisions","docks","doctors","dogs","dolls","donkeys","doors",
 		"drains","drawers","dresses","drinks","drivers","drops","drugs","drums","ducks","ears","earth","earthquakes",
-		"edges","education","effects","eggs","eggnogs","eggss","elbows","ends","engines","errors","events","examples",
+		"edges","education","effects","eggs","eggnogs","eggs","elbows","ends","engines","errors","events","examples",
 		"exchanges","existences","expansions","experiences","experts","eyes","eyes","faces","facts","fairies",
 		"falls","families","fans","fangs","farms","farmers","fathers","faucets","fears","feasts","feathers",
 		"feelings","feet","fictions","fields","fifths","fights","fingers","fires","firemans","fish","flags",
@@ -210,7 +216,20 @@ public class NameGenerator {
 	
 	
 	//adds verbs from an existing file. return values less than 0 indicate failure.
-
+	public static String RandomMobName(String mobType){
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(RandomData.Choose(MobNames));
+		sb.append(" the " + RandomData.Choose(MobTitles));
+		if(mobType!=null && !mobType.equals("")){
+			sb.append(mobType);
+			
+			
+		}
+		return sb.toString();
+		
+		
+	}
 	public static String toTitleCase(String input) {
 	    StringBuilder titleCase = new StringBuilder();
 	    boolean nextTitleCase = true;

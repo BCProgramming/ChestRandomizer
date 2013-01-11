@@ -28,6 +28,7 @@ import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creature;
@@ -44,6 +45,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
+import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
@@ -501,7 +503,8 @@ public class CoreEventHandler implements Listener {
 			return;
 		}
 	}
-
+	private int NextTarget = 1000;
+	private int NextWithers = 0;
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event){
 		
@@ -541,6 +544,20 @@ public class CoreEventHandler implements Listener {
 				
 				currscore+= addedvalue;
 				tally.put(awardplayer, currscore);
+				//if the current score is equal to or above 1K...
+				
+				if(currscore>=NextTarget)
+				{
+					//spawn NextTarget\1000 Withers....
+					ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " You are doing well...");
+					ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " Withers aren't fond of success...");
+					 applicablegame.getWorld();
+					NextWithers = NextTarget/1000;
+					
+				NextTarget+=1000; //move to next target.
+
+				
+				}
 				//inform the player.
 				awardplayer.sendMessage(BCRandomizer.Prefix + " You have been awarded " + addedvalue + " Points for killing a " + entityname + " Total(" + currscore + ")");
 				}
@@ -597,6 +614,17 @@ else if(monster instanceof CaveSpider) {
 			
 			
 		}
+		else if(monster instanceof Bat){
+			
+		basescore*=3;	
+		
+		}
+		else if(monster instanceof Wither)
+		{
+		basescore*=1000;	
+			
+		}
+		
 		for(PotionEffect pe:monster.getActivePotionEffects()){
 			
 			int potionscore = 0;
@@ -1380,6 +1408,23 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			
 			
 		}
+		synchronized(this){
+		if(NextWithers > 0){
+			NextWithers--;
+			
+			Bukkit.getScheduler().scheduleSyncDelayedTask(_owner, new Runnable() {
+			public void run() {
+				event.getEntity().getWorld().spawnEntity(event.getLocation(),EntityType.WITHER);	
+			}
+				
+			}
+			);
+			
+			
+			
+			
+		}
+		}
 		
 		Location BorderA = _owner.Randomcommand.BorderA;
 		Location BorderB = _owner.Randomcommand.BorderB;
@@ -1437,7 +1482,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		//if we are in mob battle/fight mode, randomize it. otherwise, Cancel it entirely.
 		
 		
-		
+		if(!event.getEntity().getType().equals(EntityType.WITHER))
+		{
 		//System.out.println("Randomizing creature " + event.getEntity().getClass().getName());
 		SpawnerRandomizer sr = new SpawnerRandomizer(_owner);
 		if(RandomData.rgen.nextFloat() < 0.6f)
@@ -1457,7 +1503,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,32767,RandomData.rgen.nextInt(2)));
 		
 		sr.RandomizeEntity(event.getEntity());
-		
+		}
 		
 	}
 	

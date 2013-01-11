@@ -17,17 +17,21 @@ import net.minecraft.server.v1_4_6.EntityLiving;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Difficulty;
 import org.bukkit.Effect;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -160,6 +164,12 @@ public class GameTracker implements Runnable {
 		Bukkit.broadcastMessage(deadPlayer.getDisplayName() + " is "
 				+ ChatColor.RED + "OUT!" + ChatColor.YELLOW + " (Place:"
 				+ theposition + ")");
+		
+	
+		
+		
+		
+		
 		Player WinningPlayer = deadPlayer;
 		if (_MobArenaMode) {
 
@@ -467,7 +477,7 @@ public class GameTracker implements Runnable {
 		// TODO Auto-generated method stub
 		Location CenterPoint = pa.getLocation();
 		// Random radius away.
-
+		if(false){
 		float useRadius = RandomData.rgen.nextFloat() * 8 + 5;
 
 		// random angle...
@@ -499,6 +509,7 @@ public class GameTracker implements Runnable {
 
 		System.out.println("Spawned a " + selected.getName() + " near "
 				+ pa.getName());
+		}
 
 	}
 
@@ -516,6 +527,7 @@ public class GameTracker implements Runnable {
 
 	public void TimeoutExpired() {
 
+		
 		if (runningWorld == null)
 			runningWorld = StillAlive.getFirst().getWorld();
 		if (!_MobArenaMode) {
@@ -536,7 +548,7 @@ public class GameTracker implements Runnable {
 							10);
 
 					// useWorld.strikeLightning(currlocation);
-
+					
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(
 							PotionEffectType.BLINDNESS, 500, 1));
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
@@ -562,13 +574,14 @@ public class GameTracker implements Runnable {
 					"A Cold chill runs down your spine",
 					"It is a good night to " + ChatColor.RED + " die.",
 					"The Black wind howls. One of you will shortly perish." };
-
+			try {
 			runningWorld.setTime(18000); // make it night.
 			runningWorld.setMonsterSpawnLimit(32000); // 80 hostile mobs? That's
 														// no fun. Let's crank
 														// it up...
 			runningWorld.setTicksPerMonsterSpawns(40);
-
+			}
+			catch(Exception exx) { }
 			String chosenmessage = RandomData.Choose(possiblemessages);
 			ResumePvP.BroadcastWorld(runningWorld, BCRandomizer.Prefix
 					+ ChatColor.RED + chosenmessage);
@@ -583,7 +596,8 @@ public class GameTracker implements Runnable {
 			_Owner.ExtinguishFlames(runningWorld);
 			
 			for (Player iterate : StillAlive) {
-			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,1));
+			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.SPEED,600,10));
 			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
 			}
 			// kill all animals in the world, too. Because, why not.

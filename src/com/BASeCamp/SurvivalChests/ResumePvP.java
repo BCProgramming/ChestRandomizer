@@ -79,8 +79,16 @@ public class ResumePvP implements Runnable{
 			System.out.println("timediff:" + timediff);
 			timediff = System.currentTimeMillis()-starttime;	
 		}
+		Bukkit.getScheduler().scheduleSyncDelayedTask(_bcr, new Runnable() {
+		public void run() {
+			usetracker.TimeoutExpired();
+			
+		}
+			
+			
 		
-		usetracker.TimeoutExpired();
+		},1);
+		
 		
 		//format is /startgame <seconds> <moderator> <spectators>
 		

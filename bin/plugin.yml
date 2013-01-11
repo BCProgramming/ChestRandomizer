@@ -2,33 +2,33 @@ name: BASeCamp Survival Chests
 main: com.BASeCamp.SurvivalChests.BCRandomizer
 version: 1.5
 commands:
-      repopchests:
-        description: repopulates chests in loaded chunks.
-      prepareinfo:
-        description: shows information about players that have joined or are spectating a game being prepared.  
-      preparegame:
-        description: prepares a game to start, and announces the game to players as well as those that join.
-      joingame:
-        description: used to join a game being prepared.
-      spectategame:
-        description: used to spectate a game being prepared, or a game in progress.
-      startgame:
-        description: starts a game being prepared.
-      friendly:
-        description: shows the friendly name for the held item.
-      randomizespawners:
-        description: randomizes the creature type and NBT Data for spawners.
-      gamestate:
-        description: shows state of running games.
-      mobmode:
-        description: toggles "mobmode" on and off.
-      arenaborder1:
-        description: set's first border corner.
-      arenaborder2:
-        description: set's second border corner.
-      clearborders:
-        description: clears any set borders.
-      setfly:
-        description: sets playing flying or not. /setfly <player> <true|false>
-      fixup:
-        description: hack. used during a running game to forcibly set spectators to fly and participants to not fly, as well as resetting visibility.
+  repopchests:
+    description: repopulates chests in loaded chunks.
+  prepareinfo:
+    description: shows information about players that have joined or are spectating a game being prepared.
+  preparegame:
+    description: prepares a game to start, and announces the game to players as well as those that join.
+  joingame:
+    description: used to join a game being prepared.
+  spectategame:
+    description: used to spectate a game being prepared, or a game in progress.
+  startgame:
+    description: starts a game being prepared.
+  friendly:
+    description: shows the friendly name for the held item.
+  randomizespawners:
+    description: randomizes the creature type and NBT Data for spawners.
+  gamestate:
+    description: shows state of running games.
+  mobmode:
+    description: toggles "mobmode" on and off.
+  arenaborder1:
+    description: set's first border corner.
+  arenaborder2:
+    description: set's second border corner.
+  clearborders:
+    description: clears any set borders.
+  setfly:
+    description: sets playing flying or not. /setfly <player> <true|false>
+  fixup:
+    description: hack. used during a running game to forcibly set spectators to fly and participants to not fly, as well as resetting visibility.

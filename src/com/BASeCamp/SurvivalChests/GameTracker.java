@@ -13,7 +13,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import net.minecraft.server.EntityLiving;
+import net.minecraft.server.v1_4_6.EntityLiving;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,7 +22,7 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CreatureType;
@@ -260,7 +260,7 @@ public class GameTracker implements Runnable {
 					gavecompasses = true;
 					for (Player givecompass : StillAlive) {
 						ItemStack CompassItem = new ItemStack(Material.COMPASS);
-
+						
 						CompassItem = ItemNamer.renameItem(CompassItem,
 								"BASeCamp" + ChatColor.ITALIC + "(r)"
 										+ ChatColor.RESET + " Player Finder");

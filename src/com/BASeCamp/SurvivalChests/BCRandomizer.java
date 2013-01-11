@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 
-import net.minecraft.server.NBTTagList;
+import net.minecraft.server.v1_4_6.NBTTagList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -268,7 +268,7 @@ public class BCRandomizer extends JavaPlugin {
 		         this.getCommand("setfly").setExecutor(Randomcommand);
 		         this.getCommand("prepareinfo").setExecutor(Randomcommand);
 		         this.getCommand("fixup").setExecutor(Randomcommand);
-		         
+		         //this.getCommand("strike").setExecutor(Randomcommand);
 		         ChestRandomizer.reload(this,null);
 	    }
 	    @Override

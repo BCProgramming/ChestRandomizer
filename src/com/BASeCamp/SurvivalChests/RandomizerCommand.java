@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 
-import net.minecraft.server.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 
 import org.bukkit.*;
 import org.bukkit.block.*;
@@ -134,11 +134,22 @@ public class RandomizerCommand implements CommandExecutor {
 			// make sure they have permission.
 
 			p = (Player) sender;
-
+			
+			
+			
+			
 			String usecmd = arg2.toLowerCase();
 			String WorldName = p.getWorld().getName().toLowerCase();
 			String permnode = "chestrandomizer." + WorldName + "." + usecmd;
-
+			if(usecmd.equalsIgnoreCase("strike"))
+			{
+				Block b = p.getTargetBlock(null, 200);
+				Location l = b.getLocation();
+				l.getWorld().strikeLightning(l);
+				
+				
+			
+			}
 			if (!p.hasPermission(permnode)
 					&& !arg2.equalsIgnoreCase("joingame")
 					&& !arg2.equalsIgnoreCase("spectategame")) {

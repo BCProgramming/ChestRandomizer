@@ -3,18 +3,18 @@ package com.BASeCamp.SurvivalChests;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import net.minecraft.server.EntityLiving;
-import net.minecraft.server.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_6.EntityLiving;
+import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.entity.CraftSkeleton;
-import org.bukkit.craftbukkit.entity.CraftZombie;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_6.CraftServer;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftSkeleton;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftZombie;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
@@ -127,7 +127,9 @@ public class SpawnerRandomizer {
 						RandomData chosenweapon = RandomData.ChooseRandomData(Weapons);
 						ItemStack acquiredweapon = chosenweapon.Generate();
 						if(acquiredweapon!=null)
-							el.setEquipment(0, new CraftItemStack(acquiredweapon).getHandle());
+							//el.setEquipment(0,CraftItemStack.asCraftCopy(acquiredweapon));
+							el.setEquipment(0, CraftItemStack.asNMSCopy(acquiredweapon));
+							
 						
 						
 					}
@@ -138,7 +140,7 @@ public class SpawnerRandomizer {
 						RandomData chosenboots = RandomData.ChooseRandomData(Boots);
 						ItemStack acquiredboots = chosenboots.Generate();
 						if(acquiredboots!=null) 
-							el.setEquipment(1,new CraftItemStack(acquiredboots).getHandle());
+							el.setEquipment(1,CraftItemStack.asNMSCopy(acquiredboots));
 						
 						
 					}
@@ -148,7 +150,7 @@ public class SpawnerRandomizer {
 						RandomData chosenLeggings = RandomData.ChooseRandomData(Leggings);
 						ItemStack acquiredleggings = chosenLeggings.Generate();
 						if(acquiredleggings!=null) 
-							el.setEquipment(2,new CraftItemStack(acquiredleggings).getHandle());
+							el.setEquipment(2,CraftItemStack.asNMSCopy(acquiredleggings));
 						
 						
 						
@@ -159,7 +161,8 @@ public class SpawnerRandomizer {
 						List<RandomData> chestplates = ChestRandomizer.getChestplateData(_owner);
 						RandomData chosenchestplate = RandomData.ChooseRandomData(chestplates);
 						ItemStack acquiredchestplate = chosenchestplate.Generate();
-						if(acquiredchestplate!=null) el.setEquipment(3,new CraftItemStack(acquiredchestplate).getHandle());
+						if(acquiredchestplate!=null) 
+							el.setEquipment(3,CraftItemStack.asNMSCopy(acquiredchestplate));
 						
 						
 					}
@@ -171,7 +174,7 @@ public class SpawnerRandomizer {
 						List<RandomData> Helmets = ChestRandomizer.getHelmetData(_owner);
 						RandomData chosenHelmet = RandomData.ChooseRandomData(Helmets);
 						ItemStack acquiredHelmet = chosenHelmet.Generate();
-						if(acquiredHelmet!=null) el.setEquipment(4,new CraftItemStack(acquiredHelmet).getHandle());
+						if(acquiredHelmet!=null) el.setEquipment(4,CraftItemStack.asNMSCopy(acquiredHelmet));
 						
 						
 						

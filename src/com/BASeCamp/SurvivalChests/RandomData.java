@@ -1,22 +1,25 @@
 package com.BASeCamp.SurvivalChests;
 
-import java.awt.Color;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.server.Item;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.NBTTagString;
-import net.minecraft.server.PotionBrewer;
+import net.minecraft.server.v1_4_6.Item;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.NBTTagString;
+import net.minecraft.server.v1_4_6.PotionBrewer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.potion.CraftPotionBrewer;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_6.potion.CraftPotionBrewer;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
@@ -98,18 +101,15 @@ public class RandomData {
 	return ItemType + "has extra power :D";
 	}
 	
-	public static CraftItemStack getHead(String headname) {
-		CraftItemStack head;
-		try {
-		head = new CraftItemStack(Material.SKULL_ITEM,1,(short)3);
-		} catch (NullPointerException e) {
-			head = new CraftItemStack(Material.LEATHER_HELMET,1,(short)55);
-		}	
-		NBTTagCompound headNBT = new NBTTagCompound();
-		headNBT.setString("SkullOwner", headname);
-		head.getHandle().tag = headNBT;
-		head.setAmount(1);
-		return head;
+	public static ItemStack getHead(String headname) {
+
+	    ItemStack skull = new ItemStack(Material.SKULL_ITEM);
+	    SkullMeta meta = (SkullMeta) skull.getItemMeta();
+	    meta.setOwner(headname);
+	    skull.setItemMeta(meta);
+	    return skull;
+		
+		
 		}
 	public static boolean isHead(ItemStack testitem){
 		return testitem.getType().equals(Material.SKULL_ITEM) ||
@@ -169,13 +169,12 @@ public class RandomData {
 		
 	}
 	private static CraftItemStack toCraftStack(ItemStack source){
-		if(source instanceof CraftItemStack)
-			return (CraftItemStack)source;
-		else
-			return new CraftItemStack(source);
+		return CraftItemStack.asCraftCopy(source);
+		
 		
 	}
 	public static String getHeadName(ItemStack source){
+		
 		//retrieves the name of the users head being represented.
 		//only applicable for Heads.
 		if(!isHead(source))
@@ -198,11 +197,11 @@ public class RandomData {
 		}
 		else if(source.getDurability()==3 || source.getDurability() > 3){
 		
-			CraftItemStack cstack = toCraftStack(source);
 		
-		NBTTagCompound headNBT = cstack.getHandle().getTag();
-		if(headNBT!=null){
-			String ownerName =headNBT.getString("SkullOwner");
+		String gotname=source.getItemMeta().getDisplayName();
+		
+		if(gotname!=null){
+			String ownerName = gotname;
 			if(ownerName==null || ownerName.length()==0) ownerName="Steve?";
 			return  ownerName + "'s Head";
 			
@@ -533,29 +532,12 @@ public class RandomData {
 		
 	}
 	 public static ItemStack setColor(ItemStack item, int color){
-		 CraftItemStack craftStack = null;
-		 color=Math.abs(color);
-		 net.minecraft.server.ItemStack itemStack = null;
-		 if (item instanceof CraftItemStack) {
-		 craftStack = (CraftItemStack) item;
-		 itemStack = craftStack.getHandle();
-		 }
-		 else if (item instanceof ItemStack) {
-		 craftStack = new CraftItemStack(item);
-		 itemStack = craftStack.getHandle();
-		 }
-		 NBTTagCompound tag = itemStack.tag;
-		 if (tag == null) {
-		 tag = new NBTTagCompound();
-		 tag.setCompound("display", new NBTTagCompound());
-		 itemStack.tag = tag;
-		 }
-		  
-		 tag = itemStack.tag.getCompound("display");
-	
-		 tag.setInt("color", color);
-		 itemStack.tag.setCompound("display", tag);
-		 return craftStack;
+		 
+		 LeatherArmorMeta lam = (LeatherArmorMeta)item.getItemMeta();
+		 lam.setColor(Color.fromRGB(color));
+		 item.setItemMeta(lam);
+		 return item;
+		 
 		 }
 	public static ItemStack DyeLeather(ItemStack item){
 		//Dye's a leather Item to a random color.

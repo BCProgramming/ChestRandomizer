@@ -1,16 +1,17 @@
 package com.BASeCamp.SurvivalChests;
 
 import java.awt.geom.Rectangle2D;
+
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.Block;
-import net.minecraft.server.EntityItemFrame;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagList;
+import net.minecraft.server.v1_4_6.Block;
+import net.minecraft.server.v1_4_6.EntityItemFrame;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,11 +19,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.entity.CraftCreeper;
-import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.entity.CraftMonster;
-import org.bukkit.craftbukkit.entity.CraftSkeleton;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftCreeper;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftMonster;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftSkeleton;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
@@ -67,6 +69,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
 import org.bukkit.potion.PotionEffect;
@@ -240,11 +243,11 @@ public class CoreEventHandler implements Listener {
 		String useprefix = "";
 		if(entityfor instanceof Zombie || entityfor instanceof Skeleton){
 		CraftLivingEntity cle = (CraftLivingEntity)entityfor;
-		net.minecraft.server.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
-		net.minecraft.server.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
-		net.minecraft.server.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
-		net.minecraft.server.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
-		net.minecraft.server.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
+		net.minecraft.server.v1_4_6.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
+		net.minecraft.server.v1_4_6.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
+		net.minecraft.server.v1_4_6.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
+		net.minecraft.server.v1_4_6.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
+		net.minecraft.server.v1_4_6.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
 		
 		int armourcount = 
 			(EntityBoots==null?0:1) +
@@ -635,7 +638,9 @@ else if(monster instanceof CaveSpider) {
 				
 				if(getvalue!=null){
 					
-					basescore+=getItemValue(new CraftItemStack(getvalue).getHandle());
+					basescore+=getItemValue((ItemStack)(CraftItemStack.asCraftCopy(getvalue)));
+				    
+					
 					
 					
 				}
@@ -651,10 +656,12 @@ else if(monster instanceof CaveSpider) {
 		if(monster instanceof Zombie || monster instanceof Skeleton ){
 			
 			
-			CraftMonster cf = (CraftMonster)monster;
-			net.minecraft.server.ItemStack[] equipment = cf.getHandle().getEquipment();
 			
-			for(net.minecraft.server.ItemStack getvalue : equipment) {
+			//net.minecraft.server.v1_4_6.ItemStack[] equipment = cf.getHandle().getEquipment();
+			EntityEquipment equipment  = monster.getEquipment();
+			
+			
+			for(ItemStack getvalue : equipment.getArmorContents()) {
 				
 				
 				
@@ -662,6 +669,7 @@ else if(monster instanceof CaveSpider) {
 				
 				
 			}
+			basescore += getItemValue(equipment.getItemInHand());
 			
 			
 		}
@@ -710,9 +718,9 @@ else if(monster instanceof CaveSpider) {
 		
 	}
 	
-	private int getItemValue(net.minecraft.server.ItemStack getvalue){
+	private int getItemValue(ItemStack itemStack){
 		
-		if(getvalue==null) return 0;
+		if(itemStack==null) return 0;
 		int basescore = 1;
 		
 		//material values: 
@@ -722,35 +730,37 @@ else if(monster instanceof CaveSpider) {
 		//Gold:4
 		//Diamond:5
 		
-		if(MaterialHelper.isLeather(Material.getMaterial(getvalue.id)) || MaterialHelper.isWooden(Material.getMaterial(getvalue.id)))
+		if(MaterialHelper.isLeather(Material.getMaterial(itemStack.getTypeId())) || MaterialHelper.isWooden(Material.getMaterial(itemStack.getTypeId())))
 			basescore+=1;
-		else if(MaterialHelper.isIron(Material.getMaterial(getvalue.id)))
+		else if(MaterialHelper.isIron(Material.getMaterial(itemStack.getTypeId())))
 			basescore+=2;
-		else if(MaterialHelper.isChainmail(Material.getMaterial(getvalue.id)))
+		else if(MaterialHelper.isChainmail(Material.getMaterial(itemStack.getTypeId())))
 			basescore+=3;
-		else if(MaterialHelper.isGold(Material.getMaterial(getvalue.id)))
+		else if(MaterialHelper.isGold(Material.getMaterial(itemStack.getTypeId())))
 			basescore+=4;
-		else if(MaterialHelper.isDiamond(Material.getMaterial(getvalue.id)))
+		else if(MaterialHelper.isDiamond(Material.getMaterial(itemStack.getTypeId())))
 			basescore+=5;
 		
 		
 			System.out.println("Basescore:" + basescore);
 		
-			HashMap<Enchantment,Integer> enchants = new HashMap<Enchantment,Integer>();
+			//HashMap<Enchantment,Integer> enchants = new HashMap<Enchantment,Integer>();
+			Map<Enchantment, Integer> enchants = itemStack.getEnchantments();
 			
-			NBTTagList enchantments = getvalue.getEnchantments();
-			if(enchantments!=null) {
-			for (int i=0;i<enchantments.size();i++){
+			//NBTTagList enchantments = itemStack.getEnchantments();
+			//if(enchantments!=null) {
+			//for (int i=0;i<enchantments.size();i++){
 				
-				NBTTagCompound casted = (NBTTagCompound)enchantments.get(i);
-				int enchantmentID = casted.getInt("ID");
-				int enchantmentLevel = casted.getInt("Level");
-				enchants.put(Enchantment.getById(enchantmentID),enchantmentLevel);
+			//	NBTTagCompound casted = (NBTTagCompound)enchantments.get(i);
+			//	int enchantmentID = casted.getInt("ID");
+			//	int enchantmentLevel = casted.getInt("Level");
+			//	enchants.put(Enchantment.getById(enchantmentID),enchantmentLevel);
 				
 				
 				
-			}
-			}
+			//}
+			//}
+			
 		int enchantmentvalues = 0;
 		for(Enchantment iterateenchant:enchants.keySet()) {
 			
@@ -886,9 +896,9 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		String weapon = Item.getType().name();
 
 		
-		ItemNamer renamer = new ItemNamer(Item);
 		
-		String gotname = renamer.getName();
+		
+		String gotname = Item.getItemMeta().getDisplayName();
 		if (gotname != null && gotname != "")
 			weapon = gotname;
 		else {

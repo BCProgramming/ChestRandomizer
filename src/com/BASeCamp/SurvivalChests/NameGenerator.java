@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import net.minecraft.server.Path;
+import net.minecraft.server.v1_4_6.Path;
 //Special class for generating Item names.
 
 public class NameGenerator {

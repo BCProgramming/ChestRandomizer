@@ -7,11 +7,11 @@ import java.util.List;
 
 
 
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagFloat;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.TileEntity;
-import net.minecraft.server.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagFloat;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.TileEntity;
+import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -19,11 +19,11 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.block.CraftCreatureSpawner;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_6.block.CraftCreatureSpawner;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
 public class SpawnerRandomData {
 //analogous to the RandomData class, but for spawners.
 	
@@ -114,6 +114,7 @@ public class SpawnerRandomData {
 			TileEntity te = (((CraftWorld) ((applyTo.getWorld()))).getHandle()).getTileEntity(block.getX(),block.getY(),block.getZ());
 			  if(te instanceof TileEntityMobSpawner) {
 			    TileEntityMobSpawner tems = (TileEntityMobSpawner)te;
+			    
 			    NBTTagCompound c = new NBTTagCompound();
 			    tems.b(c);
 			    short playerrange = (short)(RandomData.rgen.nextInt(MaxPlayerRange-MinPlayerRange)+MinPlayerRange);
@@ -165,21 +166,21 @@ public class SpawnerRandomData {
 			    ItemStack gotHelmet = ChosenHelmet==null?null:ChosenHelmet.Generate();
 			    
 			    CraftItemStack Weapon = null;
-			    if(gotweapon!=null) Weapon = new CraftItemStack(gotweapon);
+			    if(gotweapon!=null) Weapon = CraftItemStack.asCraftCopy(gotweapon);
 			    
 			    CraftItemStack Boots = null;
-			    if(gotboots!=null) Boots = new CraftItemStack(gotboots);
+			    if(gotboots!=null) Boots = CraftItemStack.asCraftCopy(gotboots);
 			    
 			    CraftItemStack ChestPlate = null;
-			    if(gotChestplate !=null) ChestPlate = new CraftItemStack(gotChestplate);
+			    if(gotChestplate !=null) ChestPlate = CraftItemStack.asCraftCopy(gotChestplate);
 			    
 			    
 			    CraftItemStack Leggings = null;
-			    if(gotLeggings!=null) Leggings = new CraftItemStack(gotLeggings);
+			    if(gotLeggings!=null) Leggings = CraftItemStack.asCraftCopy(gotLeggings);
 			    
 			    
 			    CraftItemStack Helmet = null;
-			    if(gotHelmet!=null) Helmet = new CraftItemStack(gotHelmet);
+			    if(gotHelmet!=null) Helmet = CraftItemStack.asCraftCopy(gotHelmet);
 			    
 			    //CraftItemStack Boots = new CraftItemStack(org.bukkit.Material.IRON_BOOTS,1);
 			    //CraftItemStack ChestPlate = new CraftItemStack(org.bukkit.Material.IRON_CHESTPLATE,1);
@@ -192,7 +193,8 @@ public class SpawnerRandomData {
 			    	equipment.add(new NBTTagCompound());
 			    else{
 			    	NBTTagCompound NBTSave = new NBTTagCompound("Equipment");
-			    	Weapon.getHandle().save(NBTSave);
+			    	
+			    	//Weapon.getHandle().save(NBTSave);
 			    	equipment.add(NBTSave);
 			    }
 			   
@@ -201,16 +203,16 @@ public class SpawnerRandomData {
 			    else
 			    {
 			    	NBTTagCompound NBTSave = new NBTTagCompound("Equipment");
-			    	Boots.getHandle().save(NBTSave);
-			    	equipment.add(NBTSave);
+			    	//Boots.getHandle().save(NBTSave);
+			    	//equipment.add(NBTSave);
 			    }
 			    
 			    if(Leggings==null)
 			    	equipment.add(new NBTTagCompound());
 			    else{
 			    	NBTTagCompound NBTSave = new NBTTagCompound("Equipment");
-			    	Leggings.getHandle().save(NBTSave);
-			    	equipment.add(NBTSave);
+			    	//Leggings.getHandle().save(NBTSave);
+			    	//equipment.add(NBTSave);
 			    }
 			    
 			    if(ChestPlate == null)
@@ -218,8 +220,8 @@ public class SpawnerRandomData {
 			    else
 			    {
 			    	NBTTagCompound NBTSave = new NBTTagCompound("Equipment");
-			    	ChestPlate.getHandle().save(NBTSave);
-			    	equipment.add(NBTSave);
+			    	//ChestPlate.getHandle().save(NBTSave);
+			    	//equipment.add(NBTSave);
 			    	
 			    	
 			    }
@@ -229,8 +231,8 @@ public class SpawnerRandomData {
 			    else
 			    {
 			    	NBTTagCompound NBTSave = new NBTTagCompound("Equipment");
-			    	Helmet.getHandle().save(NBTSave);
-			    	equipment.add(NBTSave);
+			    	//Helmet.getHandle().save(NBTSave);
+			    	//equipment.add(NBTSave);
 			    	
 			    }
 			    

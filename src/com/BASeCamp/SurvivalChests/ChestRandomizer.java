@@ -361,7 +361,7 @@ public class ChestRandomizer {
 		
 		
 		System.out.println("ChestRandomizer::reload()");
-		Thread.dumpStack();
+		//Thread.dumpStack();
 		
 		randData = new LinkedList<RandomData>();
 		addall = new LinkedList<RandomData>();

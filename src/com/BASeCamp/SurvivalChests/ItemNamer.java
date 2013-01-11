@@ -50,22 +50,22 @@ public final class ItemNamer {
 		   
 	   
 	   }
-	   createlist.toArray(Lore);
+	   if(createlist.size() > 0) createlist.toArray(Lore);
 	   }
 	   
 	   ItemMeta im = renameit.getItemMeta();
 	   if(Name!=null) im.setDisplayName(Name);
 	    
-	   if(Lore!=null && Lore.length>=0) {
+	   if(Lore!=null && Lore.length>=0 && Lore[0].length() > 0) {
 		   
-		   
-			
 			   im.setLore(Arrays.asList(Lore));
-			   
-			   
+			   System.out.println("Set Lore to " + Lore[0]);
+	   }
+	   else 
+	   {
 		   
-		   
-		   
+		//im.setLore(null);   
+	   
 	   }
 	   renameit.setItemMeta(im);
 	   

@@ -111,8 +111,7 @@ public class CoreEventHandler implements Listener {
 		public void run() {
 			//iterate through all the spawnedWithers.
 				int validcount=0;
-				for(Wither existent:spawnedWithers){
-				if(!existent.isDead() && Target.isOnline() && jp.getGame(Target)!=null)
+				if(RandomData.rgen.nextFloat() > 0.99f)
 				{
 					String[] availablemessages = new String[]
 					                                        {
@@ -130,15 +129,21 @@ public class CoreEventHandler implements Listener {
 					
 					String ChosenMessage = RandomData.Choose(availablemessages).replace("%s", Target.getDisplayName());
 					
+				ResumePvP.BroadcastWorld(Target.getWorld(), ChatColor.DARK_GRAY + "<Skeleton King> " + ChosenMessage );	
+					
+				
+				}
+				
+				for(Wither existent:spawnedWithers){
+				if(!existent.isDead() && Target.isOnline() && jp.getGame(Target)!=null)
+				{
+					
 					validcount++;
 					//retarget the Wither.
 					existent.setTarget(Target);
-					if(RandomData.rgen.nextFloat() > 0.95f)
-					{
-					ResumePvP.BroadcastWorld(Target.getWorld(), ChatColor.DARK_GRAY + "<Wither> " + ChosenMessage );	
-						
 					
-					}
+					
+					
 					
 				}
 				//otherwise, invalid...
@@ -660,16 +665,16 @@ public class CoreEventHandler implements Listener {
 				{
 					//spawn NextTarget\1000 Withers....
 					ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " You are doing well...");
-					ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " Withers aren't fond of success...");
+					//ResumePvP.BroadcastWorld(applicablegame.getWorld(), ChatColor.GRAY + " Withers aren't fond of success...");
 					 applicablegame.getWorld();
 					NextWithers = NextTarget/1000;
-					WitherAttack wa = new WitherAttack(NextWithers,awardplayer);
+					//WitherAttack wa = new WitherAttack(NextWithers,awardplayer);
 					//add it to the Queue...
-					WitherSpawnQueue.add(wa);
+					//WitherSpawnQueue.add(wa);
 					
 					
 				NextTarget+=1000; //move to next target.
-
+				applicablegame.setNextLevel(awardplayer, NextTarget);
 				
 				}
 				//inform the player.
@@ -848,6 +853,7 @@ else if(monster instanceof CaveSpider) {
 			enchantmentvalues.put(Enchantment.PROTECTION_FALL, 2); //feather falling
 			enchantmentvalues.put(Enchantment.OXYGEN, 2); //respiration
 			enchantmentvalues.put(Enchantment.WATER_WORKER, 2); //aqua Affinity
+			enchantmentvalues.put(Enchantment.THORNS, 2);
 			
 			
 			

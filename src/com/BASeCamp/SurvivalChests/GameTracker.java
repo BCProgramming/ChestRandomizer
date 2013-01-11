@@ -588,7 +588,8 @@ public class GameTracker implements Runnable {
 			}
 			runningWorld.setAnimalSpawnLimit(0);
 			runningWorld.setAmbientSpawnLimit(0);
-			runningWorld.setDifficulty(Difficulty.PEACEFUL);
+			runningWorld.setGameRuleValue("doMobSpawning", "false");
+			runningWorld.setDifficulty(Difficulty.HARD);
 			
 			
 			Bukkit.broadcastMessage(ChatColor.GREEN
@@ -599,6 +600,7 @@ public class GameTracker implements Runnable {
 					"It is a good night to " + ChatColor.RED + " die.",
 					"The Black wind howls. One of you will shortly perish." };
 			try {
+			runningWorld.setGameRuleValue("doMobSpawning", "true");
 			runningWorld.setTime(18000); // make it night.
 			runningWorld.setMonsterSpawnLimit(32000); // 80 hostile mobs? That's
 														// no fun. Let's crank
@@ -620,9 +622,9 @@ public class GameTracker implements Runnable {
 			_Owner.ExtinguishFlames(runningWorld);
 			
 			for (Player iterate : StillAlive) {
-			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,1));
-			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.SPEED,600,10));
-			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
+			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+			//iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.SPEED,600,10));
+			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry. Find some milk!");
 			}
 			// kill all animals in the world, too. Because, why not.
 

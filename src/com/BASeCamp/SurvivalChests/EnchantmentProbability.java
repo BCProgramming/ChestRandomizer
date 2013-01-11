@@ -126,7 +126,7 @@ public class EnchantmentProbability implements Cloneable {
 		}
 		}
 		
-	}
+	
 	//applies a random enchantment to the given item.
 	/*
 	public void Apply(ItemStack applyitem, boolean superEnchantment)
@@ -224,7 +224,7 @@ public class EnchantmentProbability implements Cloneable {
 	EnchantmentMapping.put("PROJECTILEPROTECTION", Enchantment.PROTECTION_PROJECTILE);
 	EnchantmentMapping.put("SILKTOUCH", Enchantment.SILK_TOUCH);
 	EnchantmentMapping.put("AQUAAFFINITY",Enchantment.WATER_WORKER);
-	
+	EnchantmentMapping.put("THORNS",Enchantment.THORNS);
 	
 	
 		}

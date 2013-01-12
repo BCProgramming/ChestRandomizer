@@ -475,6 +475,7 @@ public class ChestRandomizer {
 		// if the block beneath the chest is wool, break out. We don't randomize
 		// chests with wool underneath.
 		if (mchest != null) {
+			
 			Location chestspot = mchest.getLocation();
 			Location spotbelow = new Location(mchest.getWorld(), chestspot
 					.getX(), chestspot.getY() - 1, chestspot.getZ());
@@ -510,9 +511,14 @@ public class ChestRandomizer {
 		// OK, loop the appropriate number of times, choose a randomData and
 		// generate it.
 		gotinventory.clear();
+		//if(mchest!=null && !PackedChest){
+		//	mchest.getInventory().addItem(RandomData.createRandomFireworkItem(16));
+		//	
+		
+		
 		// BCRandomizer.emitmessage("Minitems:" + _MinItems + "MaxItems " +
 		// _MaxItems + "Gen:" + _numgenerate);
-
+		
 		for (int i = 1; i < _numgenerate; i++) {
 			RandomData rdata = RandomData.ChooseRandomData(randData);
 			if (rdata != null) {
@@ -528,6 +534,7 @@ public class ChestRandomizer {
 				if (created != null) {
 					// get all empty slots.
 					Integer[] empties = emptyslots(gotinventory);
+					
 					Integer selectedslot = RandomData.Choose(empties);
 					if (selectedslot != null) {
 						gotinventory.setItem(selectedslot, created);

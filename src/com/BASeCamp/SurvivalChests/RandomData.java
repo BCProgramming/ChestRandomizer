@@ -1,6 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -14,10 +15,13 @@ import net.minecraft.server.v1_4_6.PotionBrewer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
+import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_4_6.potion.CraftPotionBrewer;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.Dye;
@@ -216,6 +220,80 @@ public class RandomData {
 		return "Unknown Head";
 		
 	}
+	public static ItemStack createRandomFireworkItem(int StackSize)
+	{
+		ArrayList<FireworkEffect> totaleffects = new ArrayList<FireworkEffect>();
+		float currenthead = 5.0f;
+		
+		while(currenthead> 2)
+		{
+		
+		
+		Builder fb = FireworkEffect.builder();
+		fb.flicker(RandomData.rgen.nextBoolean());
+		fb.trail(RandomData.rgen.nextBoolean());
+		FireworkEffect.Type[] selectabletypes = new FireworkEffect.Type[] {
+				FireworkEffect.Type.BALL,
+				FireworkEffect.Type.BALL_LARGE,
+				FireworkEffect.Type.BURST,
+				FireworkEffect.Type.CREEPER,
+				FireworkEffect.Type.STAR};
+		
+		fb.with(RandomData.Choose(selectabletypes));
+		//choose a number of initial colours, from 1 to 5.
+		int initialcolours = RandomData.rgen.nextInt(4)+1;
+		
+		Color[] createdcolours = new Color[initialcolours];
+		for(int i=0;i<createdcolours.length;i++){
+		createdcolours[i] = Color.fromRGB(RandomData.rgen.nextInt(255), 
+				RandomData.rgen.nextInt(255), RandomData.rgen.nextInt(255));
+		
+			
+		}
+		fb.withColor(createdcolours);
+		
+		//1/8 chance of having a fade colour.
+		if(RandomData.rgen.nextFloat() < 0.1f){
+			int fadecolourcount = RandomData.rgen.nextInt(4)+1;
+			Color[] fadecolours = new Color[fadecolourcount];
+			for(int i=0;i<fadecolours.length;i++){
+			fadecolours[i] =Color.fromRGB(RandomData.rgen.nextInt(255), 
+					RandomData.rgen.nextInt(255), RandomData.rgen.nextInt(255));
+				
+			}
+			
+			fb.withFade(fadecolours);
+			
+		}
+		
+			FireworkEffect result = fb.build();
+			totaleffects.add(result);
+			currenthead-=RandomData.rgen.nextFloat();
+		}	
+			
+			
+			ItemStack fireworkstack = new ItemStack(Material.FIREWORK,StackSize);
+		
+			FireworkMeta fm = (FireworkMeta)fireworkstack.getItemMeta();
+			fm.addEffects(totaleffects);
+			fm.setPower(RandomData.rgen.nextInt(3));
+			fireworkstack.setItemMeta(fm);
+			return fireworkstack;
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
 	
 	private PotionEffectType MapPotionType(String TypeName)
 	{

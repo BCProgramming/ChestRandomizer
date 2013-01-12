@@ -946,7 +946,7 @@ else if(monster instanceof CaveSpider) {
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event) {
 		
-		
+		if(event.getEntity()==null) return;
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
 		
@@ -1001,7 +1001,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 					}
 					GameTracker gameorigin = _owner.isParticipant(damaged);
-					if (!gameorigin.getStillAlive().contains(Attacker)) {
+					
+					if (gameorigin==null || !gameorigin.getStillAlive().contains(Attacker)) {
 
 						System.out
 								.println(Attacker.getName()

@@ -26,3 +26,7 @@ commands:
         description: set's second border corner.
       clearborders:
         description: clears any set borders.
+      mobtimeout:
+        description: sets the timeout after a PvP match in which the mob arena spawn logic will kick in.
+      mobsweeper:
+        description: enables the Mob Arena spawn logic for a PvP match in progress.

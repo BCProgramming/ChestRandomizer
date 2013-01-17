@@ -632,7 +632,11 @@ public class CoreEventHandler implements Listener {
 		//Game. 
 		
 			
+		if(!allowmobdrops){
+			event.getDrops().clear();
 			
+			
+		}
 			
 		
 		
@@ -1764,14 +1768,15 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 		}
 		System.out.println("Cached " + framescount + " Item frames.");
-
+		allowmobdrops=false;
 		for (Entity loopentity : Worldgrab.getEntities()) {
 			if (loopentity instanceof org.bukkit.entity.Animals) {
 
 				Animals animal = ((Animals) loopentity);
 				animal.remove();
 
-			} else if (loopentity instanceof org.bukkit.entity.Creature|| loopentity instanceof Slime) {
+			} else if (loopentity instanceof org.bukkit.entity.Creature|| loopentity instanceof Slime
+					|| loopentity instanceof MagmaCube) {
 				((LivingEntity) loopentity).remove();
 			}
 			else if(loopentity instanceof Item){
@@ -1781,10 +1786,10 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			}
 
 		}
-		
+		allowmobdrops=true;
 		
 	}
-
+	private boolean allowmobdrops=true; 
 	public void onGameEnd(GameEndEvent event) {
 		// re-add the item frames.
 		if(_owner.Randomcommand.getMobArenaMode()){

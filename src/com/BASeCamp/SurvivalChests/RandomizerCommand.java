@@ -45,7 +45,9 @@ public class RandomizerCommand implements CommandExecutor {
 	private boolean accepting = false;
 	private boolean MobArenaMode = false;
 	private Location _SpawnSpot = null;
-
+	private int MobTimeout = 0; //0 means no mobtimeout at all. any other value is a number of seconds
+	//before Mob spawning will be force-enabled.
+	
 	public boolean getaccepting() {
 		return accepting;
 	}
@@ -122,7 +124,16 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 
 	}
-
+	private void enableMobSpawns()
+	{
+		for(GameTracker gt:_Owner.ActiveGames){
+			gt.getWorld().setGameRuleValue("doMobSpawns", "true");
+			
+			
+			
+		}
+		
+	}
 	@Override
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2,
 			String[] arg3) {
@@ -183,6 +194,28 @@ public class RandomizerCommand implements CommandExecutor {
 		if (arg2.equalsIgnoreCase("randomizespawners")) {
 			SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 			sr.RandomizeSpawners(p.getWorld());
+		}
+		else if(arg2.equalsIgnoreCase("mobtimeout")){
+			
+			if(arg3.length < 1)
+				if(p==null) System.out.println("insufficient arguments");
+				else {p.sendMessage(BCRandomizer.Prefix + "syntax: /mobtimeout <numberofseconds>");
+				p.sendMessage(BCRandomizer.Prefix + "current value:" + MobTimeout);
+				}
+				
+			else {
+				try {
+				MobTimeout= Integer.parseInt(arg3[0]);
+				}
+				catch(Exception exx){}
+				
+			}
+			
+		}
+		else if(arg2.equalsIgnoreCase("mobsweeper")){
+			
+			//force enable mob spawns for active PvP match.
+			enableMobSpawns();
 		}
 		else if(arg2.equalsIgnoreCase("setfly")){
 			if(arg3.length < 2) {
@@ -710,7 +743,7 @@ public class RandomizerCommand implements CommandExecutor {
 
 		String ignoreplayer = null;
 
-		World grabworld = p.getWorld();
+		final World grabworld = p.getWorld();
 
 		if (_Owner.Randomcommand.MobArenaMode)
 			numseconds = 0;
@@ -788,8 +821,21 @@ public class RandomizerCommand implements CommandExecutor {
 					+ ChatColor.GREEN + "PvP will be re-enabled in "
 					+ ChatColor.RED + numseconds + ChatColor.GREEN
 					+ " Seconds! get ready.");
+			ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix + 
+					ChatColor.GREEN + "Mob spawns will start in " +ChatColor.RED + + MobTimeout + ChatColor.GREEN + " seconds... try to conclude the match before that, they tend to make a mess.");
 		}
-
+		Bukkit.getScheduler().runTaskLater(_Owner, new Runnable() {
+			
+			public void run(){
+				
+				ResumePvP.BroadcastWorld(grabworld, ChatColor.DARK_GREEN + "Yummy contestants for Hungry Mobs!");
+				enableMobSpawns();
+				
+			}
+			
+			
+			
+		}, MobTimeout*20);
 		Thread thr = new Thread(rp);
 		thr.start();
 	}

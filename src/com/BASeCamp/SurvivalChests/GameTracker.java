@@ -600,6 +600,7 @@ public class GameTracker implements Runnable {
 					"It is a good night to " + ChatColor.RED + " die.",
 					"The Black wind howls. One of you will shortly perish." };
 			try {
+				runningWorld.setDifficulty(Difficulty.HARD);
 			runningWorld.setGameRuleValue("doMobSpawning", "true");
 			runningWorld.setTime(18000); // make it night.
 			runningWorld.setMonsterSpawnLimit(32000); // 80 hostile mobs? That's

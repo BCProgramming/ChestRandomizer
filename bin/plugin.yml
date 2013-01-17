@@ -1,0 +1,28 @@
+name: BASeCamp Survival Chests
+main: com.BASeCamp.SurvivalChests.BCRandomizer
+version: 1.4
+commands:
+      repopchests:
+        description: repopulates chests in loaded chunks.
+      preparegame:
+        description: prepares a game to start, and announces the game to players as well as those that join.
+      joingame:
+        description: used to join a game being prepared.
+      spectategame:
+        description: used to spectate a game being prepared, or a game in progress.
+      startgame:
+        description: starts a game being prepared.
+      friendly:
+        description: shows the friendly name for the held item.
+      randomizespawners:
+        description: randomizes the creature type and NBT Data for spawners.
+      gamestate:
+        description: shows state of running games.
+      mobmode:
+        description: toggles "mobmode" on and off.
+      arenaborder1:
+        description: set's first border corner.
+      arenaborder2:
+        description: set's second border corner.
+      clearborders:
+        description: clears any set borders.

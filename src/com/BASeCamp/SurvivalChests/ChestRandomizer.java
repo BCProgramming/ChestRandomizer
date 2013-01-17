@@ -479,10 +479,10 @@ public class ChestRandomizer {
 			Location chestspot = mchest.getLocation();
 			Location spotbelow = new Location(mchest.getWorld(), chestspot
 					.getX(), chestspot.getY() - 1, chestspot.getZ());
-			if (mchest.getWorld().getBlockAt(spotbelow).getType() == Material.WOOL) {
+			if (mchest.getWorld().getBlockAt(spotbelow).getType() == _owner.Configuration.getContainerStatic()) {
 
 				return 0;
-			} else if (mchest.getWorld().getBlockAt(spotbelow).getType() == Material.CLAY)
+			} else if (mchest.getWorld().getBlockAt(spotbelow).getType() == _owner.Configuration.getContainerPacked())
 				PackedChest = true;
 		}
 

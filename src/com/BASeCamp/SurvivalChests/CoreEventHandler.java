@@ -1456,7 +1456,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 	}
 
-	private Material KeySpotMaterial = Material.GOLD_BLOCK;
+	private Material KeySpotMaterial = _owner.Configuration.getButtonBlock();
 	LinkedList<Location> setAirLocations = new LinkedList<Location>();
 
 	@EventHandler
@@ -1829,7 +1829,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 						org.bukkit.block.Block acquired = loopchunk.getBlock(x,
 								y, z);
-						if (acquired.getType().equals(Material.GOLD_BLOCK)) {
+						if (acquired.getType().equals(_owner.Configuration.getButtonBlock())) {
 
 							World owner = acquired.getWorld();
 

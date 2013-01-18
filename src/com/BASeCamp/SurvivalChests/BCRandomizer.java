@@ -294,7 +294,7 @@ public class BCRandomizer extends JavaPlugin {
 	public void onEnable() {
 		try {
 			Configuration = new Configurator(this);
-			System.out.println(Configuration.getContainerStatic().toString());
+			//System.out.println(Configuration.getContainerStatic().toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

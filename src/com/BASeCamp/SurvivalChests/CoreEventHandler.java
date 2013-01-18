@@ -374,9 +374,9 @@ public class CoreEventHandler implements Listener {
 		
 		
 		useprefix = armourprefix[armourcount];
-		if(entityfor.getActivePotionEffects().size() > 0)
+		if(entityfor.getActivePotionEffects().size() > 0){
 			BuildDescription = "Buffed " + BuildDescription ;
-		
+		}
 		if(EntityWeapon!=null){
 			if(useprefix.equals("")) useprefix = "armed "; else useprefix = "Armed and ";
 			
@@ -385,8 +385,8 @@ public class CoreEventHandler implements Listener {
 
 		
 		}
-	
-		return useprefix + BuildDescription + postfix;
+		
+		return (useprefix.trim() +  " " + BuildDescription.trim() + " " + postfix.trim()).replace("  ", " ");
 		
 		
 		

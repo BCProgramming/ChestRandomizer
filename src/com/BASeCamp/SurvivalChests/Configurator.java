@@ -74,7 +74,7 @@ public class Configurator {
 	}
 	private Material StringToMaterial(String MaterialName){
 		
-		System.out.println("lookin for:" + MaterialName);
+		//System.out.println("lookin for:" + MaterialName);
 		if(MaterialName.length() > "Material.".length() &&  MaterialName.substring(0, "Material.".length()).equals("Material.")){
 			MaterialName = MaterialName.substring("Material.".length());
 		}
@@ -82,9 +82,9 @@ public class Configurator {
 		
 		
 		//log it...
-		if(returnMaterial!=null)
+		/*if(returnMaterial!=null)
 			_Owner.getLogger().log(Level.INFO, "Material for input:" + MaterialName + " = " + 
-		returnMaterial==null?"null":returnMaterial.toString());
+		returnMaterial==null?"null":returnMaterial.toString());*/
 		
 		return returnMaterial;
 		

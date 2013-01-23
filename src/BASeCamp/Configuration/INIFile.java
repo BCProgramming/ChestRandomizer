@@ -90,6 +90,12 @@ public class INIFile {
 		
 		
 	}
+	public boolean hasSection(String testname){
+		
+		return _Sections.containsKey(testname);
+		
+		
+	}
 	public INISection getSection(String sectionName){
 		if(!_Sections.containsKey(sectionName)){
 			_Sections.put(sectionName, new INISection(sectionName,null));

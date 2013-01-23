@@ -2,7 +2,9 @@ package com.BASeCamp.SurvivalChests;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -23,10 +25,12 @@ import org.bukkit.craftbukkit.v1_4_6.potion.CraftPotionBrewer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
+import org.bukkit.potion.Potion.Tier;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -339,7 +343,7 @@ public class RandomData {
 	}
 	private String createSpecialLore(){
 		
-		String initial = NameGenerator.GenerateLore();
+		String initial = BCRandomizer.NameGen.GenerateLore();
 		return initial;
 		
 		
@@ -350,6 +354,39 @@ public class RandomData {
 		if(generated!=null) return generated.getType();
 		return null;
 	}
+	private ItemStack MakePotion(String Name,int Duration,int Level,int Splash){
+		Duration*=20;
+		BCRandomizer.emitmessage("Creating Potion- Name:" + Name + " Duration:" + Duration + " Level:" + Level + " Splash:" + Splash);
+		PotionEffectType pet = MapPotionType(Name);
+		PotionType pt = PotionType.getByEffect(pet);
+		System.out.println("Splash?=" + (Splash!=0));
+		Potion makepotion = new Potion(pt);
+		makepotion.setSplash(Splash!=0);
+		ItemStack createpotion =null;
+		try {
+		makepotion.setHasExtendedDuration(Duration!=0);
+		}catch(IllegalArgumentException iae){
+		//do nothing...
+		}
+		createpotion = makepotion.toItemStack(1);
+		PotionMeta pm = (PotionMeta)(createpotion.getItemMeta());
+		pm.addCustomEffect(new PotionEffect(pet,Duration,Level), Splash!=0);
+		createpotion.setItemMeta(pm);
+		return createpotion;
+		
+		/*
+		 *     ItemStack stack = new Potion(PotionType.STRENGTH).toItemStack(1);
+    PotionMeta meta = (PotionMeta) stack.getItemMeta();
+     
+    meta.addCustomEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 680, 1), true);
+    stack.setItemMeta(meta);
+     
+    target.getInventory().addItem(stack);
+		 */
+		
+		
+		
+	}
 	public ItemStack Generate()
 	{
 		//Potion.getBrewer().createEffect(PotionEffectType., arg1, arg2)
@@ -357,6 +394,14 @@ public class RandomData {
 		ItemStack createitem=null;
 		
 		if(_SpawnType==1){
+			
+			
+			if(true){
+				System.out.println("Making potion:" + _Name + " " + _DamageMin + " " + _DamageMax + " " + _MinCount);
+				createitem = MakePotion(_Name,(int)_DamageMin,(int)_DamageMax+1,_MinCount);
+				
+			}
+			else {
 			createitem = new ItemStack(373,1); //373 is potion
 			/*
 			if(_Name=="INVISIBILITY")
@@ -395,6 +440,9 @@ public class RandomData {
 			}catch(IllegalArgumentException ex){}
 			try {makepotion.apply(createitem);}catch(IllegalArgumentException ex){}
 			}
+		}
+		
+		
 		
 		if(_SpawnType==2){
 			createitem = new ItemStack(397,1,(short) 3);
@@ -490,76 +538,83 @@ public class RandomData {
 		if(usename.contains("%CLEVERAXENAME%")){
 			
 			usename = usename.replace("%CLEVERAXENAME%",
-					NameGenerator.GenerateName(NameGenerator.Axe, NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Axe, BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 		}
 		if(usename.contains("%CLEVERPICKAXENAME")) {
 			
 			usename = usename.replace("%CLEVERPICKAXENAME%",
-					NameGenerator.GenerateName(NameGenerator.Pickaxe,NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Pickaxe,BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
 		if(usename.contains("%CLEVERHOENAME%")) {
 			
 			usename = usename.replace("%CLEVERHOENAME%",
-					NameGenerator.GenerateName(NameGenerator.Hoe, NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Hoe, BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
 		if(usename.contains("%CLEVERSHOVELNAME%")){
 			usename = usename.replace("%CLEVERSHOVELNAME%",
-					NameGenerator.GenerateName(NameGenerator.Shovel,NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Shovel,BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
 		if(usename.contains("%CLEVERSHEARSNAME%")){
 			usename = usename.replace("%CLEVERSHEARSNAME%",
-					NameGenerator.GenerateName(new String[]{"Shears","Scissors","Cutters","Safety Scissors"},NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.
+					GenerateName(new LinkedList<String>(Arrays.asList("Shears","Scissors","Cutters","Safety Scissors")),
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
 		if(usename.contains("%CLEVERSIGNNAME%"))
 		{
 		usename = usename.replace("%CLEVERSIGNNAME%", 
-				NameGenerator.GenerateName(new String[]{"Reader","Sign","BattleSign","Signage","Hinter"}, NameGenerator.Adjectives, NameGenerator.Verbs));	
+				BCRandomizer.NameGen.GenerateName(
+						new LinkedList<String>(Arrays.asList("Reader","Sign","BattleSign","Signage","Hinter")),
+						BCRandomizer.NameGen.Adjectives, BCRandomizer.NameGen.Verbs));	
 			
 		
 		}
 		
 		if(usename.contains("%CLEVERHATNAME%")){
 			usename = usename.replace("%CLEVERHATNAME%",
-					NameGenerator.GenerateName(NameGenerator.Hats, 
-					NameGenerator.Adjectives, NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Hats, 
+							BCRandomizer.NameGen.Adjectives, BCRandomizer.NameGen.Verbs));
 			}
 			
 			
 		
 		if(usename.contains("%CLEVERCHESTPLATENAME%"))	{
-			usename = usename.replace("%CLEVERCHESTPLATENAME%",NameGenerator.GenerateName(NameGenerator.Chestplates,
-					NameGenerator.Adjectives,NameGenerator.Verbs));
+			usename = usename.replace("%CLEVERCHESTPLATENAME%",
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Chestplates,
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
 		if(usename.contains("%CLEVERLEGGINGSNAME%")) {
 			usename = usename.replace("%CLEVERLEGGINGSNAME%",
-					NameGenerator.GenerateName(NameGenerator.Pants,
-					NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Pants,
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 		}
 		if(usename.contains("%CLEVERBOOTSNAME%")) {
 			usename = usename.replace("%CLEVERBOOTSNAME%",
-					NameGenerator.GenerateName(NameGenerator.Boots,
-					NameGenerator.Adjectives,NameGenerator.Verbs));
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Boots,
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 		}
 		if(usename.contains("%CLEVERSWORDNAME%")){
-			usename = usename.replace("%CLEVERSWORDNAME%",NameGenerator.GenerateName(NameGenerator.Sword
-			,NameGenerator.Adjectives,NameGenerator.Verbs));
+			usename = usename.replace("%CLEVERSWORDNAME%",
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Sword
+			,BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 		}
 		if(usename.contains("%CLEVERBOWNAME%")){
-			usename = usename.replace("%CLEVERBOWNAME%",NameGenerator.GenerateName(NameGenerator.Bow,
-					NameGenerator.Adjectives,NameGenerator.Verbs));
+			usename = usename.replace("%CLEVERBOWNAME%",
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Bow,
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
 		}
@@ -724,6 +779,7 @@ public class RandomData {
 			//potion type is _Data, extendedduration is DamageMin, Level is DamageMax, Splash is MinCount.
 			//
 			//effect
+			
 			_ItemID = Material.POTION.getId();
 			if(xmlelement.hasAttribute("effect")){
 				_Data = Byte.parseByte(xmlelement.getAttribute("effect"));
@@ -813,6 +869,7 @@ public class RandomData {
 		{
 			_SpawnType=1;
 			Initializer = Initializer.substring(7);
+			System.out.println("Initializer:" + Initializer);
 			
 		}
 		else if(Initializer.startsWith("HEAD:"))
@@ -848,6 +905,8 @@ public class RandomData {
 		String lastelement = splitresult[splitresult.length-1];
 		//if lastelement starts with !D, format is:
 		//!D(10-50) which indicates the percentage durability range that the item can be generated with.
+		
+		//POTION:POISON,10,373,8194,0,1,0
 		
 		
 		_Name = splitresult[0]; //if Name doesn't start with "!", then no name will be set in the NBT Data.
@@ -906,6 +965,16 @@ public class RandomData {
 	
 	
 	public static Random rgen = new Random();
+	
+	public static String ChooseString(List<String> rdata){
+		
+		String[] getlist= new String[rdata.size()]; 
+		rdata.toArray(getlist);
+		return Choose(getlist);
+		
+		
+	}
+	
 	public static RandomData Choose(List<RandomData> rdata){
 		
 		

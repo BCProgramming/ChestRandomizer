@@ -6,38 +6,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import BASeCamp.Configuration.INIFile;
+import BASeCamp.Configuration.INISection;
+
 import net.minecraft.server.v1_4_6.Path;
 //Special class for generating Item names.
 
 public class NameGenerator {
 
-	public static String[] MobNames = new String[]{
+	public List<String> MobNames = new LinkedList<String>(Arrays.asList(
 	"Timmy","Bobby","Wally","Peter","Chris","Chuck","Ralph"	
-	};
-	public static String[] MobTitles = new String[] {"Vindicating","Bad","Terrible","Evil","Cursed","Unkind","Impolite","Curt",
-		"Trite"
-	};
-	
-	public static String[] Hats = new String[]{"Hat","Cap","Helmet","Topper","Fez","Sombrero"};
-	public static String[] Chestplates = new String[]{"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"};
-	public static String[] Pants = new String[]{"Leggings","Pants","Greaves","Trousers","Britches","Slacks","Pantaloons"};
-	public static String[] Boots = new String[]{"Boots","Shoes","Flip-Flops","Clogs","Booties","Moccasins","Sneakers","Cleats","Loafers","Slippers"};
-	public static String[] Sword = new String[] {"Slasher","Sword","Blade","Slicer","Cutter","Katana","Cutlass","Foil","Rapier","Scimitar","Knife","Bodkin"};
-	public static String[] Axe = new String[] {"Battle Axe","Axe","Hatchet","Woodcutter"};
-	public static String[] Pickaxe = new String[] { "Pick","Pickaxe","Pickaxe","Pickaxe","Pickaxe","Nosepicker"};
+	));
+	public List<String> MobTitles = new LinkedList<String>(Arrays.asList("Vindicating","Bad","Terrible","Evil","Cursed","Unkind","Impolite","Curt",
+		"Trite"));
 	
 	
+	public List<String> Hats = new LinkedList<String>(Arrays.asList("Hat","Cap","Helmet","Topper","Fez","Sombrero"));
+	public List<String> Chestplates = new LinkedList<String>(Arrays.asList(
+			"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"));
+	public List<String> Pants = new LinkedList<String>(Arrays.asList(
+			"Leggings","Pants","Greaves","Trousers","Britches","Slacks","Pantaloons"));
+	public List<String> Boots = new LinkedList<String>(Arrays.asList("Boots","Shoes","Flip-Flops","Clogs","Booties","Moccasins","Sneakers","Cleats","Loafers","Slippers"));
+	public List<String> Sword = new LinkedList<String>(Arrays.asList(
+			"Slasher","Sword","Blade","Slicer","Cutter","Katana","Cutlass","Foil","Rapier","Scimitar","Knife","Bodkin"));
+	public List<String> Axe = new LinkedList<String>(Arrays.asList(
+			"Battle Axe","Axe","Hatchet","Woodcutter"));
+	public List<String> Pickaxe = new LinkedList<String>(Arrays.asList(
+			"Pick","Pickaxe","Pickaxe","Pickaxe","Pickaxe","Nosepicker"));
 	
-	public static String[] Bow = new String[] {"Shooter","Dealer", "Bow","Piercer","Hunting Bow","Nightingale Bow","Dart Shooter"};
+	public static String GeneratorINI =  "namegen.ini";
 	
-	public static String[] Nouns = new String[] 
-{"accounts","achievers","acoustics","acts","actions","activities","actors","additions","adjustments",
+	public List<String> Bow = new LinkedList<String>(Arrays.asList("Shooter","Dealer", "Bow","Piercer","Hunting Bow","Nightingale Bow","Dart Shooter"));
+	
+	public List<String> Nouns = new LinkedList<String>(Arrays.asList( 
+"accounts","achievers","acoustics","acts","actions","activities","actors","additions","adjustments",
 		"advertisements","advice","aftermath","afternoons","afterthoughts","agreements","airplanes",
 		"airports","alarms","amounts","amusements","angers","angles","animals","answers","ants","apparatus",
 		"apparel","apples","appliances","approvals","arches","arguments","arithmetic","arms","armies","art",
@@ -126,10 +136,10 @@ public class NameGenerator {
 		"voices","volcanos","volleyballs","voyages","walks","walls","wars","washes","wastes","watchs",
 		"waters","waves","wavess","waxs","ways","wealths","weathers","weeks","weights","wheels","whips",
 		"whistles","wildernesses","winds","windows","wines","wings","winters","wires","wishes","women",
-		"woods","wools","words","works","worms","wounds","wrens","wrenchs","wrists","writers","writing"};
-	public static String[] Verbs = new String[]
+		"woods","wools","words","works","worms","wounds","wrens","wrenchs","wrists","writers","writing"));
+	public List<String> Verbs = new LinkedList<String>(Arrays.asList(
 	                                         
- {"accepting","addition","admiration","admission","advising","affording","alerting","allowing",
+ "accepting","addition","admiration","admission","advising","affording","alerting","allowing",
 		"amusing","analysing","announcing","annoying","answering","apologising","appearing","applauding",
 		"appreciating","approving","arguing","arranging","arresting","arriving","asking","attaching",
 		"attacking","attempting","attending","attracting","avoiding","backing","baking","balancing",
@@ -180,10 +190,10 @@ public class NameGenerator {
 		"preparing","presenting","preserving","pressing","pretending","preventing","pricking","printing",
 		"producing","programming","promising","protecting","providing","pulling","pumping","punching","puncturing",
 		"punishing","pushing","questioning","queuing","racing","radiating","raining","raising","reaching","realising",
-		"receiving","recognising","recording","reducing","reflecting","refusing","regreting","reigning","rejecting","rejoicing","relaxing","releasing","relying","remaining","remembering","reminding","removing","repairing","repeating","replacing","replying","reporting","reproducing","requesting","rescuing","retiring","returning","rhyming","rinsing","risking","robing","rocking","rolling","roting","rubing","ruining","ruling","rushing","sacking","sailing","satisfying","saving","sawing","scaring","scattering","scolding","scorching","scrapping","scratching","screaming","screwing","scribbling","scrubing","sealing","searching","separating","serving","settling","shading","sharing","shaving","sheltering","shivering","shocking","shopping","shruging","sighing","signing","signaling","sining","sipping","skiing","skipping","slapping","slipping","slowing","smashing","smelling","smiling","smoking","snatching","sneezing","sniffing","snoring","snowing","soaking","soothing","sounding","sparing","sparking","sparkling","spelling","spilling","spoiling","spoting","spraying","sprouting","squashing","squeaking","squealing","squeezing","staining","stampping","staring","starting","staying","steering","stepping","stiring","stitching","stopping","storing","strapping","strengthening","stretching","stripping","stroking","stuffing","subtracting","succeeding","sucking","suffering","suggesting","suiting","supplying","supporting","supposing","surprising","surrounding","suspecting","suspending","switching","talking","taming","tapping","tasting","teasing","telephoning","tempting","terrifying","testing","thanking","thawing","ticking","tickling","tiing","timing","tipping","tiring","touching","touring","towing","tracing","trading","training","transporting","trapping","traveling","treating","trembling","tricking","tripping","troting","troubling","trusting","trying","tuging","tumbling","turning","twisting","typing","undressing","unfastening","uniting","unlocking","unpacking","untidying","using","vanishing","visiting","wailing","waiting","walking","wandering","wanting","warming","warning","washing","wasting","watching","watering","waving","weighing","welcoming","whining","whipping","whirling","whispering","whistling","winking","wiping","wishing","wobbling","wondering","working","worrying","wrapping","wrecking","wrestling","wriggling","x-raying","yawning","yelling","zipping","zooming"};
+		"receiving","recognising","recording","reducing","reflecting","refusing","regreting","reigning","rejecting","rejoicing","relaxing","releasing","relying","remaining","remembering","reminding","removing","repairing","repeating","replacing","replying","reporting","reproducing","requesting","rescuing","retiring","returning","rhyming","rinsing","risking","robing","rocking","rolling","roting","rubing","ruining","ruling","rushing","sacking","sailing","satisfying","saving","sawing","scaring","scattering","scolding","scorching","scrapping","scratching","screaming","screwing","scribbling","scrubing","sealing","searching","separating","serving","settling","shading","sharing","shaving","sheltering","shivering","shocking","shopping","shruging","sighing","signing","signaling","sining","sipping","skiing","skipping","slapping","slipping","slowing","smashing","smelling","smiling","smoking","snatching","sneezing","sniffing","snoring","snowing","soaking","soothing","sounding","sparing","sparking","sparkling","spelling","spilling","spoiling","spoting","spraying","sprouting","squashing","squeaking","squealing","squeezing","staining","stampping","staring","starting","staying","steering","stepping","stiring","stitching","stopping","storing","strapping","strengthening","stretching","stripping","stroking","stuffing","subtracting","succeeding","sucking","suffering","suggesting","suiting","supplying","supporting","supposing","surprising","surrounding","suspecting","suspending","switching","talking","taming","tapping","tasting","teasing","telephoning","tempting","terrifying","testing","thanking","thawing","ticking","tickling","tiing","timing","tipping","tiring","touching","touring","towing","tracing","trading","training","transporting","trapping","traveling","treating","trembling","tricking","tripping","troting","troubling","trusting","trying","tuging","tumbling","turning","twisting","typing","undressing","unfastening","uniting","unlocking","unpacking","untidying","using","vanishing","visiting","wailing","waiting","walking","wandering","wanting","warming","warning","washing","wasting","watching","watering","waving","weighing","welcoming","whining","whipping","whirling","whispering","whistling","winking","wiping","wishing","wobbling","wondering","working","worrying","wrapping","wrecking","wrestling","wriggling","x-raying","yawning","yelling","zipping","zooming"));
 	
-	static String[] Adjectives = new String[]
-	{"aback","abaft","abandoned","abashed","aberrant","abhorrent","abiding","abject","ablaze","able","abnormal","aboard","aboriginal",
+	 List<String> Adjectives = new LinkedList<String>(Arrays.asList(
+	"aback","abaft","abandoned","abashed","aberrant","abhorrent","abiding","abject","ablaze","able","abnormal","aboard","aboriginal",
 		"abortive","abounding","abrasive","abrupt","absent","absorbed","absorbing","abstracted","absurd","abundant",
 		"abusive","acceptable","accessible","accidental","accurate","acid","acidic","acoustic","acrid","actually",
 		"ad hoc","adamant","adaptable","addicted","adhesive","adjoining","adorable","adventurous","afraid",
@@ -204,23 +214,82 @@ public class NameGenerator {
 		"courageous","cowardly","crabby","craven","crazy","creepy","crooked","crowded","cruel","cuddly",
 		"cultured","cumbersome","curious","curly","curved","curvy","cut","cute","cute","cynical","daffy",
 		"daily","damaged","damaging","damp","dangerous","dapper","dark","dashing","dazzling","dead",
-		"deadpan","deafening","dear","debonair","decisive","decorous","deep","deeply","defeated","defective","defiant","delicate","delicious","delightful","demonic","delirious","dependent","depressed","deranged","descriptive","deserted","detailed","determined","devilish","didactic","different","difficult","diligent","direful","dirty","disagreeable","disastrous","discreet","disgusted","disgusting","disillusioned","dispensable","distinct","disturbed","divergent","dizzy","domineering","doubtful","drab","draconian","dramatic","dreary","drunk","dry","dull","dusty","dusty","dynamic","dysfunctional","eager","early","earsplitting","earthy","easy","eatable","economic","educated","efficacious","efficient","eight","elastic","elated","elderly","electric","elegant","elfin","elite","embarrassed","eminent","empty","enchanted","enchanting","encouraging","endurable","energetic","enormous","entertaining","enthusiastic","envious","equable","equal","erect","erratic","ethereal","evanescent","evasive","even","excellent","excited","exciting","exclusive","exotic","expensive","extra-large","extra-small","exuberant","exultant","fabulous","faded","faint","fair","faithful","fallacious","false","familiar","famous","fanatical","fancy","fantastic","far","far-flung","fascinated","fast","fat","faulty","fearful","fearless","feeble","feigned","female","fertile","festive","few","fierce","filthy","fine","finicky","first","five","fixed","flagrant","flaky","flashy","flat","flawless","flimsy","flippant","flowery","fluffy","fluttering","foamy","foolish","foregoing","forgetful","fortunate","four","frail","fragile","frantic","free","freezing","frequent","fresh","fretful","friendly","frightened","frightening","full","fumbling","functional","funny","furry","furtive","future","futuristic","fuzzy","gabby","gainful","gamy","gaping","garrulous","gaudy","general","gentle","giant","giddy","gifted","gigantic","glamorous","gleaming","glib","glistening","glorious","glossy","godly","good","goofy","gorgeous","graceful","grandiose","grateful","gratis","gray","greasy","great","greedy","green","grey","grieving","groovy","grotesque","grouchy","grubby","gruesome","grumpy","guarded","guiltless","gullible","gusty","guttural","habitual","half","hallowed","halting","handsome","handsomely","handy","hanging","hapless","happy","hard","hard-to-find","harmonious","harsh","hateful","heady","healthy","heartbreaking","heavenly","heavy","hellish","helpful","helpless","hesitant","hideous","high","highfalutin","high-pitched","hilarious","hissing","historical","holistic","hollow","homeless","homely","honorable","horrible","hospitable","hot","huge","hulking","humdrum","humorous","hungry","hurried","hurt","hushed","husky","hypnotic","hysterical","icky","icy","idiotic","ignorant","ill","illegal","ill-fated","ill-informed","illustrious","imaginary","immense","imminent","impartial","imperfect","impolite","important","imported","impossible","incandescent","incompetent","inconclusive","industrious","incredible","inexpensive","infamous","innate","innocent","inquisitive","insidious","instinctive","intelligent","interesting","internal","invincible","irate","irritating","itchy","jaded","jagged","jazzy","jealous","jittery","jobless","jolly","joyous","judicious","juicy","jumbled","jumpy","juvenile","kaput","keen","kind","kindhearted","kindly","knotty","knowing","knowledgeable","known","labored","lackadaisical","lacking","lame","lamentable","languid","large","last","late","laughable","lavish","lazy","lean","learned","left","legal","lethal","level","lewd","light","like","likeable","limping","literate","little","lively","lively","living","lonely","long","longing","long-term","loose","lopsided","loud","loutish","lovely","loving","low","lowly","lucky","ludicrous","lumpy","lush","luxuriant","lying","lyrical","macabre","macho","maddening","madly","magenta","magical","magnificent","majestic","makeshift","male","malicious","mammoth","maniacal","many","marked","massive","married","marvelous","material","materialistic","mature","mean","measly","meaty","medical","meek","mellow","melodic","melted","merciful","mere","messy","mighty","military","milky","mindless","miniature","minor","miscreant","misty","mixed","moaning","modern","moldy","momentous","motionless","mountainous","muddled","mundane","murky","mushy","mute","mysterious","naive","nappy","narrow","nasty","natural","naughty","nauseating","near","neat","nebulous","necessary","needless","needy","neighborly","nervous","new","next","nice","nifty","nimble","nine","nippy","noiseless","noisy","nonchalant","nondescript","nonstop","normal","nostalgic","nosy","noxious","null","numberless","numerous","nutritious","nutty","oafish","obedient","obeisant","obese","obnoxious","obscene","obsequious","observant","obsolete","obtainable","oceanic","odd","offbeat","old","old-fashioned","omniscient","one","onerous","open","opposite","optimal","orange","ordinary","organic","ossified","outgoing","outrageous","outstanding","oval","overconfident","overjoyed","overrated","overt","overwrought","painful","painstaking","pale","paltry","panicky","panoramic","parallel","parched","parsimonious","past","pastoral","pathetic","peaceful","penitent","perfect","periodic","permissible","perpetual","petite","petite","phobic","physical","picayune","pink","piquant","placid","plain","plant","plastic","plausible","pleasant","plucky","pointless","poised","polite","political","poor","possessive","possible","powerful","precious","premium","present","pretty","previous","pricey","prickly","private","probable","productive","profuse","protective","proud","psychedelic","psychotic","public","puffy","pumped","puny","purple","purring","pushy","puzzled","puzzling","quack","quaint","quarrelsome","questionable","quick","quickest","quiet","quirky","quixotic","quizzical","rabid","racial","ragged","rainy","rambunctious","rampant","rapid","rare","raspy","ratty","ready","real","rebel","receptive","recondite","red","redundant","reflective","regular","relieved","remarkable","reminiscent","repulsive","resolute","resonant","responsible","rhetorical","rich","right","righteous","rightful","rigid","ripe","ritzy","roasted","robust","romantic","roomy","rotten","rough","round","royal","ruddy","rude","rural","rustic","ruthless","sable","sad","safe","salty","same","sassy","satisfying","savory","scandalous","scarce","scared","scary","scattered","scientific","scintillating","scrawny","screeching","second","second-hand","secret","secretive","sedate","seemly","selective","selfish","separate","serious","shaggy","shaky","shallow","sharp","shiny","shivering","shocking","short","shrill","shut","shy","sick","silent","silent","silky","silly","simple","simplistic","sincere","six","skillful","skinny","sleepy","slim","slimy","slippery","sloppy","slow","small","smart","smelly","smiling","smoggy","smooth","sneaky","snobbish","snotty","soft","soggy","solid","somber","sophisticated","sordid","sore","sore","sour","sparkling","special","spectacular","spicy","spiffy","spiky","spiritual","spiteful","splendid","spooky","spotless","spotted","spotty","spurious","squalid","square","squealing","squeamish","staking","stale","standing","statuesque","steadfast","steady","steep","stereotyped","sticky","stiff","stimulating","stingy","stormy","straight","strange","striped","strong","stupendous","stupid","sturdy","subdued","subsequent","substantial","successful","succinct","sudden","sulky","super","superb","superficial","supreme","swanky","sweet","sweltering","swift","symptomatic","synonymous","taboo","tacit","tacky","talented","tall","tame","tan","tangible","tangy","tart","tasteful","tasteless","tasty","tawdry","tearful","tedious","teeny","teeny-tiny","telling","temporary","ten","tender","tense","tense","tenuous","terrible","terrific","tested","testy","thankful","therapeutic","thick","thin","thinkable","third","thirsty","thirsty","thoughtful","thoughtless","threatening","three","thundering","tidy","tight","tightfisted","tiny","tired","tiresome","toothsome","torpid","tough","towering","tranquil","trashy","tremendous","tricky","trite","troubled","truculent","true","truthful","two","typical","ubiquitous","ugliest","ugly","ultra","unable","unaccountable","unadvised","unarmed","unbecoming","unbiased","uncovered","understood","undesirable","unequal","unequaled","uneven","unhealthy","uninterested","unique","unkempt","unknown","unnatural","unruly","unsightly","unsuitable","untidy","unused","unusual","unwieldy","unwritten","upbeat","uppity","upset","uptight","used","useful","useless","utopian","utter","uttermost","vacuous","vagabond","vague","valuable","various","vast","vengeful","venomous","verdant","versed","victorious","vigorous","violent","violet","vivacious","voiceless","volatile","voracious","vulgar","wacky","waggish","waiting","wakeful","wandering","wanting","warlike","warm","wary","wasteful","watery","weak","wealthy","weary","well-groomed","well-made","well-off","well-to-do","wet","whimsical","whispering","white","whole","wholesale","wicked","wide","wide-eyed","wiggly","wild","willing","windy","wiry","wise","wistful","witty","woebegone","womanly","wonderful","wooden","woozy","workable","worried","worthless","wrathful","wretched","wrong","wry","yellow","yielding","young","youthful"};
+		"deadpan","deafening","dear","debonair","decisive","decorous","deep","deeply","defeated","defective",
+		"defiant","delicate","delicious","delightful","demonic","delirious","dependent","depressed",
+		"deranged","descriptive","deserted","detailed","determined","devilish","didactic","different",
+		"difficult","diligent","direful","dirty","disagreeable","disastrous","discreet","disgusted",
+		"disgusting","disillusioned","dispensable","distinct","disturbed","divergent","dizzy","domineering",
+		"doubtful","drab","draconian","dramatic","dreary","drunk","dry","dull","dusty","dusty",
+		"dynamic","dysfunctional","eager","early","earsplitting","earthy","easy","eatable","economic",
+		"educated","efficacious","efficient","eight","elastic","elated","elderly","electric","elegant",
+		"elfin","elite","embarrassed","eminent","empty","enchanted","enchanting","encouraging",
+		"endurable","energetic","enormous","entertaining","enthusiastic","envious","equable","equal",
+		"erect","erratic","ethereal","evanescent","evasive","even","excellent","excited","exciting",
+		"exclusive","exotic","expensive","extra-large","extra-small","exuberant","exultant","fabulous",
+		"faded","faint","fair","faithful","fallacious","false","familiar","famous","fanatical","fancy",
+		"fantastic","far","far-flung","fascinated","fast","fat","faulty","fearful","fearless","feeble",
+		"feigned","female","fertile","festive","few","fierce","filthy","fine","finicky","first","five",
+		"fixed","flagrant","flaky","flashy","flat","flawless","flimsy","flippant","flowery","fluffy",
+		"fluttering","foamy","foolish","foregoing","forgetful","fortunate","four","frail","fragile",
+		"frantic","free","freezing","frequent","fresh","fretful","friendly","frightened","frightening",
+		"full","fumbling","functional","funny","furry","furtive","future","futuristic","fuzzy","gabby",
+		"gainful","gamy","gaping","garrulous","gaudy","general","gentle","giant","giddy","gifted",
+		"gigantic","glamorous","gleaming","glib","glistening","glorious","glossy","godly","good","goofy",
+		"gorgeous","graceful","grandiose","grateful","gratis","gray","greasy","great","greedy",
+		"green","grey","grieving","groovy","grotesque","grouchy","grubby","gruesome","grumpy","guarded",
+		"guiltless","gullible","gusty","guttural","habitual","half","hallowed","halting","handsome",
+		"handsomely","handy","hanging","hapless","happy","hard","hard-to-find","harmonious","harsh","hateful","heady","healthy","heartbreaking","heavenly","heavy","hellish","helpful","helpless","hesitant","hideous","high","highfalutin","high-pitched","hilarious","hissing","historical","holistic","hollow","homeless","homely","honorable","horrible","hospitable","hot","huge","hulking","humdrum","humorous","hungry","hurried","hurt","hushed","husky","hypnotic","hysterical","icky","icy","idiotic","ignorant","ill","illegal","ill-fated","ill-informed","illustrious","imaginary","immense","imminent","impartial","imperfect","impolite","important","imported","impossible","incandescent","incompetent","inconclusive","industrious","incredible","inexpensive","infamous","innate","innocent","inquisitive","insidious","instinctive","intelligent","interesting","internal","invincible","irate","irritating","itchy","jaded","jagged","jazzy","jealous","jittery","jobless","jolly","joyous","judicious","juicy","jumbled","jumpy","juvenile","kaput","keen","kind","kindhearted","kindly","knotty","knowing","knowledgeable","known","labored","lackadaisical","lacking","lame","lamentable","languid","large","last","late","laughable","lavish","lazy","lean","learned","left","legal","lethal","level","lewd","light","like","likeable","limping","literate","little","lively","lively","living","lonely","long","longing","long-term","loose","lopsided","loud","loutish","lovely","loving","low","lowly","lucky","ludicrous","lumpy","lush","luxuriant","lying","lyrical","macabre","macho","maddening","madly","magenta","magical","magnificent","majestic","makeshift","male","malicious","mammoth","maniacal","many","marked","massive","married","marvelous","material","materialistic","mature","mean","measly","meaty","medical","meek","mellow","melodic","melted","merciful","mere","messy","mighty","military","milky","mindless","miniature","minor","miscreant","misty","mixed","moaning","modern","moldy","momentous","motionless","mountainous","muddled","mundane","murky","mushy","mute","mysterious","naive","nappy","narrow","nasty","natural","naughty","nauseating","near","neat","nebulous","necessary","needless","needy","neighborly","nervous","new","next","nice","nifty","nimble","nine","nippy","noiseless","noisy","nonchalant","nondescript","nonstop","normal","nostalgic","nosy","noxious","null","numberless","numerous","nutritious","nutty","oafish","obedient","obeisant","obese","obnoxious","obscene","obsequious","observant","obsolete","obtainable","oceanic","odd","offbeat","old","old-fashioned","omniscient","one","onerous","open","opposite","optimal","orange","ordinary","organic","ossified","outgoing","outrageous","outstanding","oval","overconfident","overjoyed","overrated","overt","overwrought","painful","painstaking","pale","paltry","panicky","panoramic","parallel","parched","parsimonious","past","pastoral","pathetic","peaceful","penitent","perfect","periodic","permissible","perpetual","petite","petite","phobic","physical","picayune","pink","piquant","placid","plain","plant","plastic","plausible","pleasant","plucky","pointless","poised","polite","political","poor","possessive","possible","powerful","precious","premium","present","pretty","previous","pricey","prickly","private","probable","productive","profuse","protective","proud","psychedelic","psychotic","public","puffy","pumped","puny","purple","purring","pushy","puzzled","puzzling","quack","quaint","quarrelsome","questionable","quick","quickest","quiet","quirky","quixotic","quizzical","rabid","racial","ragged","rainy","rambunctious","rampant","rapid","rare","raspy","ratty","ready","real","rebel","receptive","recondite","red","redundant","reflective","regular","relieved","remarkable","reminiscent","repulsive","resolute","resonant","responsible","rhetorical","rich","right","righteous","rightful","rigid","ripe","ritzy","roasted","robust","romantic","roomy","rotten","rough","round","royal","ruddy","rude","rural","rustic","ruthless","sable","sad","safe","salty","same","sassy","satisfying","savory","scandalous","scarce","scared","scary","scattered","scientific","scintillating","scrawny","screeching","second","second-hand","secret","secretive","sedate","seemly","selective","selfish","separate","serious","shaggy","shaky","shallow","sharp","shiny","shivering","shocking","short","shrill","shut","shy","sick","silent","silent","silky","silly","simple","simplistic","sincere","six","skillful","skinny","sleepy","slim","slimy","slippery","sloppy","slow","small","smart","smelly","smiling","smoggy","smooth","sneaky","snobbish","snotty","soft","soggy","solid","somber","sophisticated","sordid","sore","sore","sour","sparkling","special","spectacular","spicy","spiffy","spiky","spiritual","spiteful","splendid","spooky","spotless","spotted","spotty","spurious","squalid","square","squealing","squeamish","staking","stale","standing","statuesque","steadfast","steady","steep","stereotyped","sticky","stiff","stimulating","stingy","stormy","straight","strange","striped","strong","stupendous","stupid","sturdy","subdued","subsequent","substantial","successful","succinct","sudden","sulky","super","superb","superficial","supreme","swanky","sweet","sweltering","swift","symptomatic","synonymous","taboo","tacit","tacky","talented","tall","tame","tan","tangible","tangy","tart","tasteful","tasteless","tasty","tawdry","tearful","tedious","teeny","teeny-tiny","telling","temporary","ten","tender","tense","tense","tenuous","terrible","terrific","tested","testy","thankful","therapeutic","thick","thin","thinkable","third","thirsty","thirsty","thoughtful","thoughtless","threatening","three","thundering","tidy","tight","tightfisted","tiny","tired","tiresome","toothsome","torpid","tough","towering","tranquil","trashy","tremendous","tricky","trite","troubled","truculent","true","truthful","two","typical","ubiquitous","ugliest","ugly","ultra","unable","unaccountable","unadvised","unarmed","unbecoming","unbiased","uncovered","understood","undesirable","unequal","unequaled","uneven","unhealthy","uninterested","unique","unkempt","unknown","unnatural","unruly","unsightly","unsuitable","untidy","unused","unusual","unwieldy","unwritten","upbeat","uppity","upset","uptight","used","useful","useless","utopian","utter","uttermost","vacuous","vagabond","vague","valuable","various","vast","vengeful","venomous","verdant","versed","victorious","vigorous","violent","violet","vivacious","voiceless","volatile","voracious","vulgar","wacky","waggish","waiting","wakeful","wandering","wanting","warlike","warm","wary","wasteful","watery","weak","wealthy","weary","well-groomed","well-made","well-off","well-to-do","wet","whimsical","whispering","white","whole","wholesale","wicked","wide","wide-eyed","wiggly","wild","willing","windy","wiry","wise","wistful","witty","woebegone","womanly","wonderful","wooden","woozy","workable","worried","worthless","wrathful","wretched","wrong","wry","yellow","yielding","young","youthful"));
 	
-	static String[] PrefixValues = new String[] 
-	     {"Hot","Cold","Blazing","Burning","Freezing","Extreme","oversized","rotund","particular","mean","zistonian",
+	List<String> PrefixValues = new LinkedList<String>(Arrays.asList(
+	     "Hot","Cold","Blazing","Burning","Freezing","Extreme","oversized","rotund","particular","mean","zistonian",
 		"Canadian","american","british","Hispanic","Jewish","Irish","Scottish","Incredible","Ordinary",
 		"asgard","ancient","dwarven",
-		"Ethiopian","martian","turkish","vegatative"};
-	public static String[] Hoe = new String[] { "Hoe","Till","Trowel"};
-		public static String[] Shovel = new String[] {"Shovel","Digger"};
+		"Ethiopian","martian","turkish","vegatative"));
 	
 	
-	//adds verbs from an existing file. return values less than 0 indicate failure.
-	public static String RandomMobName(String mobType){
+	
+	public List<String> Hoe = new LinkedList<String>(Arrays.asList( "Hoe","Till","Trowel"));
+		public List<String> Shovel = new LinkedList<String>(Arrays.asList("Shovel","Digger"));
+	
+	private BCRandomizer _Owner = null;
+	public BCRandomizer getOwner() { return _Owner;}
+	public void setOwner(BCRandomizer value){ _Owner=value;}
+	public NameGenerator(BCRandomizer bcRandomizer) {
+			// TODO Auto-generated constructor stub
+		_Owner = bcRandomizer;
+		}
+	
+	private void readData(){
+		//
+		String GenINI = _Owner.pluginMainDir + this.GeneratorINI;
+		//if the file exists, open it.
+		File wordsfile = new File(GenINI);
+		if(wordsfile.exists()){
+			
+			//read it in as an INIFile.
+			try {
+				Scanner sc = new Scanner(wordsfile);
+				//read in each line.
+				
+				
+			}
+				
+				
+			 catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		
+	}
+	
+	public String RandomMobName(String mobType){
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append(RandomData.Choose(MobNames));
-		sb.append(" the " + RandomData.Choose(MobTitles));
+		sb.append(RandomData.ChooseString(MobNames));
+		sb.append(" the " + RandomData.ChooseString(MobTitles));
 		if(mobType!=null && !mobType.equals("")){
 			sb.append(mobType);
 			
@@ -230,7 +299,7 @@ public class NameGenerator {
 		
 		
 	}
-	public static String toTitleCase(String input) {
+	public String toTitleCase(String input) {
 	    StringBuilder titleCase = new StringBuilder();
 	    boolean nextTitleCase = true;
 
@@ -241,13 +310,13 @@ public class NameGenerator {
 	            c = Character.toTitleCase(c);
 	            nextTitleCase = false;
 	        }
-
+	        	
 	        titleCase.append(c);
 	    }
 
 	    return titleCase.toString();
 	}
-	public static String GenerateName(String[] FormatStrings,Hashtable<String,List<String>> Mappings){
+	public String GenerateName(String[] FormatStrings,Hashtable<String,List<String>> Mappings){
 		String chosen = RandomData.Choose(FormatStrings);
 		return GenerateName(chosen,Mappings);
 		
@@ -255,7 +324,7 @@ public class NameGenerator {
 	}
 	//added: special routine to create a nonsense phrase. 
 	
-	public static String GenerateName(String FormatString,Hashtable<String,List<String>> Mappings){
+	public String GenerateName(String FormatString,Hashtable<String,List<String>> Mappings){
 	
 		//iterate through all keys in the hashtable.
 		//with each key, find each instance of {key} in the FormatString. replace it with a random item chosen from the 
@@ -285,7 +354,7 @@ public class NameGenerator {
 		return duplicated;
 		
 	}
-	public static String GenerateLore() {
+	public String GenerateLore() {
 		
 		String[] ChancePrefix = new String[] {
 				"Could","Might","Unlikely to","able to","may adeptly","may sadly","may happily","may"};
@@ -299,9 +368,9 @@ public class NameGenerator {
 		buildstr.append(RandomData.Choose(ChancePrefix) + " ");
 		buildstr.append(RandomData.Choose(conjunctionp) + " ");
 		buildstr.append(RandomData.Choose(randommiddle) + "\n");
-		buildstr.append(RandomData.Choose(PrefixValues) + " ");
-		buildstr.append(RandomData.Choose(Verbs) + " ");
-		buildstr.append(RandomData.Choose(Nouns) + " ");
+		buildstr.append(RandomData.ChooseString(PrefixValues) + " ");
+		buildstr.append(RandomData.ChooseString(Verbs) + " ");
+		buildstr.append(RandomData.ChooseString(Nouns) + " ");
 		
 				return "§r§5" + buildstr.toString();
 		
@@ -315,10 +384,20 @@ public class NameGenerator {
 	}
 				
 		
+	public String GenerateName(List<String> BaseNames,List<String> Adjectives,List<String> Verbs){
+		String[] bname = new String[BaseNames.size()];
+		String[] adj = new String[Adjectives.size()];
+		String[] verb = new String[Verbs.size()];
+		BaseNames.toArray(bname);
+		Adjectives.toArray(adj);
+		Verbs.toArray(verb);
+		return GenerateName(bname,adj,verb);
 		
+		
+	}
 		
 	
-	public static String GenerateName(String[] BaseNames,String[] Adjectives,String[] Verbs){
+	public String GenerateName(String[] BaseNames,String[] Adjectives,String[] Verbs){
 	
 		
 		StringBuffer sb = new StringBuffer();
@@ -329,7 +408,7 @@ public class NameGenerator {
 		
 		String prefix = "";
 		if(RandomData.rgen.nextFloat() > 0.75){
-			prefix = RandomData.Choose(PrefixValues);
+			prefix = RandomData.ChooseString(PrefixValues);
 			
 		}
 		if(prefix.length()>0) prefix = prefix + " ";

@@ -294,6 +294,13 @@ public class BCRandomizer extends JavaPlugin {
 	public void onEnable() {
 		try {
 			Configuration = new Configurator(this);
+			if(NameGen!=null){
+				NameGen.setOwner(this);
+			}
+			else
+			{
+				NameGen = new NameGenerator(this);
+			}
 			//System.out.println(Configuration.getContainerStatic().toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -336,6 +343,7 @@ public class BCRandomizer extends JavaPlugin {
 	public void onDisable() {
 		try {
 		Configuration.save();
+		NameGen=null;
 		}
 		catch(IOException iox){
 			
@@ -350,7 +358,7 @@ public class BCRandomizer extends JavaPlugin {
 
 	}
 
-	private static final boolean _debug = false;
+	private static final boolean _debug = true;
 
 	public static void emitmessage(String msg) {
 
@@ -358,7 +366,7 @@ public class BCRandomizer extends JavaPlugin {
 			System.out.println(msg);
 
 	}
-
+	public static NameGenerator NameGen=null;
 	public static void main(String[] args) {
 
 		SpawnRandomizerConfig src = new SpawnRandomizerConfig(new File(

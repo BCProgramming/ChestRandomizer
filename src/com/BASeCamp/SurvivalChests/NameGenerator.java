@@ -263,7 +263,7 @@ public class NameGenerator {
 	
 	private void readData(){
 		//
-		String GenINI = _Owner.pluginMainDir + this.GeneratorINI;
+		String GenINI = _Owner.pluginMainDir + NameGenerator.GeneratorINI;
 		//if the file exists, open it.
 		File wordsfile = new File(GenINI);
 		if(wordsfile.exists()){
@@ -278,7 +278,7 @@ public class NameGenerator {
 				
 				listlookup.put("NOUN", this.Nouns);
 				listlookup.put("VERB", this.Verbs);
-				listlookup.put("ADJECTIVES", this.Adjectives);
+				listlookup.put("ADJECTIVE", this.Adjectives);
 				listlookup.put("SWORD", this.Sword);
 				listlookup.put("HELMET", this.Hats);
 				listlookup.put("CHESTPLATE", this.Chestplates);
@@ -309,10 +309,14 @@ public class NameGenerator {
 							//split the second parameter at commas.
 							String[] splitaddwords = splitresult[1].split(",");
 							for(String iterate:splitaddwords){
-								
+								if(iterate.equalsIgnoreCase("!clear!")){
+								listlookup.get(splitresult[0]).clear();	
+									
+								}else {
 								listlookup.get(splitresult[0]).add(iterate.trim());
 								
 								wordsadded++;
+								}
 							}
 							
 							

@@ -291,13 +291,132 @@ public class RandomData {
 		
 		
 		
+	private String getRoman(int value){
+		
+		//brute force...
+		return value==0?"":
+			value==1?"I":
+				value==2?"II":
+					value==3?"III":
+						value==4?"IV":
+							value==5?"V":
+								value==6?"VI":
+									value==7?"VII":
+										value==8?"VIII":
+											value==9?"IX":
+												value==10?"X":String.valueOf(value);
+		
+		
+		
+	}
+		
+		
+	private String getPotionEffectDescription(PotionEffect pe){
 		
 		
 		
 		
+		String basetype = "";
+		if(pe.getType()==PotionEffectType.BLINDNESS)
+			basetype="Blindness";
+		else if(pe.getType()==PotionEffectType.CONFUSION)
+			basetype="Confusion";
+		else if(pe.getType()==PotionEffectType.DAMAGE_RESISTANCE)
+			basetype="Resistance";
+		else if(pe.getType()==PotionEffectType.FAST_DIGGING)
+			basetype="Haste";
+		else if(pe.getType()==PotionEffectType.FIRE_RESISTANCE)
+			basetype="Fire Resistance";
+		else if(pe.getType()==PotionEffectType.HARM)
+			basetype="Instant Damage";
+		else if(pe.getType()==PotionEffectType.HEAL)
+			basetype="Instant Health";
+		else if(pe.getType()==PotionEffectType.HUNGER)
+			basetype="Hunger";
+		else if(pe.getType()==PotionEffectType.INCREASE_DAMAGE)
+			basetype="Strength";
+		else if(pe.getType()==PotionEffectType.INVISIBILITY)
+			basetype="Invisibility";
+		else if(pe.getType()==PotionEffectType.JUMP)
+			basetype="Jump";
+		else if(pe.getType()==PotionEffectType.NIGHT_VISION)
+			basetype = "Night Vision";
+		else if(pe.getType()==PotionEffectType.POISON)
+			basetype = "Poison";
+		else if(pe.getType()==PotionEffectType.REGENERATION)
+			basetype="Regeneration";
+		else if(pe.getType()==PotionEffectType.SLOW)
+			basetype="Slowness";
+		else if(pe.getType()==PotionEffectType.SLOW_DIGGING)
+			basetype="Slow Digging";
+		else if(pe.getType()==PotionEffectType.SPEED)
+			basetype="Swiftness";
+		else if(pe.getType()==PotionEffectType.WATER_BREATHING)
+			basetype="Gills";
+		else if(pe.getType()==PotionEffectType.WEAKNESS)
+			basetype="Weakness";
+		else if(pe.getType()==PotionEffectType.WITHER)
+			basetype="Wither";
+		
+		//now that we have a basetype, add on the level...
+		
+		basetype = basetype + " " + getRoman(pe.getAmplifier()+1);
+		
+		if(pe.getDuration() > 0)
+			basetype = basetype + " (" + 
+		(pe.getDuration()/20)/60 + ":" +  
+		String.format("00",(pe.getDuration()/20)%60) + ")";
 		
 		
-	
+		return basetype;
+		
+		
+	}
+		
+		/**
+		 * retrieves the Name of this Potion. This includes any level modifier, and whether it is a splash potion.
+		 * sets the name and lore of this potion to reflect it's effects. 
+		 */
+	public void setPotionData(ItemStack source){
+		if(source.getType()==Material.POTION){
+			
+			//we retrieve and set the name and lore for this potion.
+			String basepotiontype="";
+			
+			//get the base potion type. retrieve metadata first.
+			Potion p = Potion.fromItemStack(source);
+			PotionMeta pm = (PotionMeta)source.getItemMeta();
+			if(p.isSplash())
+				basepotiontype = "Splash Potion";
+			else
+				basepotiontype = "Potion";
+			
+			//set the name...
+			pm.setDisplayName(basepotiontype);
+			
+			List<PotionEffect> getnamesfor = pm.getCustomEffects();
+			List<String> makelore = new LinkedList<String>();
+			for(PotionEffect iterateeffect:getnamesfor){
+				makelore.add(getPotionEffectDescription(iterateeffect));
+			}
+			
+			
+			pm.setLore(makelore);
+			
+			
+			source.setItemMeta(pm);
+			
+			
+			
+			
+		}
+		else
+		{
+			throw new IllegalArgumentException("Cannot retrieve potion name for non-potion item:" + source.getType().name());
+		}
+		
+		
+	}
 	
 	private PotionEffectType MapPotionType(String TypeName)
 	{
@@ -320,7 +439,7 @@ public class RandomData {
 		if(TypeName.equalsIgnoreCase("SPEED")) return PotionEffectType.SPEED;
 		if(TypeName.equalsIgnoreCase("RESPIRATION")) return PotionEffectType.WATER_BREATHING;
 		if(TypeName.equalsIgnoreCase("WITHER")) return PotionEffectType.WITHER;
-		
+				
 		return null;
 		
 	}
@@ -354,10 +473,49 @@ public class RandomData {
 		if(generated!=null) return generated.getType();
 		return null;
 	}
+	
+	public void AddPotionEffect(ItemStack targetpotion,PotionEffectType potioneffect,int Level,int Duration){
+		
+		if(targetpotion.getType()==Material.POTION){
+			
+			PotionMeta pm = (PotionMeta) targetpotion.getItemMeta();
+			
+			PotionEffect useeffect = Potion.getBrewer().createEffect(potioneffect, Duration,Level);
+			
+			pm.addCustomEffect(useeffect,true);
+			
+			targetpotion.setItemMeta(pm);
+			
+			
+			
+		}
+		
+		
+		
+		
+	}
 	private ItemStack MakePotion(String Name,int Duration,int Level,int Splash){
+		Duration*=20; //duration is # of seconds...
+		BCRandomizer.emitmessage("Creating Potion- Name:" + Name + " Duration:" + Duration + " Level:" + Level + " Splash:" + Splash);
+		PotionEffectType pet = MapPotionType(Name);
+		PotionType pt = PotionType.getByEffect(pet);
+	
+		Potion makepotion = new Potion(pt);
+		makepotion.setSplash(Splash>0);
+		ItemStack getpotionstack = makepotion.toItemStack(1);
+		AddPotionEffect(getpotionstack,MapPotionType(Name),Level,Duration);
+		//setPotionData(getpotionstack);
+		
+		return getpotionstack;
+		
+		
+	}
+	/*private ItemStack MakePotion(String Name,int Duration,int Level,int Splash){
 		Duration*=20;
 		BCRandomizer.emitmessage("Creating Potion- Name:" + Name + " Duration:" + Duration + " Level:" + Level + " Splash:" + Splash);
 		PotionEffectType pet = MapPotionType(Name);
+		
+		
 		PotionType pt = PotionType.getByEffect(pet);
 		System.out.println("Splash?=" + (Splash!=0));
 		Potion makepotion = new Potion(pt);
@@ -381,12 +539,12 @@ public class RandomData {
     meta.addCustomEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 680, 1), true);
     stack.setItemMeta(meta);
      
-    target.getInventory().addItem(stack);
+    target.getInventory().addItem(stack);}
 		 */
 		
 		
 		
-	}
+	
 	public ItemStack Generate()
 	{
 		//Potion.getBrewer().createEffect(PotionEffectType., arg1, arg2)
@@ -399,7 +557,21 @@ public class RandomData {
 			if(true){
 				System.out.println("Making potion:" + _Name + " " + _DamageMin + " " + _DamageMax + " " + _MinCount);
 				createitem = MakePotion(_Name,(int)_DamageMin,(int)_DamageMax+1,_MinCount);
-				
+				if(rgen.nextBoolean()){
+					int extraeffects = rgen.nextInt(4);
+					for(int i=0;i<extraeffects;i++){
+						
+						PotionEffectType[] chooseme = PotionEffectType.values();
+						
+						AddPotionEffect(createitem, RandomData.Choose(chooseme), rgen.nextInt(5), 20*(rgen.nextInt(120)+30));
+						
+						
+						
+					}
+					
+					
+					
+				}
 			}
 			else {
 			createitem = new ItemStack(373,1); //373 is potion
@@ -525,7 +697,7 @@ public class RandomData {
 		catch(Exception exx){
 			
 			exx.printStackTrace();
-			
+			System.out.println(exx);
 			
 		} //ignore errors...
 		String usename=_Name;
@@ -869,7 +1041,7 @@ public class RandomData {
 		{
 			_SpawnType=1;
 			Initializer = Initializer.substring(7);
-			System.out.println("Initializer:" + Initializer);
+			//System.out.println("Initializer:" + Initializer);
 			
 		}
 		else if(Initializer.startsWith("HEAD:"))

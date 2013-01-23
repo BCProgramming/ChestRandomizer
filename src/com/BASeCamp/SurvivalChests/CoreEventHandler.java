@@ -10,10 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import net.minecraft.server.v1_4_R1.Block;
-import net.minecraft.server.v1_4_R1.EntityItemFrame;
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagList;
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,10 +19,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftMonster;
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftSkeleton;
+
 import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
@@ -45,6 +40,7 @@ import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
@@ -78,6 +74,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -269,8 +266,8 @@ public class CoreEventHandler implements Listener {
 		if(entityfor.getType().equals(EntityType.SKELETON)){
 			tcolor=ChatColor.GRAY;
 			BuildDescription = "Skeleton";
-			CraftSkeleton cs = (CraftSkeleton)entityfor;
-			if(cs.getHandle().getSkeletonType()==1){
+			Skeleton cs = (Skeleton)entityfor;
+			if(cs.getSkeletonType()==SkeletonType.WITHER){
 				
 				//Wither...
 				BuildDescription="Wither Skeleton";
@@ -303,8 +300,8 @@ public class CoreEventHandler implements Listener {
 			BuildDescription = "Cave Spider";
 		}
 		else if(entityfor.getType().equals(EntityType.CREEPER)){
-			CraftCreeper cc = (CraftCreeper)entityfor;	
-			if(cc.getHandle().isPowered()){
+			Creeper cc = (Creeper)entityfor;
+			if(cc.isPowered()){
 				BuildDescription = "Charged Creeper";
 				tcolor = ChatColor.BLUE;
 			}
@@ -359,12 +356,17 @@ public class CoreEventHandler implements Listener {
 		String postfix = "";
 		String useprefix = "";
 		if(entityfor instanceof Zombie || entityfor instanceof Skeleton){
-		CraftLivingEntity cle = (CraftLivingEntity)entityfor;
-		net.minecraft.server.v1_4_R1.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
-		net.minecraft.server.v1_4_R1.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
-		net.minecraft.server.v1_4_R1.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
-		net.minecraft.server.v1_4_R1.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
-		net.minecraft.server.v1_4_R1.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
+		//CraftLivingEntity cle = (CraftLivingEntity)entityfor;
+		ItemStack EntityWeapon = entityfor.getEquipment().getItemInHand();
+		ItemStack EntityBoots = entityfor.getEquipment().getBoots();
+		ItemStack EntityLeggings = entityfor.getEquipment().getLeggings();
+		ItemStack EntityChestplate = entityfor.getEquipment().getChestplate();
+		ItemStack EntityHelmet = entityfor.getEquipment().getHelmet();
+		//net.minecraft.server.v1_4_R1.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
+		//net.minecraft.server.v1_4_R1.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
+		//net.minecraft.server.v1_4_R1.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
+		//net.minecraft.server.v1_4_R1.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
+		//net.minecraft.server.v1_4_R1.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
 		
 		int armourcount = 
 			(EntityBoots==null?0:1) +
@@ -789,7 +791,7 @@ else if(monster instanceof CaveSpider) {
 				
 				if(getvalue!=null){
 					
-					basescore+=getItemValue((ItemStack)(CraftItemStack.asCraftCopy(getvalue)));
+					basescore+=getItemValue(getvalue);
 				    
 					
 					
@@ -1572,7 +1574,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 				event.getEntity().setRemoveWhenFarAway(false);
 				
 			}
-		
+		//event.getEntity().addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.JUMP, 32768, 64));
 		synchronized(this){
 		if(!WitherSpawnQueue.isEmpty() ){
 			
@@ -1699,6 +1701,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		if (RandomData.rgen.nextFloat() < 0.3)
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,32767,RandomData.rgen.nextInt(2)));
 		
+		if(RandomData.rgen.nextFloat() > 0.3f)
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.JUMP,32768,RandomData.rgen.nextInt(3)+1));
 		sr.RandomizeEntity(event.getEntity());
 		}
 		

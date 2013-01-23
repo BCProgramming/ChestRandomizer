@@ -358,7 +358,7 @@ public class BCRandomizer extends JavaPlugin {
 
 	}
 
-	private static final boolean _debug = true;
+	private static final boolean _debug = false;
 
 	public static void emitmessage(String msg) {
 

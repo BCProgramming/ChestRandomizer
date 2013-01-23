@@ -531,7 +531,7 @@ public class ChestRandomizer {
 				if(created==null) {
 					
 					//System.out.println("generated item is null. ID=" + rdata.getItemID());
-					Bukkit.broadcastMessage(BCRandomizer.Prefix + " Error in configuration. (ID=" + rdata.getItemID() + " Name=" + rdata.getName());
+					//Bukkit.broadcastMessage(BCRandomizer.Prefix + " Error in configuration. (ID=" + rdata.getItemID() + " Name=" + rdata.getName());
 					continue;
 				}
 				BCRandomizer.emitmessage("Data:" + created.getData().getData());

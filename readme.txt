@@ -49,13 +49,33 @@ Since preparegame sets the spawn, it's worth noting that if you are in creative 
 
 Features of the randomizer
 -Randomizes all Chests in a world.
--Items can have random enchantments and randomized names (though the latter is limited to the built-in name randomizer).
+-Items can have random enchantments and randomized names.
 -Chests that are on Wool Blocks will NOT have their contents randomized.
 
 
 Randomization data is stored in the "BCRandomizer" folder of your plugin directory, inside a file named "survivalchests.cfg". This file is not created by default, instead it defaults to using the file inside the plugin .jar. For editing, extract that file to the correct location to get a "default" template upon which to make your changes.
 
-There are a few "Types" of lines in the file: these come in the form of "Standard" lines, as well as lines for creating Potions and Player Heads.
+The data for Randomized Names can be changed by creating a "namegen.ini" file in the BCRandomizer folder. Each line of this file can be a comment, starting with //, or an entry. An entry is in the form:
+
+nametype=name
+
+where nametype can be one of Noun,Verb,Adjective,Sword,Helmet,Chestplate,Leggings,Boots,Bow,Pickaxe,Shovel,Hoe,Axe,MobName,MobTitle. The value can also be a comma-delimited list, for example the lines:
+
+Sword=Cutter
+Sword=Greatsword
+
+are the equivalent of this one line:
+
+Sword=Cutter,Greatsword
+
+Items are added to the existing list of words. If you want to clear the list and only use your own name, use "!clear!" as a entry; for example:
+
+Axe=!clear!
+
+will clear that entire list.
+
+
+For the actual Item Randomizer, There are a few "Types" of lines in the file: these come in the form of "Standard" lines, as well as lines for creating Potions and Player Heads.
 
 The following is an example line (standard) from this file (A default survivalchests.cfg file is provided in the zip alongside the jar and this file):
 
@@ -67,7 +87,7 @@ Name,Weight,TypeID,Data,MinDamage,MaxDamage,MinCount,MaxCount,Lore, EnchantmentN
 
 
 
-The first element is the Name. This is normally ignored (as in, it is not applied to the Item through NBT Tags). If you want to give the item a special name, precede that name with !. There are also special variables you can use in conjunction with !, Currently implemented name randomizers include:
+The first element is the Name. This is normally ignored (as in, it is not applied to the Item as it's name). If you want to give the item a special name, precede that name with !. There are also special variables you can use in conjunction with !, Currently implemented name randomizers include:
 %CLEVERHATNAME%
 %CLEVERCHESTPLATENAME%
 %CLEVERLEGGINGSNAME%

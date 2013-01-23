@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 
-import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_R1.TileEntityMobSpawner;
 
 import org.bukkit.*;
 import org.bukkit.block.*;

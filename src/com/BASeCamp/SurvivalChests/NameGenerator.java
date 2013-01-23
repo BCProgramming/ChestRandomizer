@@ -13,11 +13,12 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import BASeCamp.Configuration.INIFile;
 import BASeCamp.Configuration.INISection;
 
-import net.minecraft.server.v1_4_6.Path;
+import net.minecraft.server.v1_4_R1.Path;
 //Special class for generating Item names.
 
 public class NameGenerator {
@@ -257,6 +258,7 @@ public class NameGenerator {
 	public NameGenerator(BCRandomizer bcRandomizer) {
 			// TODO Auto-generated constructor stub
 		_Owner = bcRandomizer;
+		readData();
 		}
 	
 	private void readData(){
@@ -270,7 +272,64 @@ public class NameGenerator {
 			try {
 				Scanner sc = new Scanner(wordsfile);
 				//read in each line.
+				String currentline=null;
+				//we'll use a indexed lookup for the entries.
+				TreeMap<String,List<String>> listlookup = new TreeMap<String,List<String>>(String.CASE_INSENSITIVE_ORDER);
 				
+				listlookup.put("NOUN", this.Nouns);
+				listlookup.put("VERB", this.Verbs);
+				listlookup.put("ADJECTIVES", this.Adjectives);
+				listlookup.put("SWORD", this.Sword);
+				listlookup.put("HELMET", this.Hats);
+				listlookup.put("CHESTPLATE", this.Chestplates);
+				listlookup.put("LEGGINGS", this.Pants);
+				listlookup.put("BOOTS", this.Boots);
+				listlookup.put("BOW",this.Bow);
+				listlookup.put("PICKAXE", this.Pickaxe);
+				listlookup.put("SHOVEL", this.Shovel);
+				listlookup.put("HOE", this.Hoe);
+				listlookup.put("AXE", this.Axe);
+				listlookup.put("MOBNAME", this.MobNames);
+				listlookup.put("MOBTITLE", this.MobTitles);
+				int wordsadded = 0;
+				while(sc.hasNextLine() && (null!=(currentline=sc.nextLine()))){
+					//parse it. First, split at equals.
+					//check for a comment.
+					currentline=currentline.trim();
+					if(!currentline.startsWith("//") &&
+							currentline.contains("=")){
+						//make sure it isn't a comment, and that it contains
+						//an equals sign.
+						//split at equals sign.
+						String[] splitresult = currentline.split("=");
+						//only continue of listlookup contains the first array element
+						//as a key.
+						if(listlookup.containsKey(splitresult[0])){
+							
+							//split the second parameter at commas.
+							String[] splitaddwords = splitresult[1].split(",");
+							for(String iterate:splitaddwords){
+								
+								listlookup.get(splitresult[0]).add(iterate.trim());
+								
+								wordsadded++;
+							}
+							
+							
+							
+							
+							
+						}
+						
+						
+						
+					}
+					
+					
+					
+					
+				}
+				BCRandomizer.emitmessage("added " + wordsadded + " words from " + GenINI);
 				
 			}
 				

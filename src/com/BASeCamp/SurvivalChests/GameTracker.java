@@ -13,7 +13,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import net.minecraft.server.v1_4_6.EntityLiving;
+import net.minecraft.server.v1_4_R1.EntityLiving;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.FireworkEffect.Type;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CreatureType;

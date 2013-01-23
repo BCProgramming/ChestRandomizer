@@ -8,11 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.server.v1_4_6.Item;
-import net.minecraft.server.v1_4_6.NBTTagCompound;
-import net.minecraft.server.v1_4_6.NBTTagList;
-import net.minecraft.server.v1_4_6.NBTTagString;
-import net.minecraft.server.v1_4_6.PotionBrewer;
+import net.minecraft.server.v1_4_R1.Item;
+import net.minecraft.server.v1_4_R1.NBTTagCompound;
+import net.minecraft.server.v1_4_R1.NBTTagList;
+import net.minecraft.server.v1_4_R1.NBTTagString;
+import net.minecraft.server.v1_4_R1.PotionBrewer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -20,8 +20,8 @@ import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.FireworkEffect.Builder;
-import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_4_6.potion.CraftPotionBrewer;
+import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_R1.potion.CraftPotionBrewer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;

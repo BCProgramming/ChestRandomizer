@@ -7,11 +7,11 @@ import java.util.List;
 
 
 
-import net.minecraft.server.v1_4_6.NBTTagCompound;
-import net.minecraft.server.v1_4_6.NBTTagFloat;
-import net.minecraft.server.v1_4_6.NBTTagList;
-import net.minecraft.server.v1_4_6.TileEntity;
-import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_R1.NBTTagCompound;
+import net.minecraft.server.v1_4_R1.NBTTagFloat;
+import net.minecraft.server.v1_4_R1.NBTTagList;
+import net.minecraft.server.v1_4_R1.TileEntity;
+import net.minecraft.server.v1_4_R1.TileEntityMobSpawner;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -19,11 +19,11 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.v1_4_6.block.CraftCreatureSpawner;
-import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_R1.block.CraftCreatureSpawner;
+import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
 public class SpawnerRandomData {
 //analogous to the RandomData class, but for spawners.
 	

@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import net.minecraft.server.v1_4_6.Block;
-import net.minecraft.server.v1_4_6.EntityItemFrame;
-import net.minecraft.server.v1_4_6.NBTTagCompound;
-import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_R1.Block;
+import net.minecraft.server.v1_4_R1.EntityItemFrame;
+import net.minecraft.server.v1_4_R1.NBTTagCompound;
+import net.minecraft.server.v1_4_R1.NBTTagList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,11 +22,11 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftCreeper;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftMonster;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftSkeleton;
-import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftCreeper;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftMonster;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftSkeleton;
+import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
@@ -360,11 +360,11 @@ public class CoreEventHandler implements Listener {
 		String useprefix = "";
 		if(entityfor instanceof Zombie || entityfor instanceof Skeleton){
 		CraftLivingEntity cle = (CraftLivingEntity)entityfor;
-		net.minecraft.server.v1_4_6.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
-		net.minecraft.server.v1_4_6.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
-		net.minecraft.server.v1_4_6.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
-		net.minecraft.server.v1_4_6.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
-		net.minecraft.server.v1_4_6.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
+		net.minecraft.server.v1_4_R1.ItemStack EntityWeapon = cle.getHandle().getEquipment(0);
+		net.minecraft.server.v1_4_R1.ItemStack EntityBoots =cle.getHandle().getEquipment(1);
+		net.minecraft.server.v1_4_R1.ItemStack EntityLeggings =cle.getHandle().getEquipment(2);
+		net.minecraft.server.v1_4_R1.ItemStack EntityChestplate =cle.getHandle().getEquipment(3);
+		net.minecraft.server.v1_4_R1.ItemStack EntityHelmet =cle.getHandle().getEquipment(4);
 		
 		int armourcount = 
 			(EntityBoots==null?0:1) +
@@ -808,7 +808,7 @@ else if(monster instanceof CaveSpider) {
 			
 			
 			
-			//net.minecraft.server.v1_4_6.ItemStack[] equipment = cf.getHandle().getEquipment();
+			//net.minecraft.server.v1_4_R1.ItemStack[] equipment = cf.getHandle().getEquipment();
 			EntityEquipment equipment  = monster.getEquipment();
 			
 			

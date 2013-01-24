@@ -915,6 +915,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 		LinkedList<Furnace> allfurnaces = new LinkedList<Furnace>();
 		LinkedList<Dispenser> alldispensers = new LinkedList<Dispenser>();
 		LinkedList<StorageMinecart> allstoragecarts = new LinkedList<StorageMinecart>();
+		LinkedList<BrewingStand> allbrewingstands = new LinkedList<BrewingStand>();
 		World gotworld = w;
 		if (!silent)
 			Bukkit.broadcastMessage(BCRandomizer.Prefix
@@ -943,6 +944,14 @@ private void ShufflePlayers(List<Player> shufflethese){
 					allstoragecarts.add(casted);
 					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
 					populatedamount+=cr.Shuffle();
+					
+					
+				}
+				else if(iteratestate instanceof BrewingStand){
+					BrewingStand casted = (BrewingStand)iteratestate;
+					ChestRandomizer br = new ChestRandomizer(_Owner,casted,sourcefile);
+					allbrewingstands.add(casted);
+					populatedamount+=br.Shuffle();
 					
 					
 				}
@@ -985,20 +994,31 @@ private void ShufflePlayers(List<Player> shufflethese){
 
 		int StaticAdded = 0;
 		if (!silent) {
-			Bukkit.broadcastMessage(ChatColor.AQUA.toString()
+			ResumePvP.BroadcastWorld(w,ChatColor.AQUA.toString()
 					+ allchests.size() + ChatColor.YELLOW
 					+ " Chests Populated.");
 			Bukkit.broadcastMessage(ChatColor.AQUA.toString()
 					+ allfurnaces.size() + ChatColor.RED + " Furnaces "
 					+ ChatColor.YELLOW + "Populated.");
 
-			Bukkit.broadcastMessage(ChatColor.AQUA + "" + alldispensers.size()
+			ResumePvP.BroadcastWorld(w,ChatColor.AQUA + "" + alldispensers.size()
 					+ ChatColor.GREEN + " Dispensers " + ChatColor.YELLOW
 					+ " Populated.");
 
-			Bukkit.broadcastMessage(ChatColor.YELLOW + "Populated "
+			
+			ResumePvP.BroadcastWorld(w,ChatColor.DARK_RED + "Populated "
+					+ ChatColor.AQUA.toString() +
+					ChatColor.LIGHT_PURPLE + allbrewingstands.size() + ChatColor.RED + " Brewing Stands" +
+					ChatColor.YELLOW + " Populated.");
+					
+					
+			
+					ResumePvP.BroadcastWorld(w,ChatColor.YELLOW + "Populated "
 					+ ChatColor.AQUA.toString() + populatedamount
 					+ ChatColor.YELLOW + " slots.");
+			
+			
+			
 		}
 		for (RandomData iterate : ChestRandomizer.getRandomData(_Owner)) {
 

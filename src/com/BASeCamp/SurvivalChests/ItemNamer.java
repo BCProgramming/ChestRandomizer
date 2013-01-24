@@ -56,7 +56,7 @@ public final class ItemNamer {
 	   if(Lore!=null && Lore.length>=0 && Lore[0].length() > 0) {
 		   
 			   im.setLore(Arrays.asList(Lore));
-			   System.out.println("Set Lore to " + Lore[0]);
+			   //System.out.println("Set Lore to " + Lore[0]);
 	   }
 	   else 
 	   {

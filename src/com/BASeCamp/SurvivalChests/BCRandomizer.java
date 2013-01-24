@@ -327,7 +327,7 @@ public class BCRandomizer extends JavaPlugin {
 		this.getCommand("arenaborder1").setExecutor(Randomcommand);
 		this.getCommand("arenaborder2").setExecutor(Randomcommand);
 		this.getCommand("clearborders").setExecutor(Randomcommand);
-		this.getCommand("randomizespawners").setExecutor(Randomcommand);
+		//this.getCommand("randomizespawners").setExecutor(Randomcommand);
 		this.getCommand("mobmode").setExecutor(Randomcommand);
 		this.getCommand("mobtimeout").setExecutor(Randomcommand);
 		this.getCommand("mobsweeper").setExecutor(Randomcommand);

@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.Inventory;
@@ -112,6 +113,18 @@ public class ChestRandomizer {
 				});
 
 	}
+	public static List<RandomData> getPotionData(BCRandomizer _owner) {
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner)
+				,new IFilterPredicate<RandomData>(){
+			
+			public boolean predicate(RandomData rd){
+				return PotionFilter(rd);
+			}
+		});
+		
+		
+		
+	}
 	public static List<RandomData> getBootsData(BCRandomizer _owner) {
 
 		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
@@ -184,7 +197,13 @@ public class ChestRandomizer {
 				|| m.equals(Material.DIAMOND_LEGGINGS);
 
 	}
-
+	private static boolean PotionFilter(RandomData testdata){
+	if(testdata==null) return false;
+	Material m = testdata.getItemMaterial();
+	if(m==null) return false;
+	return m.equals(Material.POTION);
+		
+	}
 	private static boolean BootsFilter(RandomData testdata) {
 		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
@@ -234,7 +253,27 @@ public class ChestRandomizer {
 
 		}
 	}
+	private BrewingStand bstand = null;
+	public ChestRandomizer(BCRandomizer owner,BrewingStand pStand,String pURL){
+		_owner = owner;
+		bstand = pStand;
+		String buildpath = BCRandomizer.pluginMainDir;
+		if (!buildpath.endsWith("\\"))
+			buildpath = buildpath + "\\";
+		File gotfile = new File(buildpath + pURL);
+		if (gotfile != null && gotfile.exists()) {
+			pURL = gotfile.getAbsolutePath();
 
+		}
+
+		//mInventory = mchest.getBlockInventory();
+		mInventory = bstand.getInventory();
+		if (randData == null) {
+			_SourceFile = pURL;
+			reload(owner,_SourceFile);
+
+		}
+	}
 	public ChestRandomizer(BCRandomizer owner, Inventory sourceinventory,
 			String pURL) {
 
@@ -497,7 +536,7 @@ public class ChestRandomizer {
 			} else if (mchest.getWorld().getBlockAt(spotbelow).getType() == _owner.Configuration.getContainerPacked())
 				PackedChest = true;
 		}
-
+		
 		// select a random number of items.
 		//System.out.println("Randomizing chest...");
 		if (_owner != null) {
@@ -534,9 +573,15 @@ public class ChestRandomizer {
 		
 		// BCRandomizer.emitmessage("Minitems:" + _MinItems + "MaxItems " +
 		// _MaxItems + "Gen:" + _numgenerate);
-		
+		List<RandomData> fromlist = randData;
+		if(bstand!=null) fromlist = getPotionData(_owner);
 		for (int i = 1; i < _numgenerate; i++) {
-			RandomData rdata = RandomData.ChooseRandomData(randData);
+			
+			RandomData rdata;
+			
+			
+			
+			rdata = RandomData.ChooseRandomData(fromlist);
 			if (rdata != null) {
 				
 				ItemStack created = rdata.Generate();

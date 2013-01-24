@@ -13,11 +13,9 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_4_R1.NBTTagList;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -92,7 +90,8 @@ public class BCRandomizer extends JavaPlugin {
 	// public GameTracker _Tracker = null;
 	public static void clearPlayerInventory(Player p) {
 
-		((CraftPlayer) p).getHandle().inventory.b(new NBTTagList());
+		p.getInventory().clear();
+		
 
 	}
 

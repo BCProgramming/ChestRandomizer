@@ -8,14 +8,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
  
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagDouble;
-import net.minecraft.server.v1_4_R1.NBTTagList;
-import net.minecraft.server.v1_4_R1.NBTTagString;
+
  
 
 

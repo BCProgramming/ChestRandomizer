@@ -19,9 +19,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
 
-import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
+
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
@@ -44,6 +43,7 @@ import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
@@ -197,7 +197,7 @@ public class CoreEventHandler implements Listener {
 	private BCRandomizer _owner = null;
 	private World watchworld;
 	public static LinkedList<GameTracker> _Trackers = new LinkedList<GameTracker>();
-
+	
 	// public GameTracker _Tracker=null;
 	
 	
@@ -339,9 +339,15 @@ public class CoreEventHandler implements Listener {
 			
 		}
 		
-		if(((CraftLivingEntity)entityfor).getHandle().isBaby()){
-			
+		if(entityfor instanceof Zombie){
+		
+			if(((Zombie)entityfor).isBaby()){
 			BuildDescription = "baby " + BuildDescription;
+			}
+		}
+		else if(entityfor instanceof Villager){
+			if(!((Villager)entityfor).isAdult())
+				BuildDescription = "baby " + BuildDescription;
 			
 		}
 		
@@ -1616,9 +1622,15 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 							new float[] {100f,
 							100f,20f,50f,5f,10f,10f});
 					
-			
+			try {
 			event.getEntity().getWorld().spawnEntity(event.getLocation(), chosenEntityType);
-			
+			}
+			catch(NullPointerException npe){
+				
+				//System.out.println("NPE!" + npe.getMessage());
+				
+				
+			}
 			event.setCancelled(true);
 			recursiveevent=false;
 			return;
@@ -1703,7 +1715,16 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 		if(RandomData.rgen.nextFloat() > 0.3f)
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.JUMP,32768,RandomData.rgen.nextInt(3)+1));
+		
+		
+		try {
 		sr.RandomizeEntity(event.getEntity());
+		}
+		catch(Exception exx){
+			
+			exx.printStackTrace();
+			
+		}
 		}
 		
 	

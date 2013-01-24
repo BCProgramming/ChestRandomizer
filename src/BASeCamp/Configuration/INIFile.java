@@ -42,7 +42,7 @@ public class INIFile {
 		_Sections.put("global", CurrentSection);
 		while(br.hasNextLine() && null!=(lineread=br.nextLine())){
 			lineread=lineread.trim();
-			System.out.println("INI:" + lineread);
+			//System.out.println("INI:" + lineread);
 			if(!lineread.startsWith(";")){
 				if(lineread.startsWith("[")){
 					

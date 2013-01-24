@@ -132,6 +132,7 @@ public class SpawnerRandomizer {
 				ItemStack acquiredweapon = chosenweapon.Generate();
 				if (acquiredweapon != null)
 					// el.setEquipment(0,CraftItemStack.asCraftCopy(acquiredweapon));
+					
 					le.getEquipment().setItemInHand(acquiredweapon);
 					//el.setEquipment(0, CraftItemStack.asNMSCopy(acquiredweapon));
 

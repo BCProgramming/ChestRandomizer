@@ -8,11 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.server.v1_4_R1.Item;
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagList;
-import net.minecraft.server.v1_4_R1.NBTTagString;
-import net.minecraft.server.v1_4_R1.PotionBrewer;
+
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -20,22 +17,18 @@ import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.FireworkEffect.Builder;
-import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_4_R1.potion.CraftPotionBrewer;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.Dye;
-import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
-import org.bukkit.potion.Potion.Tier;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -176,11 +169,7 @@ public class RandomData {
 		return null;
 		
 	}
-	private static CraftItemStack toCraftStack(ItemStack source){
-		return CraftItemStack.asCraftCopy(source);
-		
-		
-	}
+	
 	public static String getHeadName(ItemStack source){
 		
 		//retrieves the name of the users head being represented.
@@ -554,63 +543,23 @@ public class RandomData {
 		if(_SpawnType==1){
 			
 			
-			if(true){
-				System.out.println("Making potion:" + _Name + " " + _DamageMin + " " + _DamageMax + " " + _MinCount);
-				createitem = MakePotion(_Name,(int)_DamageMin,(int)_DamageMax+1,_MinCount);
-				if(rgen.nextBoolean()){
-					int extraeffects = rgen.nextInt(4);
-					for(int i=0;i<extraeffects;i++){
-						
-						PotionEffectType[] chooseme = PotionEffectType.values();
-						
-						AddPotionEffect(createitem, RandomData.Choose(chooseme), rgen.nextInt(5), 20*(rgen.nextInt(120)+30));
-						
-						
-						
-					}
+			//System.out.println("Making potion:" + _Name + " " + _DamageMin + " " + _DamageMax + " " + _MinCount);
+			createitem = MakePotion(_Name,(int)_DamageMin,(int)_DamageMax+1,_MinCount);
+			//
+			if(rgen.nextBoolean()){
+				int extraeffects = rgen.nextInt(4);
+				for(int i=0;i<extraeffects;i++){
+					
+					PotionEffectType[] chooseme = PotionEffectType.values();
+					
+					AddPotionEffect(createitem, RandomData.Choose(chooseme), rgen.nextInt(5), 20*(rgen.nextInt(120)+30));
 					
 					
 					
 				}
-			}
-			else {
-			createitem = new ItemStack(373,1); //373 is potion
-			/*
-			if(_Name=="INVISIBILITY")
-			{
 				
-				createitem.setDurability((short) 14);
-				return createitem;
 				
-			
-			}
-			else {*/
-			PotionEffectType pet = MapPotionType(_Name);
-			PotionType pt = PotionType.getByEffect(pet);
-			
-			//BCRandomizer.emitmessage("Potion Data Value:" + _Data);
-			//BCRandomizer.emitmessage("Potion Extended:" + _DamageMin);
-			//BCRandomizer.emitmessage("Potion Level:" + _DamageMax);
-			//BCRandomizer.emitmessage("Potion Splash:" + _MinCount);
-			//PotionType pt = PotionType.getByDamageValue(_Data);
-			if(pt!=null)
-			{
-			BCRandomizer.emitmessage("Potion Type:" + pt.name());
-			}
-			Potion makepotion = new Potion(pt);
-			// Potions: Type is DataValue, Extended is DamageMin, Level is DamageMax, and Splash is MinCount.
-			try {
-				if(_DamageMin==1) _DamageMin=(int)(20f*(1.5f*60f)); //default 1 minute 3 seconds.
-				CraftPotionBrewer cp = new CraftPotionBrewer();
-				PotionEffect effect = cp.createEffect(pet, (int)_DamageMin, (int)_DamageMax);
 				
-				makepotion.getEffects().clear();
-				makepotion.getEffects().add(effect);
-				
-				makepotion.setSplash(_MinCount > 0);
-				
-			}catch(IllegalArgumentException ex){}
-			try {makepotion.apply(createitem);}catch(IllegalArgumentException ex){}
 			}
 		}
 		
@@ -847,10 +796,10 @@ public class RandomData {
 		 }
 	public static ItemStack DyeLeather(ItemStack item){
 		//Dye's a leather Item to a random color.
-		if(item.getTypeId()==Item.LEATHER_HELMET.id ||
-		item.getTypeId()==Item.LEATHER_CHESTPLATE.id ||
-		item.getTypeId()==Item.LEATHER_LEGGINGS.id ||
-		item.getTypeId()==Item.LEATHER_BOOTS.id){
+		if(item.getType()==Material.LEATHER_HELMET ||
+		item.getType()==Material.LEATHER_CHESTPLATE ||
+		item.getType()==Material.LEATHER_LEGGINGS ||
+		item.getType()==Material.LEATHER_BOOTS){
 			
 			//int usecolor = Color.HSBtoRGB(RandomData.rgen.nextFloat(), RandomData.rgen.nextFloat()*0.5f+0.5f, 0.5f);
 			int usecolor = RandomColor();
@@ -1078,9 +1027,9 @@ public class RandomData {
 		//if lastelement starts with !D, format is:
 		//!D(10-50) which indicates the percentage durability range that the item can be generated with.
 		
-		//POTION:POISON,10,373,8194,0,1,0
-		
-		
+		//createitem = MakePotion(_Name0,(int)_DamageMin4,(int)_DamageMax5+1,_MinCount6);
+		//
+		//
 		_Name = splitresult[0]; //if Name doesn't start with "!", then no name will be set in the NBT Data.
 		_Weighting = Float.parseFloat(splitresult[1]);
 		_ItemID = Integer.parseInt(splitresult[2]);
@@ -1090,6 +1039,7 @@ public class RandomData {
 		_DamageMax = Float.parseFloat(splitresult[5]);
 		BCRandomizer.emitmessage("Damage Min set to " + _DamageMin + " from " + splitresult[3]);
 		BCRandomizer.emitmessage("Damage Max set to " + _DamageMax + " from " + splitresult[4]);
+		//System.out.println(_Name + " read in ");
 		_MinCount = Integer.parseInt(splitresult[6]);
 		_MaxCount = Integer.parseInt(splitresult[7]);
 		if(splitresult.length > 8)
@@ -1122,7 +1072,8 @@ public class RandomData {
 		
 		}
 		catch(Exception exx){
-			//BCRandomizer.emitmessage("Error in RandomData class...");
+			//System.out.println("Error in RandomData class..." + Initializer);
+			//exx.printStackTrace();
 			
 		}
 		

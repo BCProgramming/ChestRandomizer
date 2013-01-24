@@ -824,6 +824,7 @@ public class RandomizerCommand implements CommandExecutor {
 			ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix + 
 					ChatColor.GREEN + "Mob spawns will start in " +ChatColor.RED + + MobTimeout + ChatColor.GREEN + " seconds... try to conclude the match before that, they tend to make a mess.");
 		}
+		if(MobTimeout >0){
 		Bukkit.getScheduler().runTaskLater(_Owner, new Runnable() {
 			
 			public void run(){
@@ -836,6 +837,7 @@ public class RandomizerCommand implements CommandExecutor {
 			
 			
 		}, MobTimeout*20);
+		}
 		Thread thr = new Thread(rp);
 		thr.start();
 	}
@@ -953,7 +955,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 								casted, sourcefile);
 						populatedamount += cr.Shuffle();
 					} else {
-						System.out.println("Storing inventory for a chest");
+						//System.out.println("Storing inventory for a chest");
 						ChestRandomizer.StoreInventory(casted);
 
 					}

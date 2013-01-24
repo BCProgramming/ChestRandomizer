@@ -57,7 +57,7 @@ public class ResumePvP implements Runnable{
 		
 		long timediff = System.currentTimeMillis()-starttime;
 		long prevdiff = timediff;
-		System.out.println("timediff:" + timediff);
+		//System.out.println("timediff:" + timediff);
 		while((float)(timediff/1000)<(float)_SecondsDelay){
 			try {
 				
@@ -76,7 +76,7 @@ public class ResumePvP implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("timediff:" + timediff);
+			//System.out.println("timediff:" + timediff);
 			timediff = System.currentTimeMillis()-starttime;	
 		}
 		Bukkit.getScheduler().scheduleSyncDelayedTask(_bcr, new Runnable() {

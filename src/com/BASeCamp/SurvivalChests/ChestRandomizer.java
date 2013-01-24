@@ -1,8 +1,5 @@
 package com.BASeCamp.SurvivalChests;
 
-import net.minecraft.server.v1_4_R1.NBTBase;
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagFloat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -146,7 +143,9 @@ public class ChestRandomizer {
 	private static boolean HelmetFilter(RandomData testdata) {
 
 		// only return true for RandomData's that are head-equippable.
+		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
 		//System.out.println(m.toString());
 		return m.equals(Material.LEATHER_HELMET)
 				|| m.equals(Material.CHAINMAIL_HELMET)
@@ -160,7 +159,9 @@ public class ChestRandomizer {
 	private static boolean ChestplateFilter(RandomData testdata) {
 
 		// only return true for RandomData's that are chest-plate equippable.
+		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
 		//System.out.println(m.toString());
 		return m.equals(Material.LEATHER_CHESTPLATE)
 				|| m.equals(Material.CHAINMAIL_CHESTPLATE)
@@ -172,7 +173,9 @@ public class ChestRandomizer {
 
 	private static boolean LeggingsFilter(RandomData testdata) {
 
+		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
 		//System.out.println(m.toString());
 		return m.equals(Material.LEATHER_LEGGINGS)
 				|| m.equals(Material.CHAINMAIL_LEGGINGS)
@@ -183,8 +186,9 @@ public class ChestRandomizer {
 	}
 
 	private static boolean BootsFilter(RandomData testdata) {
-
+		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
 		//System.out.println(m.toString());
 		return m.equals(Material.LEATHER_BOOTS)
 				|| m.equals(Material.CHAINMAIL_BOOTS)
@@ -196,7 +200,9 @@ public class ChestRandomizer {
 
 	private static boolean WeaponsFilter(RandomData testdata) {
 
+		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
 		//System.out.println(m.toString());
 		return m.equals(Material.WOOD_SWORD) || m.equals(Material.IRON_SWORD)
 				|| m.equals(Material.GOLD_SWORD) || m.equals(Material.DIAMOND_SWORD)
@@ -394,11 +400,17 @@ public class ChestRandomizer {
 				if (lineread.startsWith("STATIC:")) {
 					lineread = lineread.substring(7);
 					RandomData staticdata = new RandomData(lineread);
-					addall.add(staticdata);
+					if(staticdata!=null)
+						addall.add(staticdata);
+					else
+						System.out.println("Error from line:" + lineread);
 				} else {
 
 					RandomData gendata = new RandomData(lineread);
-					randData.add(gendata);
+					if(gendata!=null)
+						randData.add(gendata);
+					else
+						System.out.println("Error from line" + lineread);
 					gendata.getEnchantmentInformation().preCache();
 				}
 			}
@@ -455,7 +467,7 @@ public class ChestRandomizer {
 	}
 
 	public static void StoreInventory(Chest cheststore) {
-		System.out.println("Storing inventory...");
+		//System.out.println("Storing inventory...");
 		ItemStack[] copythis = cheststore.getBlockInventory().getContents();
 		ItemStack[] copied = new ItemStack[copythis.length];
 		int itemcount = 0;

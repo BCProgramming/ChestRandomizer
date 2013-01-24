@@ -18,7 +18,7 @@ import java.util.TreeMap;
 import BASeCamp.Configuration.INIFile;
 import BASeCamp.Configuration.INISection;
 
-import net.minecraft.server.v1_4_R1.Path;
+
 //Special class for generating Item names.
 
 public class NameGenerator {

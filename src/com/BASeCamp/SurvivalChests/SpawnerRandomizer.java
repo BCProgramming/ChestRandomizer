@@ -208,7 +208,7 @@ public class SpawnerRandomizer {
 		}
 		// now, choose one.
 		SpawnerRandomData chosen = RandomData.Choose(choosefrom, weights);
-		chosen.Apply(modify);
+		//chosen.Apply(modify);
 	}
 
 	public void RandomizeSpawners(World w) {

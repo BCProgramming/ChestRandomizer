@@ -7,19 +7,15 @@ import java.util.List;
 
 
 
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagFloat;
-import net.minecraft.server.v1_4_R1.NBTTagList;
-import net.minecraft.server.v1_4_R1.TileEntity;
-import net.minecraft.server.v1_4_R1.TileEntityMobSpawner;
+
 import org.bukkit.block.Block;
 
 
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
+
 public class SpawnerRandomData {
 //analogous to the RandomData class, but for spawners.
 	
@@ -97,7 +93,7 @@ public class SpawnerRandomData {
 		
 		
 	}
-	
+	/*
 	public void Apply(CreatureSpawner applyTo){
 		
 		int useSpawnDelay = RandomData.rgen.nextInt(MaxSpawnDelay-MinSpawnDelay) + MinSpawnDelay;
@@ -261,7 +257,7 @@ CanPickUpLoot 1/0 t/f
 PersistenceRequired 0/1
 Invulnerable 1/0
 
-			     * */
+			     * 
 			    tems.a(c);
 			
 			  }
@@ -275,7 +271,7 @@ Invulnerable 1/0
 	
 	
 	
-	
+	*/
 	
 	
 	

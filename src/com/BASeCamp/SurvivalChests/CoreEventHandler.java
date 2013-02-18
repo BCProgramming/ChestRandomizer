@@ -1000,7 +1000,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 					return;
 
 				//
-
+				
 				if (edam.getDamager() instanceof Player) {
 					Player Attacker = (Player) edam.getDamager();
 
@@ -1015,7 +1015,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 					}
 					GameTracker gameorigin = _owner.isParticipant(damaged);
 					
-					if (gameorigin==null || !gameorigin.getStillAlive().contains(Attacker)) {
+					if (Attacker!=null && gameorigin==null || !gameorigin.getStillAlive().contains(Attacker)) {
 
 						System.out
 								.println(Attacker.getName()
@@ -1730,7 +1730,12 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 	
 		
 	}
-	
+	private String[] quitmessages = new String[] {
+			"%s gave up and quit.",
+			"%s Left the game."
+			
+			
+	};
 	
 	@EventHandler
 	public void onPlayerDisconnect(PlayerQuitEvent event) {
@@ -1740,12 +1745,16 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			_owner.Randomcommand.getjoinedplayers().remove(event.getPlayer());
 
 		}
-
+		
 		else if (_Trackers != null)
 			for (GameTracker Tracker : _Trackers) {
+				if(Tracker.getStillAlive().contains(event.getPlayer())){
 				BCRandomizer.clearPlayerInventory(event.getPlayer());
-
+				String usemessage = RandomData.Choose(quitmessages).replace("%s", event.getPlayer().getDisplayName());
+				event.setQuitMessage(usemessage);
 				Tracker.PlayerDeath(event.getPlayer(), null);
+				break;
+				}
 			}
 
 	}

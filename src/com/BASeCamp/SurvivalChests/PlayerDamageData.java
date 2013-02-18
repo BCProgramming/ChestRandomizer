@@ -83,7 +83,7 @@ public class PlayerDamageData {
 		//grab this list reference.
 		List<PlayerDamageEntry> grablist = _DamageData.get(source);
 		//add in this damage entry.
-		
+		grablist.add(new PlayerDamageEntry(source,amount));
 		
 		
 	}

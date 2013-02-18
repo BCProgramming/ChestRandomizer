@@ -368,6 +368,7 @@ public class BCRandomizer extends JavaPlugin {
 	public static NameGenerator NameGen=null;
 	public static void main(String[] args) {
 
+		/*
 		SpawnRandomizerConfig src = new SpawnRandomizerConfig(new File(
 				"D:\\testspawndata.xml"));
 		System.out.println(src.SpawnData.size());
@@ -377,7 +378,18 @@ public class BCRandomizer extends JavaPlugin {
 				+ " RandomData items...");
 		System.out.println(ChestRandomizer.getStaticData().size()
 				+ " Static Data items...");
-
+*/
+		ItemBucket<Integer> bucket = new ItemBucket<Integer>(ItemBucket.RepeatArray(new Integer[]{1, 2, 3,4,5,6,7,8,9,10},3,Integer.class));
+		
+		//choose 90 items.
+		for(int i=0;i<90;i++){
+			int gotvalue = bucket.Dispense().intValue();
+			System.out.print(i + ":" + gotvalue + ",");
+			
+			
+			
+		}
+		
 	}
 
 	public GameTracker getWorldGame(World testworld) {

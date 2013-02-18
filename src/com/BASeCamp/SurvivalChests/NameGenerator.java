@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import org.bukkit.ChatColor;
+
 import BASeCamp.Configuration.INIFile;
 import BASeCamp.Configuration.INISection;
 
@@ -191,7 +193,7 @@ public class NameGenerator {
 		"preparing","presenting","preserving","pressing","pretending","preventing","pricking","printing",
 		"producing","programming","promising","protecting","providing","pulling","pumping","punching","puncturing",
 		"punishing","pushing","questioning","queuing","racing","radiating","raining","raising","reaching","realising",
-		"receiving","recognising","recording","reducing","reflecting","refusing","regreting","reigning","rejecting","rejoicing","relaxing","releasing","relying","remaining","remembering","reminding","removing","repairing","repeating","replacing","replying","reporting","reproducing","requesting","rescuing","retiring","returning","rhyming","rinsing","risking","robing","rocking","rolling","roting","rubing","ruining","ruling","rushing","sacking","sailing","satisfying","saving","sawing","scaring","scattering","scolding","scorching","scrapping","scratching","screaming","screwing","scribbling","scrubing","sealing","searching","separating","serving","settling","shading","sharing","shaving","sheltering","shivering","shocking","shopping","shruging","sighing","signing","signaling","sining","sipping","skiing","skipping","slapping","slipping","slowing","smashing","smelling","smiling","smoking","snatching","sneezing","sniffing","snoring","snowing","soaking","soothing","sounding","sparing","sparking","sparkling","spelling","spilling","spoiling","spoting","spraying","sprouting","squashing","squeaking","squealing","squeezing","staining","stampping","staring","starting","staying","steering","stepping","stiring","stitching","stopping","storing","strapping","strengthening","stretching","stripping","stroking","stuffing","subtracting","succeeding","sucking","suffering","suggesting","suiting","supplying","supporting","supposing","surprising","surrounding","suspecting","suspending","switching","talking","taming","tapping","tasting","teasing","telephoning","tempting","terrifying","testing","thanking","thawing","ticking","tickling","tiing","timing","tipping","tiring","touching","touring","towing","tracing","trading","training","transporting","trapping","traveling","treating","trembling","tricking","tripping","troting","troubling","trusting","trying","tuging","tumbling","turning","twisting","typing","undressing","unfastening","uniting","unlocking","unpacking","untidying","using","vanishing","visiting","wailing","waiting","walking","wandering","wanting","warming","warning","washing","wasting","watching","watering","waving","weighing","welcoming","whining","whipping","whirling","whispering","whistling","winking","wiping","wishing","wobbling","wondering","working","worrying","wrapping","wrecking","wrestling","wriggling","x-raying","yawning","yelling","zipping","zooming"));
+		"receiving","recognising","recording","reducing","reflecting","refusing","regretting","reigning","rejecting","rejoicing","relaxing","releasing","relying","remaining","remembering","reminding","removing","repairing","repeating","replacing","replying","reporting","reproducing","requesting","rescuing","retiring","returning","rhyming","rinsing","risking","robing","rocking","rolling","roting","rubing","ruining","ruling","rushing","sacking","sailing","satisfying","saving","sawing","scaring","scattering","scolding","scorching","scrapping","scratching","screaming","screwing","scribbling","scrubing","sealing","searching","separating","serving","settling","shading","sharing","shaving","sheltering","shivering","shocking","shopping","shruging","sighing","signing","signaling","sining","sipping","skiing","skipping","slapping","slipping","slowing","smashing","smelling","smiling","smoking","snatching","sneezing","sniffing","snoring","snowing","soaking","soothing","sounding","sparing","sparking","sparkling","spelling","spilling","spoiling","spoting","spraying","sprouting","squashing","squeaking","squealing","squeezing","staining","stampping","staring","starting","staying","steering","stepping","stiring","stitching","stopping","storing","strapping","strengthening","stretching","stripping","stroking","stuffing","subtracting","succeeding","sucking","suffering","suggesting","suiting","supplying","supporting","supposing","surprising","surrounding","suspecting","suspending","switching","talking","taming","tapping","tasting","teasing","telephoning","tempting","terrifying","testing","thanking","thawing","ticking","tickling","tiing","timing","tipping","tiring","touching","touring","towing","tracing","trading","training","transporting","trapping","traveling","treating","trembling","tricking","tripping","troting","troubling","trusting","trying","tuging","tumbling","turning","twisting","typing","undressing","unfastening","uniting","unlocking","unpacking","untidying","using","vanishing","visiting","wailing","waiting","walking","wandering","wanting","warming","warning","washing","wasting","watching","watering","waving","weighing","welcoming","whining","whipping","whirling","whispering","whistling","winking","wiping","wishing","wobbling","wondering","working","worrying","wrapping","wrecking","wrestling","wriggling","x-raying","yawning","yelling","zipping","zooming"));
 	
 	 List<String> Adjectives = new LinkedList<String>(Arrays.asList(
 	"aback","abaft","abandoned","abashed","aberrant","abhorrent","abiding","abject","ablaze","able","abnormal","aboard","aboriginal",
@@ -245,7 +247,7 @@ public class NameGenerator {
 	     "Hot","Cold","Blazing","Burning","Freezing","Extreme","oversized","rotund","particular","mean","zistonian",
 		"Canadian","american","british","Hispanic","Jewish","Irish","Scottish","Incredible","Ordinary",
 		"asgard","ancient","dwarven",
-		"Ethiopian","martian","turkish","vegatative"));
+		"Ethiopian","martian","turkish","vegetative","Holy","Orcish"));
 	
 	
 	
@@ -417,10 +419,36 @@ public class NameGenerator {
 		return duplicated;
 		
 	}
+	private ChatColor[] chooseColors = new ChatColor[] {ChatColor.AQUA,ChatColor.BLUE,ChatColor.DARK_AQUA,
+			ChatColor.DARK_BLUE,ChatColor.DARK_GRAY,ChatColor.DARK_GREEN,ChatColor.DARK_PURPLE,
+			ChatColor.DARK_RED,ChatColor.GOLD,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.YELLOW};
+	
+	private ChatColor[] chooseEffects = new ChatColor[] {ChatColor.ITALIC,ChatColor.BOLD,ChatColor.UNDERLINE};
+	
+	private String ChooseRandomChat(){
+		
+		
+		//choose a random color.
+		String returnString = RandomData.Choose(chooseColors).toString();
+		//choose one or two effects.
+		int numeffects = RandomData.rgen.nextBoolean()?1:2;
+		for(int i=0;i<numeffects;i++){
+			ChatColor choseneffect = RandomData.Choose(chooseEffects);
+			returnString = returnString + choseneffect.toString();
+			
+			
+			
+		}
+		return returnString;
+		
+		
+		
+	}
 	public String GenerateLore() {
 		
 		String[] ChancePrefix = new String[] {
-				"Could","Might","Unlikely to","able to","may adeptly","may sadly","may happily","may"};
+				"Could","Might","Unlikely to","able to","may adeptly","may sadly","may happily","may", "will", "wants to",
+				"May force the"};
 		String[] conjunctionp = new String[] {
 		"incur","cause","destroy","tickle","beat","defeat","suffer","argue"};
 		String[] randommiddle = new String[] {
@@ -435,7 +463,9 @@ public class NameGenerator {
 		buildstr.append(RandomData.ChooseString(Verbs) + " ");
 		buildstr.append(RandomData.ChooseString(Nouns) + " ");
 		
-				return "§r§5" + buildstr.toString();
+		//select a random chat color, and put it in with new lines.
+		String loreeffect = ChooseRandomChat();
+				return loreeffect + buildstr.toString().replace(System.getProperty("\n"),loreeffect + "\n");
 		
 				
 		
@@ -454,7 +484,7 @@ public class NameGenerator {
 		BaseNames.toArray(bname);
 		Adjectives.toArray(adj);
 		Verbs.toArray(verb);
-		return GenerateName(bname,adj,verb);
+		return ChooseRandomChat() + GenerateName(bname,adj,verb);
 		
 		
 	}

@@ -293,17 +293,15 @@ public class RandomizerCommand implements CommandExecutor {
 			// prepare game for the issuing players world.
 			// unless a world is specified, that is.
 			playingWorld = null;
-			if (arg3.length == 1) {
-				for (World w : Bukkit.getWorlds()) {
+			if (arg3.length >= 1) {
+				if((Bukkit.getWorld(arg3[0])!=null))
+						{
+							playingWorld=Bukkit.getWorld(arg3[0]);
+							_SpawnSpot=playingWorld.getSpawnLocation();
+						}
+						
+						
 
-					if (w.getName().equalsIgnoreCase(arg3[0])) {
-						// world found.
-						playingWorld = w;
-						_SpawnSpot = playingWorld.getSpawnLocation();
-						break;
-					}
-
-				}
 
 			} else if (p != null) {
 				playingWorld = p.getWorld();
@@ -311,8 +309,28 @@ public class RandomizerCommand implements CommandExecutor {
 				playingWorld.setSpawnLocation((int) _SpawnSpot.getX(),
 						(int) _SpawnSpot.getY(), (int) _SpawnSpot.getZ());
 			}
-
-			prepareGame(playingWorld);
+			int numseconds=0; //number of seconds will be passed to PrepareGame.
+			if(arg3.length>=2){
+				//check for number of seconds...
+				
+				try {
+					numseconds = Integer.parseInt(arg3[1]);
+				
+				}
+				catch(NumberFormatException nfe){
+					numseconds=0;
+				}
+				
+				
+			}
+			int preparetime = 0;
+			if(arg3.length>=3){
+				try {preparetime = Integer.parseInt(arg3[2]);}catch(NumberFormatException nfe){preparetime=0;}}
+			
+				
+			
+			
+			prepareGame(playingWorld,numseconds,preparetime);
 		} else if (arg2.equalsIgnoreCase("joingame")) {
 			if (!accepting) {
 
@@ -660,8 +678,8 @@ public class RandomizerCommand implements CommandExecutor {
 		return retval;
 	}
 
-	private void prepareGame(World inWorld) {
-
+	private void prepareGame(World inWorld,int delaystart,final int prepatorydelay) {
+		
 		PrepareGameEvent pge = new PrepareGameEvent();
 		Bukkit.getPluginManager().callEvent(pge);
 		if (pge.getCancelled()) {
@@ -699,6 +717,24 @@ public class RandomizerCommand implements CommandExecutor {
 								+ ChatColor.YELLOW
 								+ " use /joingame to participate before the game starts.");
 			}
+			if(delaystart >0){
+				
+				px.sendMessage(BCRandomizer.Prefix + "ChatColor.YELLOW" + "Game will start in " + delaystart + " seconds.");
+				
+				
+			}
+		}
+		if(delaystart > 0){
+			Bukkit.getScheduler().runTaskLater(_Owner, new Runnable() {
+				public void run(){
+					StartGame(playingWorld,prepatorydelay,MobArenaMode);
+					
+				}
+				
+				
+			}, delaystart);
+			
+			
 		}
 
 	}
@@ -712,8 +748,13 @@ public class RandomizerCommand implements CommandExecutor {
 	private ResumePvP rp = null;
 	Location BorderA = null;
 	Location BorderB = null;
-
-	private void StartGame(Player p, int numseconds, boolean MobArena) {
+	private void StartGame(Player p,int numseconds,boolean MobArena){
+		StartGame(p,null,numseconds,MobArena);
+	}
+	private void StartGame(World w,int numseconds,boolean MobArena){
+		StartGame(null,w,numseconds,MobArena);
+	}
+	private void StartGame(Player p,World w, int numseconds, boolean MobArena) {
 		accepting = false;
 		if (joinedplayers.size() == 0) {
 			if (p != null)
@@ -743,12 +784,12 @@ public class RandomizerCommand implements CommandExecutor {
 
 		String ignoreplayer = null;
 
-		final World grabworld = p.getWorld();
+		final World grabworld = (w==null?(p!=null?p.getWorld():playingWorld):w);
 
 		if (_Owner.Randomcommand.MobArenaMode)
 			numseconds = 0;
 
-		rp = new ResumePvP(_Owner, p.getWorld(), numseconds, joinedplayers,
+		rp = new ResumePvP(_Owner, grabworld, numseconds, joinedplayers,
 				spectating);
 
 		GameStartEvent eventobj = new GameStartEvent(joinedplayers, spectating,

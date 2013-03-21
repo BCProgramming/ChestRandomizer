@@ -36,7 +36,12 @@ public final class ItemNamer {
     	
     	
     }
+    
    public static ItemStack renameItem(ItemStack renameit,String Name,String[] Lore){
+	   
+	   
+	   
+	   
 	   
 	   ArrayList<String> createlist = new ArrayList<String>(); 
 	   if(Lore!=null){

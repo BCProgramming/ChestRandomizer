@@ -249,8 +249,10 @@ public class CoreEventHandler implements Listener {
 		
 		
 		
-	
-	private static String getEntityDescription(LivingEntity entityfor,boolean useentitycolor){
+	public static String getEntityDescription(LivingEntity entityfor,boolean useentitycolor){
+		return getEntityDescription(entityfor,useentitycolor,true);
+	}
+	public static String getEntityDescription(LivingEntity entityfor,boolean useentitycolor,boolean usesimple){
 		
 		//retrieves a description; instead of Skeleton, for example, if the skeleton is a Wither skeleton, it returns Wither Skeleton;
 		//if it has armour, it will be a "armoured Skeleton" if a Charged Creeper, it will be described thus, etcetera.
@@ -393,7 +395,7 @@ public class CoreEventHandler implements Listener {
 
 		
 		}
-		
+		if(usesimple) useprefix="";
 		return (useprefix.trim() +  " " + BuildDescription.trim() + " " + postfix.trim()).replace("  ", " ");
 		
 		

@@ -26,8 +26,9 @@ import BASeCamp.Configuration.INISection;
 public class NameGenerator {
 
 	public List<String> MobNames = new LinkedList<String>(Arrays.asList(
-	"Timmy","Bobby","Wally","Peter","Chris","Chuck","Ralph"	
-	));
+	"Timmy","Bobby","Wally","Peter","Chris","Chuck","Ralph","Paul","Richard","Ted","Shawn","Sean",
+	"Will","Willard","Daphne","Kelsey","Mitchell","Milton","Millbee","Hugo","Quinton","Quincy","Z'ul",
+	"Bradley","Vlad","Vestilu","Biff","Marty","Rupert"));
 	public List<String> MobTitles = new LinkedList<String>(Arrays.asList("Vindicating","Bad","Terrible","Evil","Cursed","Unkind","Impolite","Curt",
 		"Trite"));
 	
@@ -261,6 +262,8 @@ public class NameGenerator {
 			// TODO Auto-generated constructor stub
 		_Owner = bcRandomizer;
 		readData();
+	
+		
 		}
 	
 	private void readData(){
@@ -351,15 +354,28 @@ public class NameGenerator {
 	}
 	
 	public String RandomMobName(String mobType){
-		
+		//MobNames of MobTitles 
+		//or MobNames of Adjective Noun
 		StringBuffer sb = new StringBuffer();
-		sb.append(RandomData.ChooseString(MobNames));
-		sb.append(" the " + RandomData.ChooseString(MobTitles));
-		if(mobType!=null && !mobType.equals("")){
-			sb.append(mobType);
-			
+		if(mobType.length()>0) sb.append(mobType);
+		if(RandomData.rgen.nextBoolean()){
+			//MobNames of MobTitles
+			sb.append(RandomData.ChooseString(MobNames));
+			sb.append(" of ");
+			sb.append(RandomData.ChooseString(MobTitles));
 			
 		}
+		else
+		{
+			sb.append(RandomData.ChooseString(MobNames));
+			sb.append(" of ");
+			sb.append(RandomData.ChooseString(Adjectives));
+			sb.append(" ");
+			sb.append(RandomData.ChooseString(Nouns));
+			
+		}
+		
+
 		return sb.toString();
 		
 		

@@ -25,7 +25,7 @@ public class ResumePvP implements Runnable{
 	World useWorld = null;
 	private GameTracker usetracker;
 	public GameTracker getTracker() { return usetracker;}
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds, List<Player> ActivePlayers,List<Player> Spectators){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds,List<Player> ActivePlayers,List<Player> Spectators){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();

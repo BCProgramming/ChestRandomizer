@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
 
 
@@ -23,9 +24,15 @@ import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.FireworkEffect.Type;
 
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.Furnace;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CreatureType;
@@ -34,12 +41,82 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class GameTracker implements Runnable {
+
+	private final class ChestPopulator implements Runnable {
+		private final InventoryCloseEvent closured;
+
+		private ChestPopulator(InventoryCloseEvent closured) {
+			this.closured = closured;
+		}
+
+		//repopulate the inventory.	
+		public void run()
+		{
+			
+			if(closured.getPlayer() instanceof Player)
+			{
+			Player p = (Player)closured.getPlayer();
+			p.sendMessage("repopulating chest you opened...");
+			}
+			ChestRandomizer rr = new ChestRandomizer(_Owner,closured.getInventory(),"");
+			InventoryHolder ih = closured.getInventory().getHolder();
+			BlockState bs=null;
+			if(ih instanceof Chest ||
+					ih instanceof Dispenser ||
+					ih instanceof Furnace || ih instanceof DoubleChest)
+			bs = (BlockState)ih;
+			
+			if(bs!=null && !_Owner.Randomcommand.hasBlockBeneath(bs.getBlock(),Material.WOOL))
+			{
+				Location sl = bs.getLocation();
+				//special condition:
+				//we do NOT repopulate if there is a player within 16 blocks.
+				Player closest = BCRandomizer.getNearestPlayer(bs.getLocation());
+				//if distance is less than 16, we want to reschedule...
+				int sizelimit = _Owner.Configuration.getRepopPreventionRadius();
+				if(bs.getLocation().distance(closest.getLocation()) < sizelimit)
+				{
+				Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured), _ChestTimeout);
+				spawnrepopulationparticles(sl,true);
+				return;
+				}
+				
+				rr.setMaxItems(closured.getInventory().getSize());
+				rr.Shuffle();
+				//get the block location and spawn some particles, too.
+				
+				
+				spawnrepopulationparticles(sl,false);
+				
+				
+				
+				
+			}
+			
+			
+			
+			
+			/*
+			 * if (!hasBlockBeneath(iteratestate.getBlock(), Material.WOOL)) {
+				allchests.add(casted);
+				ChestRandomizer cr = new ChestRandomizer(_Owner,
+						casted, sourcefile);
+				populatedamount += cr.Shuffle();
+			}*/
+			
+		}
+	}
 
 	private World runningWorld = null;
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
@@ -53,6 +130,7 @@ public class GameTracker implements Runnable {
 	private HashMap<Integer, Player> FinishPositions = new HashMap<Integer, Player>();
 	BCRandomizer _Owner = null;
 	public static CoreEventHandler deathwatcher = null;
+	private int _ChestTimeout = 45*20; //45 seconds. gameticks...
 	private boolean _MobArenaMode = false; // MobArena Mode is when PvP is
 											// disabled completely.
 	public World getWorld() { return runningWorld;}
@@ -71,6 +149,132 @@ public class GameTracker implements Runnable {
 	private HashMap<Player,Integer> nextScoreLevel = new HashMap<Player,Integer>();
 	
 		
+	private HashMap<InventoryHolder,InventoryAccessInfo> lastInventoryAccess = new HashMap<InventoryHolder,InventoryAccessInfo>();
+	
+	//called to cancel all pending repopulations.
+	public void CancelRepopulations()
+	{
+		for(InventoryAccessInfo iai:lastInventoryAccess.values())
+		{
+			Bukkit.getScheduler().cancelTask(iai.getBukkitTask());
+			
+			
+		}
+		
+	}
+	
+	public void onInventoryOpen(InventoryOpenEvent event)
+	{
+		System.out.println("GameTracker:onInventoryOpen");
+		//if an item exists, cancel the task and set it to 0.
+		//when the inventory is closed the task will be restarted.
+		InventoryAccessInfo iai =null;
+		InventoryHolder ih = event.getInventory().getHolder();
+		if(lastInventoryAccess.containsKey(event.getInventory().getHolder())){
+		iai = lastInventoryAccess.get(event.getInventory().getHolder());
+		}
+		else
+		{
+			iai = new InventoryAccessInfo();
+			iai.setInventory(event.getInventory());
+			lastInventoryAccess.put(event.getInventory().getHolder(), iai);
+		}
+		if(iai.getBukkitTask()!=0)
+		{
+			Bukkit.getScheduler().cancelTask(iai.getBukkitTask());
+			iai.setBukkitTask(0);
+			
+		}
+		
+		//either way, register a view.
+		//tell them who looked at it last, too.
+		if(event.getPlayer() instanceof Player)
+		{
+			if(iai.cachedPlayers.size() >0)
+			{
+				Player lastviewer = iai.cachedPlayers.getLast();
+				((Player)event.getPlayer()).sendMessage(BCRandomizer.Prefix + " Last viewed by:" + lastviewer.getDisplayName());
+				
+				
+			}
+			
+			
+			iai.PlayerView((Player)(event.getPlayer()));
+		}
+		
+	}
+	private void spawnrepopulationparticles(Location sl,boolean showfailed)
+	{
+		Sound usesound = showfailed?Sound.ANVIL_BREAK:Sound.ENDERMAN_TELEPORT;
+		
+		sl.getWorld().playSound(sl, Sound.ENDERMAN_TELEPORT, 10,1);
+		for(int i=0;i<25;i++)
+		{
+			//choose random location within the block.
+			double offsetX = RandomData.rgen.nextDouble();
+			double offsetY = RandomData.rgen.nextDouble();
+			double offsetZ = RandomData.rgen.nextDouble();
+			int randomdir = RandomData.rgen.nextInt(9);
+			int useradius = 128;
+			Location effectlocation = new Location(sl.getWorld(), sl.getX()+offsetX,sl.getY()+offsetY,sl.getZ()+offsetZ);
+			Effect succeedeffect = RandomData.rgen.nextBoolean()?Effect.SMOKE:Effect.MOBSPAWNER_FLAMES;
+			Effect faileffect = RandomData.rgen.nextBoolean()?Effect.POTION_BREAK:Effect.BOW_FIRE;
+			Effect useeffect = showfailed?faileffect:succeedeffect; 
+			sl.getWorld().playEffect(effectlocation,useeffect,randomdir,useradius);
+			
+			
+			
+			
+			
+		}
+		
+		
+	}
+	
+	public void onInventoryClose(InventoryCloseEvent event)
+	{
+		System.out.println("GameTracker:onInventoryClose");
+		//when an inventory is closed:
+		final InventoryCloseEvent closured = event;
+		InventoryHolder ih = event.getInventory().getHolder();
+		//if the interval amount is 0, assume we don't repopulate.
+		if(_ChestTimeout==0) return;
+		System.out.println("ChestTimeout=" + _ChestTimeout);
+		InventoryAccessInfo iai = null;
+		if(!lastInventoryAccess.containsKey(ih))
+		{
+		iai = new InventoryAccessInfo();
+		iai.setInventory(event.getInventory());
+		lastInventoryAccess.put(ih,iai);	
+		}
+		else
+		{
+			iai=lastInventoryAccess.get(ih);
+		}
+		
+			if(iai.getBukkitTask()!=0)
+			{
+				//cancel.
+				System.out.println("Cancelling existing task ID=" + iai.getBukkitTask());
+				Bukkit.getScheduler().cancelTask(iai.getBukkitTask());
+				
+			}
+			Bukkit.getLogger().log(Level.INFO, "scheduling inventory repopulation for " + _ChestTimeout);
+			//send a message to the player.
+			
+			//schedule new task.
+			Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured), _ChestTimeout);
+			
+			
+		
+		
+	
+		
+		
+		
+	}
+	
+	
 	public int getNextLevel(Player p) {
 		
 		if(nextScoreLevel.containsKey(p)){
@@ -99,6 +303,9 @@ public class GameTracker implements Runnable {
 	public GameTracker(BCRandomizer Owner, World applicableWorld,
 			List<Player> Participants, List<Player> spectators, boolean MobArena) {
 		// initialize StillAlive List.
+		
+		_ChestTimeout = Owner.Randomcommand.getChestTimeout();
+		
 		if (deathwatcher == null) {
 			deathwatcher = new CoreEventHandler(Owner, this, applicableWorld);
 			Owner.getServer().getPluginManager().registerEvents(deathwatcher,
@@ -217,6 +424,7 @@ public class GameTracker implements Runnable {
 
 		synchronized (StillAlive) { // synch on StillAlive List.
 			if (StillAlive.size() == 0) {
+				CancelRepopulations();
 				// Bukkit.broadcastMessage("All players participating died.");
 				if (_MobArenaMode) {
 
@@ -364,13 +572,17 @@ public class GameTracker implements Runnable {
 	private int BossSpawnDelay = 0;
 	public boolean gamecomplete = false;
 	private boolean gavecompasses = false;
-
+	//private int ChestTimeout = 0; //number of seconds to delay.
+	
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		gavecompasses=false;
 		int delayresetmidnight = 0;
-
+		
+		
+		
 		while (!gamecomplete) {
 
 			try {
@@ -452,7 +664,7 @@ public class GameTracker implements Runnable {
 				Thread.sleep(500); // sleep, so as to prevent being CPU
 									// intensive.
 				// compasses don't need to be super accurate anyway.
-
+				
 			} catch (InterruptedException ex) {
 
 			}
@@ -496,7 +708,7 @@ public class GameTracker implements Runnable {
 	
 	
 	
-	@SuppressWarnings("deprecation")
+	
 	private void ForceNearbySpawn(Player pa) {
 		// TODO Auto-generated method stub
 		Location CenterPoint = pa.getLocation();
@@ -556,8 +768,12 @@ public class GameTracker implements Runnable {
 			runningWorld = StillAlive.getFirst().getWorld();
 		if (!_MobArenaMode) {
 
+			
+			
+			
 			Bukkit.broadcastMessage(ChatColor.RED + "PvP Enabled in World + "
 					+ runningWorld.getName());
+			
 			for (Player iterate : StillAlive) {
 				int numactive = 0;
 				runningWorld.setPVP(true);
@@ -576,8 +792,17 @@ public class GameTracker implements Runnable {
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(
 							PotionEffectType.BLINDNESS, 500, 1));
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
-					iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
-					iterate.sendMessage(ChatColor.BOLD.toString()
+					
+					if(_ChestTimeout>0)
+					{
+					iterate.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Chests will repopulate " + String.valueOf((this._ChestTimeout/20)) + " seconds after last use.");
+					}
+					else
+					{
+						iterate.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Chests will NOT repopulate for this match.");
+					}
+					iterate.sendMessage(BCRandomizer.Prefix +  ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry...");
+					iterate.sendMessage(BCRandomizer.Prefix + ChatColor.BOLD.toString()
 							+ ChatColor.LIGHT_PURPLE
 							+ "You have been temporarily blinded!");
 					
@@ -623,6 +848,14 @@ public class GameTracker implements Runnable {
 			_Owner.ExtinguishFlames(runningWorld);
 			
 			for (Player iterate : StillAlive) {
+				if(_ChestTimeout>0)
+				{
+				iterate.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Chests will repopulate " + String.valueOf((this._ChestTimeout/20)) + " seconds after last use.");
+				}
+				else
+				{
+					iterate.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Chests will NOT repopulate for this match.");
+				}
 			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
 			//iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.SPEED,600,10));
 			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry. Find some milk!");

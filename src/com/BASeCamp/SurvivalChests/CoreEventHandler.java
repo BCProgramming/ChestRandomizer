@@ -63,6 +63,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -333,6 +335,11 @@ public class CoreEventHandler implements Listener {
 		BuildDescription = "Ghast";
 		tcolor = ChatColor.WHITE;
 			
+		}
+		else if(entityfor.getType().equals(EntityType.WITCH))
+		{
+			BuildDescription = "Witch";
+			tcolor = ChatColor.BOLD;
 		}
 		else{
 			
@@ -629,6 +636,50 @@ public class CoreEventHandler implements Listener {
 		}
 	}
 
+	//inventory repopulation timeout logic.
+	
+	
+	
+	@EventHandler
+	public void onInventoryOpen(InventoryOpenEvent event)
+	{
+		System.out.println("onInventoryOpen");
+		if(event.getPlayer() instanceof Player)
+		{
+			System.out.println("instance of player.");
+			Player p = (Player)event.getPlayer();
+			//get the game for the player.
+			GameTracker gt = _owner.getPlayerGame(p);
+			if(gt!=null)
+			{
+				gt.onInventoryOpen(event);
+			}
+			else
+			{
+				System.out.println("getPlayerGame()" + " returned null for player " + p.getName());
+			}
+		
+		}
+	}
+	
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent event)
+	{
+		System.out.println("onInventoryClose");
+		if(event.getPlayer() instanceof Player)
+		{
+			System.out.println("instance of player.");
+			Player p = (Player)event.getPlayer();
+			//get the game for the player.
+			GameTracker gt = _owner.getPlayerGame(p);
+			if(gt!=null)
+				gt.onInventoryClose(event);
+		
+		}
+		
+		
+		
+	}
 	private int NextWithers = 0;
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event){

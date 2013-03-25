@@ -26,12 +26,6 @@ commands:
         description: set's second border corner.
       clearborders:
         description: clears any set borders.
-      saveborder:
-        description: saves the currently set border for the current world.
-      loadborder:
-        description: loads the currently saved border for the current world.
-      repoptimeout:
-        description: sets or views the current chest repopulation timeout, in seconds.
       mobtimeout:
         description: sets the timeout after a PvP match in which the mob arena spawn logic will kick in.
       mobsweeper:

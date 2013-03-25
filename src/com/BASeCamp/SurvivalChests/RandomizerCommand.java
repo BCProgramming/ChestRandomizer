@@ -1,5 +1,10 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +23,8 @@ import org.bukkit.entity.StorageMinecart;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 //import org.fusesource.jansi.Ansi.Color;
+
+import BASeCamp.Configuration.INIFile;
 
 import com.BASeCamp.SurvivalChests.*;
 
@@ -44,9 +51,16 @@ public class RandomizerCommand implements CommandExecutor {
 	// game.
 	private boolean accepting = false;
 	private boolean MobArenaMode = false;
+	private int ChestTimeout=0;
+	
+	
+	
 	private Location _SpawnSpot = null;
 	private int MobTimeout = 0; //0 means no mobtimeout at all. any other value is a number of seconds
 	//before Mob spawning will be force-enabled.
+	
+	public int getChestTimeout() { return ChestTimeout;}
+	public void setChestTimeout(int value) { ChestTimeout = value;}
 	
 	public boolean getaccepting() {
 		return accepting;
@@ -134,6 +148,58 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		
 	}
+	private void saveborder(World w)
+	{
+		String borderfile = BCRandomizer.pluginMainDir + File.separatorChar + w.getName() + ".border";
+		File bfile = new File(borderfile);
+		try {
+		FileWriter fw = new FileWriter(bfile);
+		fw.write(BorderA.getBlockX());
+		fw.write(BorderA.getBlockY());
+		fw.write(BorderA.getBlockZ());
+			
+		fw.write(BorderB.getBlockX());
+		fw.write(BorderB.getBlockY());
+		fw.write(BorderB.getBlockZ());
+		
+		fw.close();
+		}
+		catch(IOException iox)
+		{
+		
+		}
+	}
+	private void loadborder(World w)
+	{
+		
+		//look for <worldname.border> in plugin folder.
+		String borderfile = BCRandomizer.pluginMainDir + File.separatorChar + w.getName() + ".border";
+		File bfile = new File(borderfile);
+		if(bfile.exists()){
+			try {
+			FileReader fr = new FileReader(bfile);
+			
+			//read a few ints... 6, 3 for each border.
+			int ax,ay,az;
+			ax = fr.read();
+			ay = fr.read();
+			az = fr.read();
+			int bx,by,bz;
+			bx = fr.read();
+			by = fr.read();
+			bz = fr.read();
+			fr.close();
+			BorderA = new Location(w,ax,ay,az);
+			BorderB = new Location(w,bx,by,bz);
+			
+			
+			
+			}
+			catch(IOException iox){}
+			
+			
+		}
+	}
 	@Override
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2,
 			String[] arg3) {
@@ -195,6 +261,33 @@ public class RandomizerCommand implements CommandExecutor {
 			SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 			sr.RandomizeSpawners(p.getWorld());
 		}
+		else if(arg2.equalsIgnoreCase("repoptimeout"))
+		{
+			////if no arguments given, show current.
+			if(arg3.length <1)
+			{
+				String usemessage = 
+						BCRandomizer.Prefix + "repoptimeout is currently set to " + String.valueOf(this.ChestTimeout/20) + " seconds.";
+				
+				if(p==null) System.out.println(usemessage); else p.sendMessage(usemessage);
+				
+			}
+			else {
+				String usemessage = "";
+				try {
+					ChestTimeout = Integer.parseInt(arg3[0])*20;
+					usemessage = BCRandomizer.Prefix + "repoptimeout set to " + String.valueOf(ChestTimeout/20) + " seconds.";
+					
+				}
+				catch(NumberFormatException nfe)
+				{
+					usemessage = BCRandomizer.Prefix + " Invalid Input. repoptimeout must be a number.";
+				}
+				if(p==null) System.out.println(usemessage); else p.sendMessage(usemessage);	
+			}
+			
+			
+		}
 		else if(arg2.equalsIgnoreCase("mobtimeout")){
 			
 			if(arg3.length < 1)
@@ -239,7 +332,12 @@ public class RandomizerCommand implements CommandExecutor {
 			
 			}
 			
-		
+		}else if(arg2.equalsIgnoreCase("saveborder"))
+		{
+			saveborder(p.getWorld());
+		}
+		else if(arg2.equalsIgnoreCase("loadborder")){
+			loadborder(p.getWorld());
 		} else if (arg2.equalsIgnoreCase("arenaborder1")) {
 
 			BorderA = p.getLocation();
@@ -934,12 +1032,12 @@ private void ShufflePlayers(List<Player> shufflethese){
 	}
 	
 	
-	private void repopulateChests(String Source, World w) {
+	public void repopulateChests(String Source, World w) {
 
 		repopulateChests(Source, w, false);
 	}
 
-	private boolean hasBlockBeneath(Block testblock, Material testmaterial) {
+	public boolean hasBlockBeneath(Block testblock, Material testmaterial) {
 
 		Location spotbelow = new Location(testblock.getWorld(), testblock
 				.getX(), testblock.getY() - 1, testblock.getZ());
@@ -948,7 +1046,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 
 	}
 
-	private void repopulateChests(final String Source, final World w,
+	public void repopulateChests(final String Source, final World w,
 			final boolean silent) {
 
 		int populatedamount = 0;
@@ -996,6 +1094,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 					
 					
 				}
+				
 				if (iteratestate instanceof Chest) {
 					Chest casted = (Chest) iteratestate;
 					// randomize!

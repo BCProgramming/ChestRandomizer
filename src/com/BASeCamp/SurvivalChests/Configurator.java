@@ -46,6 +46,15 @@ public class Configurator {
 		return _Settings.getValue("blocks", "containerpacked", "CLAY").getValue();
 		
 	}
+	public int getRepopPreventionRadius()
+	{
+		try {
+		String getval = _Settings.getValue("repopulation", "preventionradius", "4").getValue();
+		return Integer.parseInt(getval);
+		}
+		catch(Exception exx) {return 4;}
+		
+	}
 	public String getButtonBlockName() {
 		
 		return _Settings.getValue("blocks","buttonblock","GOLD").getValue();

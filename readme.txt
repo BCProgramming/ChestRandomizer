@@ -23,6 +23,7 @@ available commands are repopchests, preparegame, startgame,joingame,spectategame
 -mobmode toggles whether a game that is prepared will be a mob arena game or a standard PvP arena game.
 -mobtimeout is used for PvP matches. provided with an argument, it specifies the number of seconds before the mob spawning algorithm will be re-enabled. The mob spawns will be the same as those you would find in the Mob Arena Mode, but currently the caps and spawnrate are not changed.
 -mobsweeper so-named since it is designed to "sweep out" players that are camping. Force-enables the Mob spawning algorithm described above.
+-repoptimeout sets the timeout value for opened chests.
 [/list]
 
 Game Tracking Specifics:
@@ -143,6 +144,21 @@ The actual "game" play has two modes. The standard Player Versus Player combat m
 When a game starts, players are given a long lasting "HUNGER" Effect, which lasts 18 minutes. This is something that needs to be closely monitored. If arena borders are set, Players are randomly distributed throughout the Arena, placing them on the highest solid block at the given location, so (ideally) tall structures should have some way down. This can also be used for "bonus" chests that lucky players might find, involving platforms above the main arena containing treasure. (placed on Wool blocks, of course). etc.
 
 Another mode of Play pits players against each other, but with PvP off. "How does that work?" you ask? Well, the players fight not each other, but hordes of heavily armoured monsters, with powerful enchanted equipment. Each mob they kill gives them points based on many factors such as the type of mob as well as the equipment and any active potion effects on the mob and even the player. The game starts in a similar way to the standard PvP game. However the game will also always remain at or near midnight, allowing mobs to spawn. Mobs that spawn are "randomized", with equipment as well as various other things, such as skeletons becoming wither skeletons, and Creepers being powered creepers. The Spawning cap is increased, and the number of mob spawns per tick is increased as well, and mobs will spawn even closer to the player, (I've had mobs spawn 0 blocks in front of me). Obvious focus for players in this mode should be to first armour up and find useful equipment to defend themselves; the number of mobs is quite astounding- and mobs do much more damage than before (Damage is also boosted heavily), so getting a weapon and/or armour should be a top priority. Food is important as well, since you are hit with the same hunger effect in this mode as you are in PvP combat. Note that even with Full armour, groups of mobs can be overwhelming because they are usually heavily armoured and do MUCH more damage than before even without a weapon. Just remember that mobs spawn very quickly, and the equipment mobs can spawn with include all the same weapons and armour defined as being possible to appear in chests. So basically, players and mobs are evenly matched; however, Mobs will also be given random, long-lasting effects, such as speed, regeneration, and even invisibility. Recent updates (1.4.6?) to the Mob AI have made things even more interesting; I've seen mobs jump off 8-story buildings to get to me, apparently aware that either their potion effects or their feather falling boots will protect them on the fall. adding a new challenge. GamePlay in this mode feels like a "zombie apocalypse"; I've been cornered in open areas at a dead end, with monsters pouring in the open side for several minutes at a time. Since much of my testing is solo, this mode is the most well-tested, particularly for a single player, which is still quite an interesting game nonetheless.
+
+
+Chest repopulation:
+
+one of the features I have added with the release for Bukkit 1.5 include a feature to repopulate chests:
+
+- when the game starts, all chests are repopulated as usual.
+-when a player closes a chest or other inventory and a configurable delay elapses, that chest will be repopulated.
+- if another player opens the chest, the timeout will be cancelled. When the player closes it again a new one is created.
+
+the desired effect is that only chests accessed by players will timeout, but not if somebody else accesses it in the meantime.
+
+Another idea I'm toying with is the plugin showing the recent viewers of that chest, as a way to track player movement depending on the map in question. 
+
+
 
 GITHUB: (It's messy, I apologize in advance for anybody that looks at it...)
 

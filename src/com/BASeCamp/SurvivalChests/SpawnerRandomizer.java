@@ -80,7 +80,8 @@ public class SpawnerRandomizer {
 		//give them a name. First get the name of the Mob.
 		String mobdescription = CoreEventHandler.getEntityDescription(le,false);
 		String usemobname = _owner.NameGen.RandomMobName(mobdescription);
-		if(RandomData.rgen.nextFloat() > 0.3f)
+		//Random mob names are shown rarely. It seems to affect the fps...
+		if(RandomData.rgen.nextFloat() > 0.95f)
 		{
 			
 			le.setCustomName(usemobname);

@@ -156,7 +156,7 @@ public class NameGenerator {
 		"chopping","mastication","claiming","claping","cleaning","clearing","clipping",
 		"closing","coaching","coiling","collecting","colouring","combing","commanding",
 		"communicating","comparing","competing","complaining","completing","concentrating",
-		"concerning","confession","confusion","connecting","considering","consisting","containing",
+		"concerning","confession","confusing","connecting","considering","consisting","containing",
 		"continuing","copying","correcting","coughing","counting","covering","cracking","crashing",
 		"crawling","crossing","crushing","crying","curing","curling","curving","cycling","damning",
 		"damaging","dancing","daring","decaying","deceiving","deciding","decorating","delaying",
@@ -369,7 +369,7 @@ public class NameGenerator {
 		{
 			sb.append(RandomData.ChooseString(MobNames));
 			sb.append(" of ");
-			sb.append(RandomData.ChooseString(Adjectives));
+			sb.append(RandomData.ChooseString(Verbs));
 			sb.append(" ");
 			sb.append(RandomData.ChooseString(Nouns));
 			

@@ -73,6 +73,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.*;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -82,6 +83,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.bukkit.*;
 import org.bukkit.entity.Monster;
+
+import com.BASeCamp.SurvivalChests.ScoreTally.ScoreSystem;
 //TODO: change all references to Player that are within HashMaps or lists to Strings- index Players by name, rather than
 //the Player object itself.
 public class CoreEventHandler implements Listener {
@@ -1147,9 +1150,44 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 									+ "use /joingame to join, and /spectategame to watch.");
 
 		}
+		else{
+			//more special logic: a continous game is one that the lives are set to Integer.MAX_VALUE.
+			//continuous games are joined automatically.
+			//first, make sure there is only one Active Game.
+			if(_owner.ActiveGames.size()==1){
+				
+				GameTracker gt = iscontinuous();
+				if(gt!=null){
+					//game is continous, so players will automatically be force-joined to the game.
+					
+					gt.AddParticipant(event.getPlayer());
+					handleGameSpawn(event.getPlayer());
+					
+					
+				}
+				
+				
+				
+			}
+			
+			
+			
+		}
 
 	}
-
+	private GameTracker iscontinuous(){
+		//returns a GameTracker for the game only if it's "continous".
+		if(_owner.ActiveGames.size() ==1){
+			
+			GameTracker fitem = _owner.ActiveGames.getFirst();
+			if(fitem.getInitialPlayerLives()==Integer.MAX_VALUE)
+				return fitem;
+			
+		}
+		return null;
+		
+		
+	}
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
 		GameTracker applicablegame = _owner.getWorldGame(event.getPlayer().getWorld());
@@ -1177,8 +1215,49 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			}
 		}
 	}
-
+void handleGameSpawn(Player p){
+	//called to handle the initial placement and inventory of the given player.
+	//this is called when a player joins an active, continous game (by joining the server) as well as when a player
+	//dies and still has lives remaining.
+	
+	//first, get the applicable game.
+	GameTracker gt = _owner.getGame(p);
+	if(gt==null) return;
+	BCRandomizer.clearPlayerInventory(p);
+	
+	//if the tracker has a border, choose a random position.
+	Location chooselocation = gt.chooseSpotinBorder();
+	//teleport the player to it.
+	p.teleport(chooselocation);
+	p.getWorld().playSound(chooselocation, Sound.ENDERMAN_HIT, 10, 1); //play enderman sound.
+	p.setExp(0);
+	p.setLevel(0);
+	//now we want to randomize their inventory.
+	Inventory[] clearthese = new Inventory[]{p.getInventory(),p.getEnderChest()};
+	for(Inventory populate:clearthese){
+		ChestRandomizer cr = new ChestRandomizer(_owner,populate,"");
+		cr.setMaxItems(populate.getSize());
+		cr.Shuffle();
+		
+	}
+	//set the item in their hand to a weapon.
+	ItemStack useweapon = RandomData.Choose(ChestRandomizer.getWeaponsData(_owner)).Generate();
+	p.setItemInHand(useweapon);
+	p.setNoDamageTicks(60);
+	
+	
+	
+}
 	public void onPlayerRespawn(PlayerRespawnEvent event){
+		
+		
+		//check if the player is in a running game.
+		//if so, we want to randomize their location and give them some equipment.
+		
+		
+		
+		
+		handleGameSpawn(event.getPlayer());
 		
 		
 		
@@ -1237,8 +1316,38 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 		
 		final Player Killer = dyingPlayer.getKiller();
+		
+		if(!(Killer instanceof Player)){
+			//if the Killer was not a Player
+			if(applicablegame.getTally()!=null){
+				applicablegame.getTally().PlayerDeath(dyingPlayer,dyingPlayer);
+				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), ScoreSystem.KillsMinusDeaths);
+			    dyingPlayer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(currentscore));
+			    //can't easily force a respawn, but we already handle the PlayerRespawn anyway.
+			    
+			}
+		}
+		else{
+			//if it was a player, tally that up.
+			if(applicablegame.getTally()!=null){
+				applicablegame.getTally().PlayerDeath(dyingPlayer, Killer);
+				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), ScoreSystem.KillsMinusDeaths);
+				int killerscore = applicablegame.getTally().getPlayerScore(Killer.getName(),ScoreSystem.KillsMinusDeaths);
+			    dyingPlayer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(currentscore));
+			    Killer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(killerscore));
+			}
+			
+		}
+		
 		if (Killer != null)
 			KillerName = Killer.getDisplayName();
+			
+		
+		
+		else {
+			
+		}
+		
 		if (dyingPlayer.getLastDamageCause().getCause()
 				.equals(DamageCause.FALL)) {
 
@@ -1449,8 +1558,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 		
 		
-		Location BorderA = _owner.Randomcommand.BorderA;
-		Location BorderB = _owner.Randomcommand.BorderB;
+		Location BorderA = applicablegame.getBorderA();
+		Location BorderB = applicablegame.getBorderB();
 		double XMinimum, XMaximum, ZMinimum, ZMaximum;
 		if (BorderA != null && BorderB != null) {
 			//System.out.println("BorderA And BorderB are not null...");
@@ -1690,8 +1799,8 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		
 			
 		}
-		Location BorderA = _owner.Randomcommand.BorderA;
-		Location BorderB = _owner.Randomcommand.BorderB;
+		Location BorderA = applicablegame.getBorderA();
+		Location BorderB = applicablegame.getBorderB();
 		if(BorderA!=null && BorderB!=null){
 		//if there are borders set...
 			float XMinimum = (float) Math.min(BorderA.getX(), BorderB.getX());

@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Difficulty;
 import org.bukkit.Effect;
@@ -28,7 +29,9 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.FireworkEffect.Type;
 
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.DoubleChest;
@@ -46,6 +49,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
@@ -55,39 +59,58 @@ public class GameTracker implements Runnable {
 
 	private final class ChestPopulator implements Runnable {
 		private final InventoryCloseEvent closured;
-
-		private ChestPopulator(InventoryCloseEvent closured) {
+		private final InventoryHolder Index;
+		private ChestPopulator(InventoryCloseEvent closured,InventoryHolder pIndex) {
 			this.closured = closured;
+			this.Index=pIndex;
 		}
 
 		//repopulate the inventory.	
 		public void run()
 		{
-			
+			InventoryHolder grabh = this.Index;
+			if(grabh instanceof Player) return;
 			if(closured.getPlayer() instanceof Player)
 			{
 			Player p = (Player)closured.getPlayer();
-			p.sendMessage("repopulating chest you opened...");
+			//p.sendMessage("repopulating chest you opened...");
 			}
 			ChestRandomizer rr = new ChestRandomizer(_Owner,closured.getInventory(),"");
-			InventoryHolder ih = closured.getInventory().getHolder();
-			BlockState bs=null;
-			if(ih instanceof Chest ||
-					ih instanceof Dispenser ||
-					ih instanceof Furnace || ih instanceof DoubleChest)
-			bs = (BlockState)ih;
+			InventoryHolder ih = grabh;
+			BlockState[] bsa=null;
+			if(ih instanceof DoubleChest)
+			{
+			DoubleChest dc = (DoubleChest)ih;
+			bsa = new BlockState[]{(BlockState) dc.getRightSide(),(BlockState) dc.getLeftSide()};
+			
+			}
+			else if(ih instanceof Chest ||
+					ih instanceof Dispenser )
+			{
+				bsa = new BlockState[]{(BlockState)ih};
+			}
+				
+			
+			for(BlockState bs:bsa){	
+			
 			
 			if(bs!=null && !_Owner.Randomcommand.hasBlockBeneath(bs.getBlock(),Material.WOOL))
 			{
 				Location sl = bs.getLocation();
 				//special condition:
-				//we do NOT repopulate if there is a player within 16 blocks.
-				Player closest = BCRandomizer.getNearestPlayer(bs.getLocation());
+				//we do NOT repopulate if the last player that accessed us
+				//is closer than the given distance.
+				System.out.println("Delayed fire, lastinventory:" + lastInventoryAccess.size());
+				InventoryAccessInfo iai = lastInventoryAccess.get((InventoryHolder)bs);
+				if(iai==null) System.out.println("Alert:iai is null");
+				Player closest = iai.getViewed().getLast();
+				
+				//Player closest = BCRandomizer.getNearestPlayer(bs.getLocation());
 				//if distance is less than 16, we want to reschedule...
 				int sizelimit = _Owner.Configuration.getRepopPreventionRadius();
 				if(bs.getLocation().distance(closest.getLocation()) < sizelimit)
 				{
-				Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured), _ChestTimeout);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured,(InventoryHolder)bs), _ChestTimeout);
 				spawnrepopulationparticles(sl,true);
 				return;
 				}
@@ -104,7 +127,7 @@ public class GameTracker implements Runnable {
 				
 			}
 			
-			
+			}
 			
 			
 			/*
@@ -117,7 +140,7 @@ public class GameTracker implements Runnable {
 			
 		}
 	}
-
+	private Location BorderA,BorderB;
 	private World runningWorld = null;
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
 	private List<Player> _Spectators = null;
@@ -126,22 +149,33 @@ public class GameTracker implements Runnable {
 	public LinkedList<Player> getStillAlive() {
 		return StillAlive;
 	}
-
+	private HashMap<String,Integer> PlayerLives = new HashMap<String,Integer>(); 
+	//^hashmap mapping player names to their current lives. Defaults to each player having 2 lives.
 	private HashMap<Integer, Player> FinishPositions = new HashMap<Integer, Player>();
 	BCRandomizer _Owner = null;
 	public static CoreEventHandler deathwatcher = null;
 	private int _ChestTimeout = 45*20; //45 seconds. gameticks...
 	private boolean _MobArenaMode = false; // MobArena Mode is when PvP is
 											// disabled completely.
+	
+	public Location getBorderA(){return BorderA;}
+	public void setBorderA(Location value){BorderA=value;}
+	
+	public Location getBorderB(){return BorderB;}
+	public void setBorderB(Location value){BorderB=value;}
+	
 	public World getWorld() { return runningWorld;}
 	private HashMap<Player, Integer> ScoreTally = new HashMap<Player, Integer>();
-
+	private ScoreTally PvPScores = null;
 	// Note that gameTracker also tracks Mob Arena style games.
 	// Mob Arena is similar in principle to the Mob Arena Plugin, but is more an
 	// extension
 	// of the Player Versus Player aspects of this plugin to extend to a
 	// different style.
 
+	public ScoreTally getTally(){ return PvPScores;}
+	
+	
 	public boolean getMobArenaMode() {
 		return _MobArenaMode;
 	}
@@ -163,13 +197,19 @@ public class GameTracker implements Runnable {
 		
 	}
 	
+		
+	
+	
 	public void onInventoryOpen(InventoryOpenEvent event)
 	{
+		
 		System.out.println("GameTracker:onInventoryOpen");
 		//if an item exists, cancel the task and set it to 0.
 		//when the inventory is closed the task will be restarted.
 		InventoryAccessInfo iai =null;
 		InventoryHolder ih = event.getInventory().getHolder();
+		if(ih instanceof Player) { return;}
+		if(ih instanceof BrewingStand || ih instanceof Furnace) return;
 		if(lastInventoryAccess.containsKey(event.getInventory().getHolder())){
 		iai = lastInventoryAccess.get(event.getInventory().getHolder());
 		}
@@ -236,7 +276,25 @@ public class GameTracker implements Runnable {
 		System.out.println("GameTracker:onInventoryClose");
 		//when an inventory is closed:
 		final InventoryCloseEvent closured = event;
-		InventoryHolder ih = event.getInventory().getHolder();
+		InventoryHolder[] ihs;
+		//doublechests are stored as both sides of the chest. Both will be
+		//repopulated at the same time and are essentially viewed simultaneously.
+		//we cannot use a DoubleChest instance, because the other code teases it into separate
+		//Chest instances, which won't be in the HashMap.
+		if(closured.getInventory().getHolder() instanceof DoubleChest)
+		{
+		DoubleChest dc = (DoubleChest)closured.getInventory().getHolder();
+		
+		ihs = new InventoryHolder[]{dc.getRightSide(),dc.getLeftSide()};
+		
+		}
+		else {
+		ihs = new InventoryHolder[]{event.getInventory().getHolder()};
+		}
+		for(InventoryHolder ih:ihs){
+		
+		if(ih instanceof Player) { return;}
+		if(ih instanceof BrewingStand || ih instanceof Furnace) return;
 		//if the interval amount is 0, assume we don't repopulate.
 		if(_ChestTimeout==0) return;
 		System.out.println("ChestTimeout=" + _ChestTimeout);
@@ -246,10 +304,12 @@ public class GameTracker implements Runnable {
 		iai = new InventoryAccessInfo();
 		iai.setInventory(event.getInventory());
 		lastInventoryAccess.put(ih,iai);	
+		System.out.println("added ItemHolder...");
 		}
 		else
 		{
 			iai=lastInventoryAccess.get(ih);
+			System.out.println("retrieved ItemHolder...");
 		}
 		
 			if(iai.getBukkitTask()!=0)
@@ -261,14 +321,14 @@ public class GameTracker implements Runnable {
 			}
 			Bukkit.getLogger().log(Level.INFO, "scheduling inventory repopulation for " + _ChestTimeout);
 			//send a message to the player.
-			
+			iai.PlayerView((Player)event.getPlayer());
 			//schedule new task.
-			Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured), _ChestTimeout);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured,ih), _ChestTimeout);
 			
 			
 		
 		
-	
+		}
 		
 		
 		
@@ -299,12 +359,90 @@ public class GameTracker implements Runnable {
 	public HashMap<Player, Integer> getScoreTally() {
 		return ScoreTally;
 	}
-
-	public GameTracker(BCRandomizer Owner, World applicableWorld,
-			List<Player> Participants, List<Player> spectators, boolean MobArena) {
-		// initialize StillAlive List.
+	public void AddParticipant(Player p){
+		//task: we need to add this player to the Active Game.
+		//first, we need to plonk them into all the structures.
 		
+		//-Add the StillAlive list
+		StillAlive.add(p);
+		//-hide spectators from them
+		//show them to spectators
+		for(Player s:this.getSpectating()){
+			p.hidePlayer(s);
+			s.showPlayer(p);
+		}
+		
+		
+		
+		
+		//things we don't do here are randomize their location or give them items. We just deal with making
+		//sure the player is considered a participant.
+		
+		
+		
+		
+	}
+	public Location chooseSpotinBorder(){
+		
+		
+		if(BorderA==null||BorderB==null) return null;
+		
+		Location ba = getBorderA();
+		Location bb = getBorderB();
+		
+		double XMinimum = Math.min(ba.getX(), bb.getX());
+		double XMaximum = Math.max(ba.getX(), bb.getX());
+		double ZMinimum = Math.min(ba.getZ(), bb.getZ());
+		double ZMaximum = Math.max(ba.getZ(), bb.getZ());
+		
+		
+		Random rgen = RandomData.rgen;
+		double chosenY=0;
+		double chosenX=0,chosenZ=0;
+		while(chosenY==0){
+		//choose a random X and Z...
+		chosenX = rgen.nextDouble()*(XMaximum-XMinimum)+XMinimum;
+		chosenZ = rgen.nextDouble()*(ZMaximum-ZMinimum)+ZMinimum;
+		//now, our task: get the highest block at...
+		chosenY = (double)BorderA.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
+		}
+		Location chosenlocation = new Location(BorderA.getWorld(),chosenX,chosenY,chosenZ);
+		//participant.teleport(chosenlocation);
+		
+		//System.out.println("Teleported " + participant.getName() + " to " + chosenlocation.toString());
+		return chosenlocation;
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	private int InitialPlayerLives = 0;
+	public int getInitialPlayerLives() { return InitialPlayerLives;}
+	
+	public GameTracker(BCRandomizer Owner, World applicableWorld,
+			List<Player> Participants, List<Player> spectators, boolean MobArena,int pPlayerLives, Location pBorderA, Location pBorderB) {
+		// initialize StillAlive List.
+		InitialPlayerLives = pPlayerLives;
+		BorderA=pBorderA;
+		BorderB=pBorderB;
+		if(!MobArena) PvPScores = new ScoreTally(this,Participants);
 		_ChestTimeout = Owner.Randomcommand.getChestTimeout();
+		
+		//initialize Lives.
+		
+		PlayerLives = new  HashMap<String,Integer>();
+		for(Player p:Participants)
+		{
+			//add lives to the hashmap.
+			PlayerLives.put(p.getName(), new Integer(pPlayerLives));
+			
+		}
+		
+		
 		
 		if (deathwatcher == null) {
 			deathwatcher = new CoreEventHandler(Owner, this, applicableWorld);
@@ -376,11 +514,69 @@ public class GameTracker implements Runnable {
 		}
 
 	}
-
+	private boolean GameConcluding = false;
+	
+	public void setGameConcluding(boolean value){GameConcluding = value;}
+	public boolean getGameConcluding() { return GameConcluding;}
+	private int currentTopScore = 0;
+	public void CheckTopScores(Player p){
+		int grabscore = ScoreTally.get(p);
+		if(grabscore > currentTopScore){
+			String usemessage = BCRandomizer.Prefix + p.getDisplayName() + " has the score to beat-" + String.valueOf(grabscore) + ">" + String.valueOf(currentTopScore);
+			for(Player iterate:runningWorld.getPlayers()){
+				
+				
+				iterate.sendMessage(usemessage);
+				
+				
+				
+			}
+			
+			
+		}
+	}
+	
 	// when a player dies, we need to update the list, and possibly even break
 	// out if the game has ended as a result.
 	public void PlayerDeath(Player deadPlayer, Player assailant) {
 		// remove player from list.
+		//added for 1.5 release: lives.
+		//check the number of lives the deadPlayer has left.
+		
+		//tally the score.
+		if(this.InitialPlayerLives==Integer.MAX_VALUE || this.InitialPlayerLives==0){
+			//if set to continuous, clear score when players die.
+			CheckTopScores(deadPlayer);
+			ScoreTally.put(deadPlayer, 0);
+		}
+		
+		
+		//if livesremaining is less than int.MAXVALUE...
+		if(!GameConcluding) {
+			//only check lives if the game is <not> concluding. if it is concluding, all players
+			//are basically set to have one life left.
+			int livesremaining = PlayerLives.get(deadPlayer.getName()).intValue();
+			//if livesremaining is not int.MAXVALUE...
+			if(livesremaining == Integer.MAX_VALUE || livesremaining-->0){ //if it's set to MAX_VALUE, it's basically infinite lives.
+				
+				//possibly got too fancy...
+				//if livesremaining is MAX_VALUE, the second part of the or is ignored.
+				//if it isn't, then it will be decremented and this code will execute if it's
+				//larger than 0.
+				//we don't actually need to do anything here, as far as I'm currently aware,
+				//because the respawn event handles moving the player and all that guff.
+				//we need to return though, in order to prevent the code below from stopping the game.
+				
+				return;
+				
+			}
+
+			
+		
+			
+		}
+		
+		
 		deadPlayer.teleport(deadPlayer.getWorld().getSpawnLocation());
 		if (gamecomplete)
 			return;
@@ -524,6 +720,9 @@ public class GameTracker implements Runnable {
 
 	}
 
+	
+	
+	
 	private Stack<KeyValuePair<Integer, Player>> SortScoreTally() {
 		SortedSet<KeyValuePair<Integer, Player>> sortset = new TreeSet<KeyValuePair<Integer, Player>>();
 
@@ -843,6 +1042,17 @@ public class GameTracker implements Runnable {
 							BCRandomizer.Prefix
 									+ "The Animals knew what was coming and killed themselves.");
 
+			for(Chunk cl: runningWorld.getLoadedChunks())
+			{
+				for(Entity le:cl.getEntities()){
+					if(!(le instanceof Player)){
+					le.remove();
+					}
+					
+				}
+				
+			}
+			
 
 			// extinguish all flames.
 			_Owner.ExtinguishFlames(runningWorld);
@@ -866,5 +1076,11 @@ public class GameTracker implements Runnable {
 
 
 
+	}
+
+
+	public World getRunningWorld() {
+		// TODO Auto-generated method stub
+		return runningWorld;
 	}
 }

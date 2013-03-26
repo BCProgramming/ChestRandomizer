@@ -67,7 +67,15 @@ public class BCRandomizer extends JavaPlugin {
 		return spectator;
 
 	}
-
+	public GameTracker getGame(World w) {
+		//retrieves the GameTracker for the given world. Or, the first one it finds...
+		for(GameTracker gt:ActiveGames){
+			if(gt.getRunningWorld()==w) return gt;
+		}
+		
+		return null;
+		
+	}
 	public GameTracker isParticipant(Player testplayer) {
 		for (GameTracker gt : ActiveGames) {
 
@@ -91,7 +99,7 @@ public class BCRandomizer extends JavaPlugin {
 	public static void clearPlayerInventory(Player p) {
 
 		p.getInventory().clear();
-		
+		p.getEquipment().clear();
 
 	}
 
@@ -332,6 +340,7 @@ public class BCRandomizer extends JavaPlugin {
 		this.getCommand("mobtimeout").setExecutor(Randomcommand);
 		this.getCommand("mobsweeper").setExecutor(Randomcommand);
 		this.getCommand("repoptimeout").setExecutor(Randomcommand);
+		this.getCommand("setlives").setExecutor(Randomcommand);
 		// this.getCommand("setfly").setExecutor(Randomcommand);
 		// this.getCommand("prepareinfo").setExecutor(Randomcommand);
 		// this.getCommand("fixup").setExecutor(Randomcommand);

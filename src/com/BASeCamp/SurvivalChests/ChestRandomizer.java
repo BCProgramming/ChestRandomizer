@@ -153,6 +153,21 @@ public class ChestRandomizer {
 				});
 
 	}
+	public static List<RandomData> getProjectileData(BCRandomizer _owner) {
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
+				new IFilterPredicate<RandomData>() {
+
+					public boolean predicate(RandomData rd) {
+						// filter out helmets.
+						return ProjectileFilter(rd);
+
+					}
+
+				});
+		
+		
+		
+	}
 	private static boolean HelmetFilter(RandomData testdata) {
 
 		// only return true for RandomData's that are head-equippable.
@@ -216,7 +231,19 @@ public class ChestRandomizer {
 				|| m.equals(Material.DIAMOND_BOOTS);
 
 	}
-
+	private static boolean ProjectileFilter(RandomData testdata)
+	{
+		if(testdata==null) return false;
+		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
+		return m.equals(Material.ARROW) || m.equals(Material.FIREBALL) || m.equals(Material.FIREWORK) ||
+				m.equals(Material.ENDER_PEARL);
+		//Ender pearl is a bit of a toss-up...
+		
+		
+		
+		
+	}
 	private static boolean WeaponsFilter(RandomData testdata) {
 
 		if(testdata==null) return false;

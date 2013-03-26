@@ -53,7 +53,7 @@ public class RandomizerCommand implements CommandExecutor {
 	private boolean MobArenaMode = false;
 	private int ChestTimeout=0;
 	
-	
+	private int uselives = Integer.MAX_VALUE; //number of lives, defaults to int.MaxValue.
 	
 	private Location _SpawnSpot = null;
 	private int MobTimeout = 0; //0 means no mobtimeout at all. any other value is a number of seconds
@@ -154,13 +154,13 @@ public class RandomizerCommand implements CommandExecutor {
 		File bfile = new File(borderfile);
 		try {
 		FileWriter fw = new FileWriter(bfile);
-		fw.write(BorderA.getBlockX());
-		fw.write(BorderA.getBlockY());
-		fw.write(BorderA.getBlockZ());
+		fw.write(useBorderA.getBlockX());
+		fw.write(useBorderA.getBlockY());
+		fw.write(useBorderA.getBlockZ());
 			
-		fw.write(BorderB.getBlockX());
-		fw.write(BorderB.getBlockY());
-		fw.write(BorderB.getBlockZ());
+		fw.write(useBorderB.getBlockX());
+		fw.write(useBorderB.getBlockY());
+		fw.write(useBorderB.getBlockZ());
 		
 		fw.close();
 		}
@@ -189,8 +189,8 @@ public class RandomizerCommand implements CommandExecutor {
 			by = fr.read();
 			bz = fr.read();
 			fr.close();
-			BorderA = new Location(w,ax,ay,az);
-			BorderB = new Location(w,bx,by,bz);
+			useBorderA = new Location(w,ax,ay,az);
+			useBorderB = new Location(w,bx,by,bz);
 			
 			
 			
@@ -251,15 +251,39 @@ public class RandomizerCommand implements CommandExecutor {
 				return true;
 			}
 		}
+		
 		if(arg2.equalsIgnoreCase("fixup")){
 			
 			doFixUp(p);
 			
 			
 		}
-		if (arg2.equalsIgnoreCase("randomizespawners")) {
+		else if (arg2.equalsIgnoreCase("randomizespawners")) {
 			SpawnerRandomizer sr = new SpawnerRandomizer(_Owner);
 			sr.RandomizeSpawners(p.getWorld());
+		}
+		else if(arg2.equalsIgnoreCase("setlives")){
+			if(arg3.length==0)
+			{
+				String usemessage = BCRandomizer.Prefix + "Lives:" + String.valueOf(uselives);
+				
+			}
+			else
+			{
+				try {
+					uselives = Integer.parseInt(arg3[0]);
+					if(uselives==0) uselives = Integer.MAX_VALUE;
+					String usemessage = BCRandomizer.Prefix + "Lives set to " + String.valueOf(uselives);
+					if(p!=null) p.sendMessage(usemessage); else System.out.println(usemessage);
+				}
+				catch(NumberFormatException nfe)
+				{
+					
+				}
+			}
+			
+			
+			
 		}
 		else if(arg2.equalsIgnoreCase("repoptimeout"))
 		{
@@ -340,24 +364,24 @@ public class RandomizerCommand implements CommandExecutor {
 			loadborder(p.getWorld());
 		} else if (arg2.equalsIgnoreCase("arenaborder1")) {
 
-			BorderA = p.getLocation();
+			useBorderA = p.getLocation();
 			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
-					+ "BorderA set to (X,Z)=" + BorderA.getBlockX() + ","
-					+ BorderA.getBlockZ());
+					+ "BorderA set to (X,Z)=" + useBorderA.getBlockX() + ","
+					+ useBorderA.getBlockZ());
 
 		} 
 		
 		
 		else if (arg2.equalsIgnoreCase("arenaborder2")) {
 
-			BorderB = p.getLocation();
+			useBorderB = p.getLocation();
 			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
-					+ "BorderB set to (X,Z)=" + BorderB.getBlockX() + ","
-					+ BorderB.getBlockZ());
+					+ "BorderB set to (X,Z)=" + useBorderB.getBlockX() + ","
+					+ useBorderB.getBlockZ());
 
 		} else if (arg2.equalsIgnoreCase("clearborder")) {
 
-			BorderA = BorderB = null;
+			useBorderA = useBorderB = null;
 			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
 					+ "Borders cleared.");
 
@@ -844,8 +868,8 @@ public class RandomizerCommand implements CommandExecutor {
 	}
 
 	private ResumePvP rp = null;
-	Location BorderA = null;
-	Location BorderB = null;
+	Location useBorderA = null;
+	Location useBorderB = null;
 	private void StartGame(Player p,int numseconds,boolean MobArena){
 		StartGame(p,null,numseconds,MobArena);
 	}
@@ -888,7 +912,7 @@ public class RandomizerCommand implements CommandExecutor {
 			numseconds = 0;
 
 		rp = new ResumePvP(_Owner, grabworld, numseconds, joinedplayers,
-				spectating);
+				spectating,uselives,useBorderA,useBorderB);
 
 		GameStartEvent eventobj = new GameStartEvent(joinedplayers, spectating,
 				MobArena);
@@ -985,14 +1009,28 @@ private void ShufflePlayers(List<Player> shufflethese){
 		
 		//shuffle all players that are "StillAlive" within the arena border.
 		//if no border is set, we don't shuffle, and log to the console.
-		if(_Owner.Randomcommand.BorderA!=null && _Owner.Randomcommand.BorderB!=null){
+	//_Owner.Randomcommand;
+	GameTracker usetracker = null;
+	if(shufflethese.size()>0){
+		usetracker = _Owner.getGame(shufflethese.get(0));
+	}
+	
+	for(Player p:shufflethese){
+		
+		GameTracker.deathwatcher.handleGameSpawn(p);
+		
+		
+	}
+	
+	/*
+		if(usetracker.getBorderA()!=null && usetracker.getBorderB()!=null){
+			Location ba = usetracker.getBorderA();
+			Location bb = usetracker.getBorderB();
 			
-			
-			
-			double XMinimum = Math.min(BorderA.getX(), BorderB.getX());
-			double XMaximum = Math.max(BorderA.getX(), BorderB.getX());
-			double ZMinimum = Math.min(BorderA.getZ(), BorderB.getZ());
-			double ZMaximum = Math.max(BorderA.getZ(), BorderB.getZ());
+			double XMinimum = Math.min(ba.getX(), bb.getX());
+			double XMaximum = Math.max(ba.getX(), bb.getX());
+			double ZMinimum = Math.min(ba.getZ(), bb.getZ());
+			double ZMaximum = Math.max(ba.getZ(), bb.getZ());
 
 			//iterate through each Player...
 			Random rgen = RandomData.rgen;
@@ -1028,7 +1066,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 		}
 		
 		
-		
+		*/
 	}
 	
 	

@@ -31,10 +31,12 @@ public class InventoryAccessInfo {
 	//called when a player views the inventory of the attached element.
 	public void PlayerView(Player p)
 	{
+		System.out.println("PlayerView:" + p.getName());
+		
 		if(cachedPlayers.size()==0 || cachedPlayers.getLast()!=p){
 			cachedPlayers.addLast(p);
 		}
-		
+		System.out.println("cachedPlayers size:" + cachedPlayers.size());
 	}
 	
 }

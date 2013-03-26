@@ -25,14 +25,14 @@ public class ResumePvP implements Runnable{
 	World useWorld = null;
 	private GameTracker usetracker;
 	public GameTracker getTracker() { return usetracker;}
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds,List<Player> ActivePlayers,List<Player> Spectators){
+	public ResumePvP(BCRandomizer bcr,World target,int numseconds,List<Player> ActivePlayers,List<Player> Spectators,int useLives,Location BorderA,Location BorderB){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
 		_Players=ActivePlayers;
 		_Spectators = Spectators;
 		useWorld=target;
-		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators,bcr.Randomcommand.getMobArenaMode());
+		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators,bcr.Randomcommand.getMobArenaMode(),useLives,BorderA,BorderB);
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
 		

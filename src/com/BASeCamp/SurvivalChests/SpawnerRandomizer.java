@@ -83,10 +83,14 @@ public class SpawnerRandomizer {
 		//Random mob names are shown rarely. It seems to affect the fps...
 		if(RandomData.rgen.nextFloat() > 0.95f)
 		{
-			
+			//make sure we are 1.5
+			try {
 			le.setCustomName(usemobname);
 			le.setCustomNameVisible(true);
+			}
+			catch(NoSuchMethodError ex){
 			
+			}
 		}
 		
 		

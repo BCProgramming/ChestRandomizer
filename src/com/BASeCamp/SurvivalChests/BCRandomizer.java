@@ -296,9 +296,22 @@ public class BCRandomizer extends JavaPlugin {
 		return minimumPlayer;
 
 	}
-
+	public static String getMCVersion()
+	{
+	String versionstring = Bukkit.getServer().getVersion();
+	//find (MC: 1.5)
+	String searchfor = "(MC: ";
+	int foundpos = versionstring.indexOf(searchfor)+searchfor.length();
+	int endparen = versionstring.indexOf(')',foundpos);
+	
+	return versionstring.substring(foundpos,endparen);
+	}
 	@Override
 	public void onEnable() {
+		
+		System.out.println("BCSURV running on Server version:" + getMCVersion());
+		
+		
 		try {
 			Configuration = new Configurator(this);
 			if(NameGen!=null){
@@ -314,6 +327,7 @@ public class BCRandomizer extends JavaPlugin {
 			e.printStackTrace();
 		}
 
+		
 		Randomcommand = new RandomizerCommand(this);
 		PluginCommand batchcommand = this.getCommand("repopchests");
 

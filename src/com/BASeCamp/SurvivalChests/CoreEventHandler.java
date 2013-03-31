@@ -646,10 +646,10 @@ public class CoreEventHandler implements Listener {
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event)
 	{
-		System.out.println("onInventoryOpen");
+		//System.out.println("onInventoryOpen");
 		if(event.getPlayer() instanceof Player)
 		{
-			System.out.println("instance of player.");
+			//System.out.println("instance of player.");
 			Player p = (Player)event.getPlayer();
 			//get the game for the player.
 			GameTracker gt = _owner.getPlayerGame(p);
@@ -659,7 +659,7 @@ public class CoreEventHandler implements Listener {
 			}
 			else
 			{
-				System.out.println("getPlayerGame()" + " returned null for player " + p.getName());
+				//System.out.println("getPlayerGame()" + " returned null for player " + p.getName());
 			}
 		
 		}
@@ -668,10 +668,10 @@ public class CoreEventHandler implements Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event)
 	{
-		System.out.println("onInventoryClose");
+		//System.out.println("onInventoryClose");
 		if(event.getPlayer() instanceof Player)
 		{
-			System.out.println("instance of player.");
+			//System.out.println("instance of player.");
 			Player p = (Player)event.getPlayer();
 			//get the game for the player.
 			GameTracker gt = _owner.getPlayerGame(p);
@@ -716,17 +716,26 @@ public class CoreEventHandler implements Listener {
 				//also, we can only award a player that is actually participating.
 				if(applicablegame.getStillAlive().contains(awardplayer)){
 				
-				HashMap<Player,Integer> tally = applicablegame.getScoreTally();
+				HashMap<String,Integer> tally = applicablegame.getScoreTally();
 				int NextTarget = applicablegame.getNextLevel(awardplayer);
 				//retrieve current score.
-				int currscore = tally.get(awardplayer);
+				//if there is no entry, we'll have to add it.
+				int currscore=0;
+				
+				if(!tally.containsKey(awardplayer.getName()))
+				{
+					tally.put(awardplayer.getName(),0);
+					
+					
+				}
+				currscore = tally.get(awardplayer.getName());
 				int addedvalue = getMonsterValue((LivingEntity)(event.getEntity()));
 				addedvalue += getMonsterValue(awardplayer);
 				
 				event.setDroppedExp((event.getDroppedExp()+1)*addedvalue);
 				
 				currscore+= addedvalue;
-				tally.put(awardplayer, currscore);
+				tally.put(awardplayer.getName(), currscore);
 				//if the current score is equal to or above 1K...
 				
 				if(currscore>=NextTarget)
@@ -930,8 +939,6 @@ else if(monster instanceof CaveSpider) {
 		
 		return enchantmentvalues;
 		
-		
-		
 	}
 	
 	private int getItemValue(ItemStack itemStack){
@@ -1002,7 +1009,7 @@ else if(monster instanceof CaveSpider) {
 			
 			if(event.getDamager() instanceof LivingEntity){
 				
-				event.setDamage(event.getDamage()*2);
+				event.setDamage(event.getDamage());
 				
 			}
 			
@@ -1010,6 +1017,17 @@ else if(monster instanceof CaveSpider) {
 		}
 		
 	}
+	@EventHandler
+	public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent event){
+	
+		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
+		if(applicablegame!=null){
+			event.setCancelled(true);
+		}
+		
+		
+	}
+	
 	
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event) {
@@ -1028,7 +1046,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 		if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent edam = (EntityDamageByEntityEvent) event;
 			
-			System.out.println("EntityDamageByEntity, getEntity=" + edam.getEntity().getType().toString() + " Damager:" + edam.getDamager());
+			//System.out.println("EntityDamageByEntity, getEntity=" + edam.getEntity().getType().toString() + " Damager:" + edam.getDamager());
 			
 			
 			if((edam.getEntity() instanceof LivingEntity) && edam.getDamager() instanceof Player){
@@ -1050,6 +1068,7 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			if (edam.getEntity() instanceof Player) {
 
 				// entity is the player that is damaged.
+				
 				Player damaged = (Player) edam.getEntity();
 
 				if (damaged.getWorld() != watchworld)
@@ -1057,8 +1076,19 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 
 				//
 				
-				if (edam.getDamager() instanceof Player) {
-					Player Attacker = (Player) edam.getDamager();
+				if (edam.getDamager() instanceof Player || edam.getDamager() instanceof Arrow) {
+					
+					Player Attacker=null;
+							
+					
+					if(edam.getDamager() instanceof Player)
+							Attacker=(Player)edam.getDamager();
+					else {
+						Arrow arr = (Arrow)edam.getDamager();
+						if(arr.getShooter() instanceof Player)
+							Attacker = (Player)(arr.getShooter());
+						
+					}
 
 					// if the damagee (receiver) is in a game, and the attacker
 					// isn't...
@@ -1134,6 +1164,9 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 
+		//
+		
+		final Player pp = event.getPlayer();
 		if(null!=_owner.isSpectator(event.getPlayer())){
 		
 			hidetoParticipants(event.getPlayer());
@@ -1156,12 +1189,18 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			//first, make sure there is only one Active Game.
 			if(_owner.ActiveGames.size()==1){
 				
-				GameTracker gt = iscontinuous();
+				final GameTracker gt = iscontinuous();
 				if(gt!=null){
 					//game is continous, so players will automatically be force-joined to the game.
+					final Player pf = event.getPlayer();
 					
-					gt.AddParticipant(event.getPlayer());
-					handleGameSpawn(event.getPlayer());
+					Bukkit.getScheduler().scheduleSyncDelayedTask(_owner, new Runnable(){
+					public void run(){
+						gt.AddParticipant(pf);	
+					}
+					
+					}, 40);
+					
 					
 					
 				}
@@ -1215,14 +1254,29 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 			}
 		}
 	}
-void handleGameSpawn(Player p){
+	private void killInRange(Location center,double radius){
+		
+		for(LivingEntity iterate:center.getWorld().getEntitiesByClass(LivingEntity.class)){
+			
+			if(!(iterate instanceof Player)){
+				if(iterate.getLocation().distance(center)<radius)
+					iterate.remove();
+			}
+			
+			
+			
+		}
+		
+		
+	}
+Location handleGameSpawn(Player p){
 	//called to handle the initial placement and inventory of the given player.
 	//this is called when a player joins an active, continous game (by joining the server) as well as when a player
 	//dies and still has lives remaining.
 	
 	//first, get the applicable game.
 	GameTracker gt = _owner.getGame(p);
-	if(gt==null) return;
+	if(gt==null) return null;
 	BCRandomizer.clearPlayerInventory(p);
 	
 	//if the tracker has a border, choose a random position.
@@ -1232,6 +1286,8 @@ void handleGameSpawn(Player p){
 	p.getWorld().playSound(chooselocation, Sound.ENDERMAN_HIT, 10, 1); //play enderman sound.
 	p.setExp(0);
 	p.setLevel(0);
+	p.setAllowFlight(false);
+	killInRange(chooselocation,16);
 	//now we want to randomize their inventory.
 	Inventory[] clearthese = new Inventory[]{p.getInventory(),p.getEnderChest()};
 	for(Inventory populate:clearthese){
@@ -1243,30 +1299,56 @@ void handleGameSpawn(Player p){
 	//set the item in their hand to a weapon.
 	ItemStack useweapon = RandomData.Choose(ChestRandomizer.getWeaponsData(_owner)).Generate();
 	p.setItemInHand(useweapon);
-	p.setNoDamageTicks(60);
+	p.setNoDamageTicks(5*20);
+	//if not in mob arena mode, give a compass for 2 or fewer players.
+	if(!gt.getMobArenaMode()){
+		if(gt.getStillAlive().size()<=3){
+			//give a compass.
+			ItemStack CompassItem = new ItemStack(Material.COMPASS);
+			
+			CompassItem = ItemNamer.renameItem(CompassItem,
+					"BASeCamp" + ChatColor.ITALIC + "(r)"
+							+ ChatColor.RESET + " Player Finder");
+
+			p.getInventory().addItem(CompassItem);
+			p
+					.sendMessage(BCRandomizer.Prefix
+							+ ChatColor.GREEN
+							+ "You have been given a BASeCamp Player Finder!");
+			p.sendMessage(BCRandomizer.Prefix
+					+ ChatColor.GREEN
+					+ "it points towards the closest participant.");
+			
+		}
+	}
 	
+	//p.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,1));
 	
+	return chooselocation;
 	
 }
+@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event){
 		
 		
 		//check if the player is in a running game.
 		//if so, we want to randomize their location and give them some equipment.
 		
+		final PlayerRespawnEvent closured = event;
 		
+		Bukkit.getScheduler().scheduleSyncDelayedTask(_owner, new Runnable(){
+		public void run() {
+			if(closured==null||closured.getPlayer()==null) return;
+			Location telespot = handleGameSpawn(closured.getPlayer());
+			if(telespot!=null)
+				closured.getPlayer().teleport(telespot);
 		
-		
-		handleGameSpawn(event.getPlayer());
-		
-		
-		
-		if(null!=_owner.isSpectator(event.getPlayer())){
-			event.getPlayer().setAllowFlight(true);
+		if(null!=_owner.isSpectator(closured.getPlayer())){
+			closured.getPlayer().setAllowFlight(true);
 			
 			//hide to participants.
-			for(Player p:_owner.getGame(event.getPlayer()).getStillAlive()){
-				p.hidePlayer(event.getPlayer());
+			for(Player p:_owner.getGame(closured.getPlayer()).getStillAlive()){
+				p.hidePlayer(closured.getPlayer());
 				
 				
 			}
@@ -1277,12 +1359,12 @@ void handleGameSpawn(Player p){
 		}
 		else
 		{
-			event.getPlayer().setAllowFlight(false);
-			event.getPlayer().setFlying(false);
+			closured.getPlayer().setAllowFlight(false);
+			closured.getPlayer().setFlying(false);
 			for(Player p:Bukkit.getOnlinePlayers()){
 				
-				if(p!=event.getPlayer());
-					p.showPlayer(event.getPlayer());
+				if(p!=closured.getPlayer());
+					p.showPlayer(closured.getPlayer());
 				
 				
 				
@@ -1290,6 +1372,8 @@ void handleGameSpawn(Player p){
 			
 			
 		}
+		}
+		},30);
 	}
 	
 	
@@ -1297,7 +1381,7 @@ void handleGameSpawn(Player p){
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
-		System.out.println("Player died " + event.getEntity().getName());
+		//System.out.println("Player died " + event.getEntity().getName());
 		if(!event.getEntity().getWorld().equals(watchworld)) return;
 		if (_Trackers == null || _Trackers.size() == 0)
 			return;
@@ -1901,13 +1985,19 @@ void handleGameSpawn(Player p){
 	
 	@EventHandler
 	public void onPlayerDisconnect(PlayerQuitEvent event) {
+		GameTracker gt;
 		GameTracker applicablegame = _owner.getWorldGame(event.getPlayer().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
 		if (_owner.Randomcommand.getaccepting()) {
 			_owner.Randomcommand.getjoinedplayers().remove(event.getPlayer());
 
 		}
-		
+		else if(null!=(gt=iscontinuous()))
+		{
+			gt.PlayerDeath(event.getPlayer(), event.getPlayer());
+			//gt.AddParticipant(event.getPlayer());
+			
+		}
 		else if (_Trackers != null)
 			for (GameTracker Tracker : _Trackers) {
 				if(Tracker.getStillAlive().contains(event.getPlayer())){

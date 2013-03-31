@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,11 +11,11 @@ import org.bukkit.event.HandlerList;
 public class GameEndEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private String message;
-    private Player _winner = null;
+    private String _winner = null;
     private GameTracker _Tracker = null;
     
     
-    private HashMap<Integer,Player> Placers;
+    private HashMap<Integer,String> Placers;
     
     
     public GameTracker getTracker(){ return _Tracker;}
@@ -22,11 +23,11 @@ public class GameEndEvent extends Event {
      * @Deprecated use getWinner() method instead.
      * @return
      */
-    public Player getPlayer() { return _winner;}
+    public Player getPlayer() { return Bukkit.getPlayer(_winner);}
     
-    private void setPlayer(Player value) { _winner = value;}
+    private void setPlayer(Player value) { _winner = value.getName();}
     
-    public Player getWinner() { return _winner;}
+    public Player getWinner() { return Bukkit.getPlayer(_winner);}
     
     /**
      * retrieves all Participants for the game that just ended.
@@ -34,9 +35,9 @@ public class GameEndEvent extends Event {
      */
     public List<Player> getAllParticipants(){
     	LinkedList<Player> buildlisting = new LinkedList<Player>();
-    	for(Player p:Placers.values()){
+    	for(String p:Placers.values()){
     		
-    		buildlisting.add(p);
+    		buildlisting.add(Bukkit.getPlayer(p));
     		
     	}
     	return buildlisting;
@@ -55,12 +56,12 @@ public class GameEndEvent extends Event {
     		return null;
     	}
     	
-    	return Placers.get(placement);
+    	return Bukkit.getPlayer(Placers.get(placement));
     	
     }
     
-    public GameEndEvent(Player winner,HashMap<Integer,Player> PlaceOrder,GameTracker trackerobject) {
-        _winner=winner;
+    public GameEndEvent(Player winner,HashMap<Integer,String> PlaceOrder,GameTracker trackerobject) {
+        _winner=winner.getName();
         Placers = PlaceOrder;
         _Tracker = trackerobject;
     }

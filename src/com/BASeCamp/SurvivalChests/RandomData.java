@@ -18,6 +18,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.FireworkEffect.Builder;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -31,6 +32,8 @@ import org.bukkit.potion.PotionType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.BASeCamp.SurvivalChests.EnchantmentProbability.EnchantmentAssignmentData;
 
 //RandomData class. Holds random probability data for a single item.
 //This item can optionally have an additional list of possible enchantments.
@@ -56,6 +59,7 @@ public class RandomData {
 	private String _Lore = "";
 	private EnchantmentProbability _enchantmentprob = null;
 	private boolean _SuperEnchantment;
+	private boolean _SingleEnchantment=false;
 	public float getWeighting(){return _Weighting;}
 	public void setWeighting(float pweight){_Weighting=pweight;}
 	public byte getData(){return _Data;}
@@ -539,7 +543,11 @@ public class RandomData {
 		//Potion.getBrewer().createEffect(PotionEffectType., arg1, arg2)
 		try {
 		ItemStack createitem=null;
-		
+		if(_ItemID==403){
+			
+			System.out.println("403...");
+			
+		}
 		if(_SpawnType==1){
 			
 			
@@ -632,23 +640,42 @@ public class RandomData {
 			probabilities = new float[]{0,0,20,60};
 			
 		}
-		
-		int numints = RandomData.Choose(numenchants,probabilities);
-		try {
-		for(int i=0;i<numints;i++){
+		if(!_SingleEnchantment){
+			int numints = RandomData.Choose(numenchants,probabilities);
+			try {
+			for(int i=0;i<numints;i++){
+				
+			_enchantmentprob.Apply(createitem);
+			}
 			
-		_enchantmentprob.Apply(createitem);
+			}
+			
+			
+			catch(Exception exx){
+				
+				exx.printStackTrace();
+				System.out.println(exx);
+				
+			} //ignore errors...
 		}
-		
+		else {
+			try {
+			//singleenchant: choose a single enchantment and crank it.
+			EnchantmentAssignmentData[] copiedarray = new EnchantmentAssignmentData[_enchantmentprob.Enchantprobabilities.size()];
+			_enchantmentprob.Enchantprobabilities.toArray(copiedarray);
+			EnchantmentAssignmentData ead = RandomData.Choose(copiedarray);
+			Enchantment selected = EnchantmentProbability.EnchantmentMapping.get(ead.getName());
+			
+			float[] chooselevels = new float[]{100,100,100,50,50,50,20,20,20,10};
+			int setlevel = RandomData.Choose(new Integer[]{1,2,3,4,5,6,7,8,9,10},chooselevels);
+			
+			createitem.addUnsafeEnchantment(selected,setlevel);
+			}
+			catch(Exception erx){
+				//System.out.println("Exception:" + erx.getClass().getName());
+				erx.printStackTrace();
+			}
 		}
-		
-		
-		catch(Exception exx){
-			
-			exx.printStackTrace();
-			System.out.println(exx);
-			
-		} //ignore errors...
 		String usename=_Name;
 		String uselore = _Lore;
 		
@@ -662,7 +689,13 @@ public class RandomData {
 					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Axe, BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 		}
-		if(usename.contains("%CLEVERPICKAXENAME")) {
+		if(usename.contains("%CLEVERBOOKNAME%")){
+			usename = usename.replace("%CLEVERBOOKNAME%",RandomData.ChooseString(BCRandomizer.NameGen.Adjectives) + " " + RandomData.ChooseString(BCRandomizer.NameGen.Books)); 
+			
+			
+			
+		}
+		if(usename.contains("%CLEVERPICKAXENAME%")) {
 			
 			usename = usename.replace("%CLEVERPICKAXENAME%",
 					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Pickaxe,BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
@@ -986,23 +1019,36 @@ public class RandomData {
 	
 	public RandomData(String Initializer){
 		//initialize a RandomData instance. Initializer String is provided from the configuration file, and applies to all non-
-		if(Initializer.startsWith("POTION:"))
-		{
-			_SpawnType=1;
-			Initializer = Initializer.substring(7);
-			//System.out.println("Initializer:" + Initializer);
-			
-		}
-		else if(Initializer.startsWith("HEAD:"))
-		{
-			_SpawnType=2;
-			Initializer = Initializer.substring(5);
-			
-			
-		}
-		else if(Initializer.startsWith("SUPERENCHANT:")){
-			_SuperEnchantment = true;
-			Initializer = Initializer.substring(13);
+		boolean foundprefix=true;
+		while(foundprefix){
+			foundprefix=false;
+			System.out.println(Initializer);
+			if(Initializer.startsWith("POTION:"))
+			{
+				_SpawnType=1;
+				Initializer = Initializer.substring(7);
+				//System.out.println("Initializer:" + Initializer);
+				foundprefix=true;
+			}
+			else if(Initializer.startsWith("HEAD:"))
+			{
+				_SpawnType=2;
+				Initializer = Initializer.substring(5);
+				foundprefix=true;
+				
+			}
+			else if(Initializer.startsWith("SUPERENCHANT:")){
+				_SuperEnchantment = true;
+				Initializer = Initializer.substring(13);
+				foundprefix=true;
+				
+			}
+			else if(Initializer.startsWith("SINGLEENCHANT:")){
+				System.out.println("Single Enchant");
+				_SingleEnchantment=true;
+				Initializer = Initializer.substring(14);
+				foundprefix=true;
+			}
 		}
 		if(Initializer.trim().length()==0) return;
 		//initializer is the initialization line.

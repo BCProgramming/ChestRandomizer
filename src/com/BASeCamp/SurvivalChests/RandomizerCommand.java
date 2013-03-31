@@ -51,9 +51,9 @@ public class RandomizerCommand implements CommandExecutor {
 	// game.
 	private boolean accepting = false;
 	private boolean MobArenaMode = false;
-	private int ChestTimeout=0;
+	private int ChestTimeout=400;
 	
-	private int uselives = Integer.MAX_VALUE; //number of lives, defaults to int.MaxValue.
+	private int uselives = 1; //number of lives, defaults to one.
 	
 	private Location _SpawnSpot = null;
 	private int MobTimeout = 0; //0 means no mobtimeout at all. any other value is a number of seconds
@@ -312,6 +312,17 @@ public class RandomizerCommand implements CommandExecutor {
 			
 			
 		}
+		else if(arg2.equalsIgnoreCase("concludegame"))
+		{
+			for(GameTracker it:_Owner.ActiveGames){
+				it.setGameConcluding(true);
+				
+				
+			}
+			if(p==null){System.out.println("Concluded all games.");}
+			else{p.sendMessage(BCRandomizer.Prefix + " Concluded all games.");
+			}
+		}
 		else if(arg2.equalsIgnoreCase("mobtimeout")){
 			
 			if(arg3.length < 1)
@@ -337,7 +348,7 @@ public class RandomizerCommand implements CommandExecutor {
 		else if(arg2.equalsIgnoreCase("setfly")){
 			if(arg3.length < 2) {
 				
-				p.sendMessage("Insufficient arguments.");
+				p.sendMessage(BCRandomizer.Prefix + "Insufficient arguments.");
 				
 			}
 			else {
@@ -348,7 +359,7 @@ public class RandomizerCommand implements CommandExecutor {
 					
 					
 					pl.setFlying(flyset);
-					p.sendMessage("Player " + pl.getName() + " flying set to " + flyset);
+					p.sendMessage(BCRandomizer.Prefix + "Player " + pl.getName() + " flying set to " + flyset);
 					
 					
 				}
@@ -362,6 +373,14 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		else if(arg2.equalsIgnoreCase("loadborder")){
 			loadborder(p.getWorld());
+		} else if(arg2.equalsIgnoreCase("borders")){
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
+					+ "BorderB set to (X,Z)=" + useBorderB.getBlockX() + ","
+					+ useBorderB.getBlockZ());
+			p.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA
+					+ "BorderA set to (X,Z)=" + useBorderA.getBlockX() + ","
+					+ useBorderA.getBlockZ());
+		
 		} else if (arg2.equalsIgnoreCase("arenaborder1")) {
 
 			useBorderA = p.getLocation();
@@ -577,7 +596,7 @@ public class RandomizerCommand implements CommandExecutor {
 		} else if (arg2.equalsIgnoreCase("mobmode")) {
 
 			MobArenaMode = !MobArenaMode;
-			p.sendMessage("mob arena mode set to '" + MobArenaMode + "'");
+			p.sendMessage(BCRandomizer.Prefix + "mob arena mode set to '" + MobArenaMode + "'");
 
 		}
 		if (arg2.equalsIgnoreCase("teamsplit")) {
@@ -1017,7 +1036,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 	
 	for(Player p:shufflethese){
 		
-		GameTracker.deathwatcher.handleGameSpawn(p);
+		p.teleport(GameTracker.deathwatcher.handleGameSpawn(p));
 		
 		
 	}
@@ -1068,6 +1087,9 @@ private void ShufflePlayers(List<Player> shufflethese){
 		
 		*/
 	}
+	private PopulationManager PopulationInfo = new PopulationManager();
+	
+	
 	
 	
 	public void repopulateChests(String Source, World w) {
@@ -1116,10 +1138,19 @@ private void ShufflePlayers(List<Player> shufflethese){
 			// go through all tileentities and look for Chests.
 			BlockState[] entities = iteratechunk.getTileEntities();
 			for (BlockState iteratestate : entities) {
+				
+				if(iteratestate instanceof InventoryHolder)
+				{
+					//if it has an inventory...
+					PopulationInfo.setPopulated(gotworld, (InventoryHolder)iteratestate);
+					//set it as populated.
+				}
+				
 				if(iteratestate instanceof StorageMinecart){
 					StorageMinecart casted = (StorageMinecart)iteratestate;
 					allstoragecarts.add(casted);
 					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					
 					populatedamount+=cr.Shuffle();
 					
 					
@@ -1184,8 +1215,7 @@ private void ShufflePlayers(List<Player> shufflethese){
 					+ " Populated.");
 
 			
-			ResumePvP.BroadcastWorld(w,ChatColor.DARK_RED + "Populated "
-					+ ChatColor.AQUA.toString() +
+			ResumePvP.BroadcastWorld(w,ChatColor.AQUA.toString() +
 					ChatColor.LIGHT_PURPLE + allbrewingstands.size() + ChatColor.RED + " Brewing Stands" +
 					ChatColor.YELLOW + " Populated.");
 					

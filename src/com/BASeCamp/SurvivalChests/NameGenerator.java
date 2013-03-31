@@ -28,11 +28,11 @@ public class NameGenerator {
 	public List<String> MobNames = new LinkedList<String>(Arrays.asList(
 	"Timmy","Bobby","Wally","Peter","Chris","Chuck","Ralph","Paul","Richard","Ted","Shawn","Sean",
 	"Will","Willard","Daphne","Kelsey","Mitchell","Milton","Millbee","Hugo","Quinton","Quincy","Z'ul",
-	"Bradley","Vlad","Vestilu","Biff","Marty","Rupert"));
-	public List<String> MobTitles = new LinkedList<String>(Arrays.asList("Vindicating","Bad","Terrible","Evil","Cursed","Unkind","Impolite","Curt",
-		"Trite"));
+	"Bradley","Vlad","Vestilu","Biff","Marty","Rupert","Dave","Thomas","Goliath","Andy","Anne","Cain","Isaac","Adam"));
+	public List<String> MobTitles = new LinkedList<String>(Arrays.asList("Vindicating","Bad","Terrible","Evil","Teabaggery","Uncouthery","Unpleasantry","Tomfoolery",
+		"Surgery","Study"));
 	
-	
+	public List<String> Books = new LinkedList<String>(Arrays.asList("Tome","Book","Volume","Parchment","Scroll"));
 	public List<String> Hats = new LinkedList<String>(Arrays.asList("Hat","Cap","Helmet","Topper","Fez","Sombrero"));
 	public List<String> Chestplates = new LinkedList<String>(Arrays.asList(
 			"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"));
@@ -439,7 +439,7 @@ public class NameGenerator {
 			ChatColor.DARK_BLUE,ChatColor.DARK_GRAY,ChatColor.DARK_GREEN,ChatColor.DARK_PURPLE,
 			ChatColor.DARK_RED,ChatColor.GOLD,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.YELLOW};
 	
-	private ChatColor[] chooseEffects = new ChatColor[] {ChatColor.ITALIC,ChatColor.BOLD,ChatColor.UNDERLINE};
+	private ChatColor[] chooseEffects = new ChatColor[] {ChatColor.ITALIC,ChatColor.UNDERLINE};
 	
 	private String ChooseRandomChat(){
 		
@@ -468,7 +468,7 @@ public class NameGenerator {
 		String[] conjunctionp = new String[] {
 		"incur","cause","destroy","tickle","beat","defeat","suffer","argue"};
 		String[] randommiddle = new String[] {
-		"the wrath of","the pestilence of","the","all sorts of","most kinds of"};
+		"the wrath of","the pestilence of","the","all sorts of","most kinds of","for not many","take exception to"};
 		
 		
 		StringBuffer buildstr = new StringBuffer();
@@ -494,6 +494,7 @@ public class NameGenerator {
 				
 		
 	public String GenerateName(List<String> BaseNames,List<String> Adjectives,List<String> Verbs){
+		if(Verbs==null) Verbs = new LinkedList<String>();
 		String[] bname = new String[BaseNames.size()];
 		String[] adj = new String[Adjectives.size()];
 		String[] verb = new String[Verbs.size()];

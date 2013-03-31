@@ -146,12 +146,17 @@ public class GameTracker implements Runnable {
 	private List<Player> _Spectators = null;
 	private LinkedList<Player> _deadPlayers = null;
 	private boolean _Accepting = false;
+	private PopulatedInventoryData _PopulatedData = null;
+	
+	public PopulatedInventoryData getPopulatedData() { return _PopulatedData;}
+	public void setPopulatedData(PopulatedInventoryData value){_PopulatedData=value;}
+	
 	public LinkedList<Player> getStillAlive() {
 		return StillAlive;
 	}
 	private HashMap<String,Integer> PlayerLives = new HashMap<String,Integer>(); 
 	//^hashmap mapping player names to their current lives. Defaults to each player having 2 lives.
-	private HashMap<Integer, Player> FinishPositions = new HashMap<Integer, Player>();
+	private HashMap<Integer, String> FinishPositions = new HashMap<Integer, String>();
 	BCRandomizer _Owner = null;
 	public static CoreEventHandler deathwatcher = null;
 	private int _ChestTimeout = 45*20; //45 seconds. gameticks...
@@ -165,7 +170,7 @@ public class GameTracker implements Runnable {
 	public void setBorderB(Location value){BorderB=value;}
 	
 	public World getWorld() { return runningWorld;}
-	private HashMap<Player, Integer> ScoreTally = new HashMap<Player, Integer>();
+	private HashMap<String, Integer> ScoreTally = new HashMap<String, Integer>();
 	private ScoreTally PvPScores = null;
 	// Note that gameTracker also tracks Mob Arena style games.
 	// Mob Arena is similar in principle to the Mob Arena Plugin, but is more an
@@ -210,17 +215,30 @@ public class GameTracker implements Runnable {
 		InventoryHolder ih = event.getInventory().getHolder();
 		if(ih instanceof Player) { return;}
 		if(ih instanceof BrewingStand || ih instanceof Furnace) return;
-		if(lastInventoryAccess.containsKey(event.getInventory().getHolder())){
-		iai = lastInventoryAccess.get(event.getInventory().getHolder());
+		InventoryHolder[] useholders = new InventoryHolder[]{event.getInventory().getHolder()};
+		//we need to check for chests, and convert to an array and iterate on it.
+		if(ih instanceof DoubleChest){
+			//System.out.println("it's a doublechest...");
+			DoubleChest dc = (DoubleChest)ih;
+			useholders = new InventoryHolder[] {	
+					dc.getLeftSide(),
+					dc.getRightSide()
+			};
+			
+		}
+		for(InventoryHolder useholder:useholders){
+		if(lastInventoryAccess.containsKey(useholder)){
+		iai = lastInventoryAccess.get(useholder);
 		}
 		else
 		{
 			iai = new InventoryAccessInfo();
 			iai.setInventory(event.getInventory());
-			lastInventoryAccess.put(event.getInventory().getHolder(), iai);
+			lastInventoryAccess.put(useholder, iai);
 		}
 		if(iai.getBukkitTask()!=0)
 		{
+			//System.out.println("Cancelling task:" + iai.getBukkitTask());
 			Bukkit.getScheduler().cancelTask(iai.getBukkitTask());
 			iai.setBukkitTask(0);
 			
@@ -241,14 +259,16 @@ public class GameTracker implements Runnable {
 			
 			iai.PlayerView((Player)(event.getPlayer()));
 		}
+		}
 		
 	}
 	private void spawnrepopulationparticles(Location sl,boolean showfailed)
 	{
+		if(showfailed) return; //change: do nothing for failed respawn.
 		Sound usesound = showfailed?Sound.ANVIL_BREAK:Sound.ENDERMAN_TELEPORT;
 		
 		sl.getWorld().playSound(sl, Sound.ENDERMAN_TELEPORT, 10,1);
-		for(int i=0;i<25;i++)
+		for(int i=0;i<10;i++)
 		{
 			//choose random location within the block.
 			double offsetX = RandomData.rgen.nextDouble();
@@ -273,7 +293,7 @@ public class GameTracker implements Runnable {
 	
 	public void onInventoryClose(InventoryCloseEvent event)
 	{
-		System.out.println("GameTracker:onInventoryClose");
+		//System.out.println("GameTracker:onInventoryClose");
 		//when an inventory is closed:
 		final InventoryCloseEvent closured = event;
 		InventoryHolder[] ihs;
@@ -297,25 +317,25 @@ public class GameTracker implements Runnable {
 		if(ih instanceof BrewingStand || ih instanceof Furnace) return;
 		//if the interval amount is 0, assume we don't repopulate.
 		if(_ChestTimeout==0) return;
-		System.out.println("ChestTimeout=" + _ChestTimeout);
+		//System.out.println("ChestTimeout=" + _ChestTimeout);
 		InventoryAccessInfo iai = null;
 		if(!lastInventoryAccess.containsKey(ih))
 		{
 		iai = new InventoryAccessInfo();
 		iai.setInventory(event.getInventory());
 		lastInventoryAccess.put(ih,iai);	
-		System.out.println("added ItemHolder...");
+		//System.out.println("added ItemHolder...");
 		}
 		else
 		{
 			iai=lastInventoryAccess.get(ih);
-			System.out.println("retrieved ItemHolder...");
+			//System.out.println("retrieved ItemHolder...");
 		}
 		
 			if(iai.getBukkitTask()!=0)
 			{
 				//cancel.
-				System.out.println("Cancelling existing task ID=" + iai.getBukkitTask());
+				//System.out.println("Cancelling existing task ID=" + iai.getBukkitTask());
 				Bukkit.getScheduler().cancelTask(iai.getBukkitTask());
 				
 			}
@@ -323,7 +343,7 @@ public class GameTracker implements Runnable {
 			//send a message to the player.
 			iai.PlayerView((Player)event.getPlayer());
 			//schedule new task.
-			Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured,ih), _ChestTimeout);
+			iai.setBukkitTask(Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured,ih), _ChestTimeout));
 			
 			
 		
@@ -356,7 +376,7 @@ public class GameTracker implements Runnable {
 		
 	}
 	
-	public HashMap<Player, Integer> getScoreTally() {
+	public HashMap<String, Integer> getScoreTally() {
 		return ScoreTally;
 	}
 	public void AddParticipant(Player p){
@@ -372,7 +392,7 @@ public class GameTracker implements Runnable {
 			s.showPlayer(p);
 		}
 		
-		
+		p.teleport(deathwatcher.handleGameSpawn(p));
 		
 		
 		//things we don't do here are randomize their location or give them items. We just deal with making
@@ -404,18 +424,13 @@ public class GameTracker implements Runnable {
 		chosenX = rgen.nextDouble()*(XMaximum-XMinimum)+XMinimum;
 		chosenZ = rgen.nextDouble()*(ZMaximum-ZMinimum)+ZMinimum;
 		//now, our task: get the highest block at...
-		chosenY = (double)BorderA.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
+		chosenY = (double)ba.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
 		}
-		Location chosenlocation = new Location(BorderA.getWorld(),chosenX,chosenY,chosenZ);
+		Location chosenlocation = new Location(ba.getWorld(),chosenX,chosenY,chosenZ);
 		//participant.teleport(chosenlocation);
 		
 		//System.out.println("Teleported " + participant.getName() + " to " + chosenlocation.toString());
 		return chosenlocation;
-		
-		
-		
-		
-		
 		
 		
 		
@@ -455,10 +470,10 @@ public class GameTracker implements Runnable {
 		_Owner = Owner;
 		_Owner.ActiveGames.add(this);
 		_Spectators = spectators;
-		ScoreTally = new HashMap<Player, Integer>();
+		ScoreTally = new HashMap<String, Integer>();
 		for (Player p : Participants) {
 			StillAlive.add(p);
-			ScoreTally.put(p, 0);
+			ScoreTally.put(p.getName(), 0);
 
 		}
 		_deadPlayers = new LinkedList<Player>();
@@ -520,7 +535,7 @@ public class GameTracker implements Runnable {
 	public boolean getGameConcluding() { return GameConcluding;}
 	private int currentTopScore = 0;
 	public void CheckTopScores(Player p){
-		int grabscore = ScoreTally.get(p);
+		int grabscore = ScoreTally.get(p.getName());
 		if(grabscore > currentTopScore){
 			String usemessage = BCRandomizer.Prefix + p.getDisplayName() + " has the score to beat-" + String.valueOf(grabscore) + ">" + String.valueOf(currentTopScore);
 			for(Player iterate:runningWorld.getPlayers()){
@@ -547,7 +562,11 @@ public class GameTracker implements Runnable {
 		if(this.InitialPlayerLives==Integer.MAX_VALUE || this.InitialPlayerLives==0){
 			//if set to continuous, clear score when players die.
 			CheckTopScores(deadPlayer);
-			ScoreTally.put(deadPlayer, 0);
+			ScoreTally.put(deadPlayer.getName(), 0);
+		}
+		else {
+ 
+			
 		}
 		
 		
@@ -563,6 +582,10 @@ public class GameTracker implements Runnable {
 				//if livesremaining is MAX_VALUE, the second part of the or is ignored.
 				//if it isn't, then it will be decremented and this code will execute if it's
 				//larger than 0.
+				//reapply the new value of livesremaining to the player,
+				//and then also tell them.
+				PlayerLives.put(deadPlayer.getName(), livesremaining);
+				deadPlayer.sendMessage(BCRandomizer.Prefix + " You have " + ChatColor.RED + String.valueOf(livesremaining) + ChatColor.YELLOW + " Lives left.");
 				//we don't actually need to do anything here, as far as I'm currently aware,
 				//because the respawn event handles moving the player and all that guff.
 				//we need to return though, in order to prevent the code below from stopping the game.
@@ -600,11 +623,11 @@ public class GameTracker implements Runnable {
 		Player WinningPlayer = deadPlayer;
 		if (_MobArenaMode) {
 
-			Stack<KeyValuePair<Integer, Player>> sortedScores = SortScoreTally();
+			Stack<KeyValuePair<Integer, String>> sortedScores = SortScoreTally();
 			// FinishPositions = new HashMap<Integer,Player>();
 			int currpos = 1;
 			while (!sortedScores.isEmpty()) {
-				KeyValuePair<Integer, Player> popped = sortedScores.pop();
+				KeyValuePair<Integer, String> popped = sortedScores.pop();
 				FinishPositions.put(currpos, popped.getValue());
 
 				currpos++;
@@ -615,7 +638,7 @@ public class GameTracker implements Runnable {
 			BCRandomizer.Victories.madePlace(deadPlayer, theposition);
 			if (deathwatcher == null)
 				return;
-			FinishPositions.put(theposition, deadPlayer);
+			FinishPositions.put(theposition, deadPlayer.getName());
 		}
 
 		synchronized (StillAlive) { // synch on StillAlive List.
@@ -723,14 +746,14 @@ public class GameTracker implements Runnable {
 	
 	
 	
-	private Stack<KeyValuePair<Integer, Player>> SortScoreTally() {
-		SortedSet<KeyValuePair<Integer, Player>> sortset = new TreeSet<KeyValuePair<Integer, Player>>();
+	private Stack<KeyValuePair<Integer, String>> SortScoreTally() {
+		SortedSet<KeyValuePair<Integer, String>> sortset = new TreeSet<KeyValuePair<Integer, String>>();
 
 		// iterate through ScoreTally.
 		// iterate through the keys.
-		for (Player pkey : ScoreTally.keySet()) {
+		for (String pkey : ScoreTally.keySet()) {
 
-			sortset.add(new KeyValuePair<Integer, Player>(ScoreTally.get(pkey),
+			sortset.add(new KeyValuePair<Integer, String>(ScoreTally.get(pkey),
 					pkey));
 
 		}
@@ -738,8 +761,8 @@ public class GameTracker implements Runnable {
 		// create a stack, iterate, and then pop from the stack until it is
 		// empty. This
 		// should go through the same iterator backwards.
-		Stack<KeyValuePair<Integer, Player>> reversing = new Stack<KeyValuePair<Integer, Player>>();
-		for (KeyValuePair<Integer, Player> setitem : sortset) {
+		Stack<KeyValuePair<Integer, String>> reversing = new Stack<KeyValuePair<Integer, String>>();
+		for (KeyValuePair<Integer, String> setitem : sortset) {
 
 			reversing.push(setitem);
 
@@ -753,14 +776,14 @@ public class GameTracker implements Runnable {
 		// broadcast the game points!
 
 		// we need to sort it by the score.
-		Stack<KeyValuePair<Integer, Player>> reversing = SortScoreTally();
+		Stack<KeyValuePair<Integer, String>> reversing = SortScoreTally();
 		int Position = 1;
 		Bukkit.broadcastMessage(BCRandomizer.Prefix + "--Results--");
 		while (!reversing.isEmpty()) {
 			// FINALLY we can output the results.
-			KeyValuePair<Integer, Player> element = reversing.pop();
+			KeyValuePair<Integer, String> element = reversing.pop();
 			Bukkit.broadcastMessage(Position + ":"
-					+ element.getValue().getDisplayName() + ", Score of "
+					+ Bukkit.getPlayer(element.getValue()).getDisplayName() + ", Score of "
 					+ element.getKey().toString());
 
 		}
@@ -990,7 +1013,7 @@ public class GameTracker implements Runnable {
 					
 					iterate.addPotionEffect(Potion.getBrewer().createEffect(
 							PotionEffectType.BLINDNESS, 500, 1));
-					iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+					iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,1));
 					
 					if(_ChestTimeout>0)
 					{
@@ -1013,35 +1036,42 @@ public class GameTracker implements Runnable {
 			runningWorld.setAnimalSpawnLimit(0);
 			runningWorld.setAmbientSpawnLimit(0);
 			runningWorld.setGameRuleValue("doMobSpawning", "false");
-			runningWorld.setDifficulty(Difficulty.HARD);
+			runningWorld.setGameRuleValue("mobGriefing", "false");
 			
+			runningWorld.setDifficulty(Difficulty.NORMAL);
+			for(Chunk cl: runningWorld.getLoadedChunks())
+			{
+				for(Entity le:cl.getEntities()){
+					if(!(le instanceof Player)){
+					le.remove();
+					}
+					
+				}
+				
+			}
 			
 			Bukkit.broadcastMessage(ChatColor.GREEN
-					+ "Good luck to all contestants! May luck favour you! ;)");
+					+ "Good luck to all contestants! May luck favour you!");
 		} else {
 			String[] possiblemessages = new String[] {
 					"A Cold chill runs down your spine",
 					"It is a good night to " + ChatColor.RED + " die.",
-					"The Black wind howls. One of you will shortly perish." };
+					"The Black wind howls." };
 			try {
 				runningWorld.setDifficulty(Difficulty.HARD);
 			runningWorld.setGameRuleValue("doMobSpawning", "true");
 			runningWorld.setTime(18000); // make it night.
-			runningWorld.setMonsterSpawnLimit(32000); // 80 hostile mobs? That's
+			runningWorld.setMonsterSpawnLimit(400); // 80 hostile mobs? That's
 														// no fun. Let's crank
 														// it up...
+			runningWorld.setGameRuleValue("mobGriefing", "false");
 			runningWorld.setTicksPerMonsterSpawns(40);
 			}
 			catch(Exception exx) { }
 			String chosenmessage = RandomData.Choose(possiblemessages);
 			ResumePvP.BroadcastWorld(runningWorld, BCRandomizer.Prefix
 					+ ChatColor.RED + chosenmessage);
-			ResumePvP
-					.BroadcastWorld(
-							runningWorld,
-							BCRandomizer.Prefix
-									+ "The Animals knew what was coming and killed themselves.");
-
+			
 			for(Chunk cl: runningWorld.getLoadedChunks())
 			{
 				for(Entity le:cl.getEntities()){
@@ -1066,9 +1096,9 @@ public class GameTracker implements Runnable {
 				{
 					iterate.sendMessage(BCRandomizer.Prefix + ChatColor.AQUA + "Chests will NOT repopulate for this match.");
 				}
-			iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,2));
+			//iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.HUNGER,32767,1));
 			//iterate.addPotionEffect(Potion.getBrewer().createEffect(PotionEffectType.SPEED,600,10));
-			iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry. Find some milk!");
+			//iterate.sendMessage(ChatColor.BOLD.toString() + ChatColor.GRAY + "You feel very hungry. Find some milk!");
 			}
 			// kill all animals in the world, too. Because, why not.
 

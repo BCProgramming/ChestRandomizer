@@ -69,7 +69,7 @@ public class SpawnerRandomizer {
 	}
 
 	private static final EntityType[] ValidMobs = new EntityType[] {
-			EntityType.BAT, EntityType.BLAZE, EntityType.CAVE_SPIDER,
+			EntityType.BAT, EntityType.BLAZE, EntityType.SPIDER,
 			EntityType.ENDERMAN, EntityType.CREEPER, EntityType.GHAST,
 			EntityType.PIG_ZOMBIE, EntityType.WITCH, EntityType.SKELETON,
 			EntityType.MAGMA_CUBE, EntityType.ZOMBIE };
@@ -144,8 +144,17 @@ public class SpawnerRandomizer {
 				// choose a random weapon.
 				List<RandomData> Weapons = ChestRandomizer
 						.getWeaponsData(_owner);
+				List<RandomData> Bows = ChestRandomizer.getBowData(_owner);
 				// choose one element.
-				RandomData chosenweapon = RandomData.ChooseRandomData(Weapons);
+				RandomData chosenweapon =null;
+				if(le instanceof Skeleton && ((Skeleton)le).getSkeletonType()==SkeletonType.NORMAL)
+				{
+					
+				chosenweapon = RandomData.ChooseRandomData(Bows);	
+				}
+				else {
+				chosenweapon = RandomData.ChooseRandomData(Weapons);
+				}
 				ItemStack acquiredweapon = chosenweapon.Generate();
 				if (acquiredweapon != null)
 					// el.setEquipment(0,CraftItemStack.asCraftCopy(acquiredweapon));

@@ -139,6 +139,18 @@ public class ChestRandomizer {
 				});
 
 	}
+	public static List<RandomData> getBowData(BCRandomizer _owner) {
+		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
+				new IFilterPredicate<RandomData>() {
+
+					public boolean predicate(RandomData rd) {
+						// filter out helmets.
+						return BowFilter(rd);
+
+					}
+
+				});
+	}
 	public static List<RandomData> getWeaponsData(BCRandomizer _owner) {
 
 		return Filters.filterList(ChestRandomizer.getRandomData(_owner),
@@ -236,6 +248,14 @@ public class ChestRandomizer {
 		if(testdata==null) return false;
 		Material m = testdata.getItemMaterial();
 		if(m==null) return false;
+		
+		if(m.equals(Material.POTION)){
+			return testdata.getMinCount()>0;
+			
+			
+			
+		}
+		
 		return m.equals(Material.ARROW) || m.equals(Material.FIREBALL) || m.equals(Material.FIREWORK) ||
 				m.equals(Material.ENDER_PEARL);
 		//Ender pearl is a bit of a toss-up...
@@ -243,6 +263,13 @@ public class ChestRandomizer {
 		
 		
 		
+	}
+	private static boolean BowFilter(RandomData testdata) {
+		if(testdata==null) return false;
+		Material m = testdata.getItemMaterial();
+		if(m==null) return false;
+		//System.out.println(m.toString());
+		return m.equals(Material.BOW);
 	}
 	private static boolean WeaponsFilter(RandomData testdata) {
 
@@ -253,7 +280,7 @@ public class ChestRandomizer {
 		return m.equals(Material.WOOD_SWORD) || m.equals(Material.IRON_SWORD)
 				|| m.equals(Material.GOLD_SWORD) || m.equals(Material.DIAMOND_SWORD)
 				|| m.equals(Material.DIAMOND_SWORD) || m.equals(Material.SIGN)
-				|| m.equals(Material.SHEARS);
+				|| m.equals(Material.SHEARS) || m.equals(Material.BOW);
 
 	}
 	public ChestRandomizer(){
@@ -618,8 +645,14 @@ public class ChestRandomizer {
 					//Bukkit.broadcastMessage(BCRandomizer.Prefix + " Error in configuration. (ID=" + rdata.getItemID() + " Name=" + rdata.getName());
 					continue;
 				}
+				
 				BCRandomizer.emitmessage("Data:" + created.getData().getData());
 				if (created != null) {
+					
+					if(created.getType()==Material.ENCHANTED_BOOK){
+					System.out.println("Enchanted Book...");
+					}
+					
 					// get all empty slots.
 					Integer[] empties = emptyslots(gotinventory);
 					

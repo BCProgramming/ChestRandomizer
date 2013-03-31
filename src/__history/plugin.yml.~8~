@@ -32,8 +32,6 @@ commands:
         description: clears any set borders.
       saveborder:
         description: saves the currently set border for the current world.
-      borders:
-        description: displays the currently set borders.
       loadborder:
         description: loads the currently saved border for the current world.
       repoptimeout:

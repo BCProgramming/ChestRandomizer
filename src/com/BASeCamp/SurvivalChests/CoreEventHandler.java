@@ -1103,12 +1103,14 @@ if(event.getEntityType().equals(EntityType.ITEM_FRAME)){
 					
 					if (Attacker!=null && gameorigin==null || !gameorigin.getStillAlive().contains(Attacker)) {
 
+						if(Attacker!=null && damaged!=null){
 						System.out
 								.println(Attacker.getName()
 										+ " tried to attack "
 										+ damaged.getName()
 										+ "Cancelled as they are not participants in the same game.");
 						event.setCancelled(true);
+						}
 
 					}
 
@@ -1343,6 +1345,7 @@ Location handleGameSpawn(Player p){
 			if(telespot!=null)
 				closured.getPlayer().teleport(telespot);
 		
+			closured.getPlayer().setHealth(20);
 		if(null!=_owner.isSpectator(closured.getPlayer())){
 			closured.getPlayer().setAllowFlight(true);
 			
@@ -1394,7 +1397,7 @@ Location handleGameSpawn(Player p){
 		String usemessage = event.getDeathMessage();
 		final Player dyingPlayer = event.getEntity();
 
-		String DyingName = dyingPlayer.getDisplayName();
+		String DyingName = dyingPlayer.getDisplayName() + ChatColor.YELLOW;
 		String KillerName = "";
 		
 		
@@ -1521,7 +1524,7 @@ Location handleGameSpawn(Player p){
 			
 			// ok, get the item the Killer has.
 			if (Killer instanceof Player) {
-				String weapon = getFriendlyNameFor(Killer.getItemInHand());
+				String weapon = getFriendlyNameFor(Killer.getItemInHand()) + ChatColor.YELLOW;
 
 				String[] possiblemessages = new String[] {
 						DyingName + " met there end from " + KillerName + "'s "
@@ -1944,23 +1947,23 @@ Location handleGameSpawn(Player p){
 		//System.out.println("Randomizing creature " + event.getEntity().getClass().getName());
 		SpawnerRandomizer sr = new SpawnerRandomizer(_owner);
 		if(RandomData.rgen.nextFloat() < 0.6f)
-			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 32767, RandomData.rgen.nextInt(3)));
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 32767, RandomData.rgen.nextInt(2)));
 		if(RandomData.rgen.nextFloat() < 0.4f)
-			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 32767, RandomData.rgen.nextInt(3)));
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 32767, RandomData.rgen.nextInt(2)));
 		if(RandomData.rgen.nextFloat() < 0.3f)
 		{
-			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED,32767,RandomData.rgen.nextInt(3)));
+			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED,32767,RandomData.rgen.nextInt(2)));
 		if(RandomData.rgen.nextFloat() < 0.1f)
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,32767,RandomData.rgen.nextInt(1)));
 		}
 		if(RandomData.rgen.nextFloat() < 0.4f){
 			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE,32767,RandomData.rgen.nextInt(1)));
 		}
-		if (RandomData.rgen.nextFloat() < 0.3)
-			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,32767,RandomData.rgen.nextInt(2)));
+		//if (RandomData.rgen.nextFloat() < 0.3)
+		//	event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,32767,RandomData.rgen.nextInt(2)));
 		
-		if(RandomData.rgen.nextFloat() > 0.3f)
-			event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.JUMP,32768,RandomData.rgen.nextInt(3)+1));
+		//if(RandomData.rgen.nextFloat() > 0.3f)
+		//	event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.JUMP,32768,RandomData.rgen.nextInt(3)+1));
 		
 		
 		try {

@@ -48,5 +48,3 @@ commands:
         description: lists all current worlds.
       mwtp:
         description: teleports you to the spawn location of another world.
-      mwdel:
-        description: deletes a world.

@@ -1,5 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,12 +16,14 @@ import java.util.Timer;
 
 
 import org.bukkit.*;
+import org.bukkit.World.Environment;
 import org.bukkit.block.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.StorageMinecart;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 //import org.fusesource.jansi.Ansi.Color;
@@ -27,6 +31,7 @@ import org.bukkit.potion.PotionEffect;
 import BASeCamp.Configuration.INIFile;
 
 import com.BASeCamp.SurvivalChests.*;
+import com.sk89q.worldedit.Vector;
 
 public class RandomizerCommand implements CommandExecutor {
 
@@ -148,19 +153,162 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		
 	}
+	private void CreateBorder(final World useworld,Location BorderA,Location BorderB){
+		
+		final int XMin = Math.min(BorderA.getBlockX(),BorderB.getBlockX());
+		final int ZMin = Math.min(BorderA.getBlockZ(), BorderB.getBlockZ());
+		final int XMax = Math.max(BorderA.getBlockX(), BorderB.getBlockX());
+		final int ZMax = Math.max(BorderA.getBlockZ(),BorderB.getBlockZ());
+		
+		//we want to fill in from 0 to 128 of each Y coordinate.
+		
+		//wall one: xMin side.
+		
+		//schedule each.
+		Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new Runnable(){
+			public void run() {
+		
+		for(int currz = ZMin;currz<ZMax;currz++){
+			
+			for(int usey=0;usey<128;usey++){
+				useworld.getBlockAt(XMin,usey,currz).setType(Material.BEDROCK);
+			}
+			
+			
+		}
+		
+		
+		//wall 2: xMax side.
+		for(int currz = ZMin;currz<ZMax;currz++){
+			
+			for(int usey=0;usey<128;usey++){
+				useworld.getBlockAt(XMax,usey,currz).setType(Material.BEDROCK);
+			}
+			
+			
+		}
+		//wall 3, ZMin side.
+		
+		for(int currx=XMin;currx<XMax;currx++){
+			for(int usey = 0;usey<128;usey++){
+				
+				useworld.getBlockAt(currx,usey,ZMin).setType(Material.BEDROCK);
+			}
+			
+			
+		}
+		//wall 4, ZMax side.
+		for(int currx=XMin;currx<XMax;currx++){
+			for(int usey = 0;usey<128;usey++){
+				
+				useworld.getBlockAt(currx,usey,ZMax).setType(Material.BEDROCK);
+			}
+			
+			
+		}
+		
+			}});
+		
+		
+		
+		
+		
+		
+		
+	}
+	private void CreateFeatures(World inWorld,int numchests,Location BorderA,Location BorderB){
+		
+		final int XMin = Math.min(BorderA.getBlockX(),BorderB.getBlockX())+10;
+		final int ZMin = Math.min(BorderA.getBlockZ(), BorderB.getBlockZ())+10;
+		final int XMax = Math.max(BorderA.getBlockX(), BorderB.getBlockX())-10;
+		final int ZMax = Math.max(BorderA.getBlockZ(),BorderB.getBlockZ())-10;
+		
+		
+		for(int i=0;i<numchests;i++){
+			
+			//choose a random location.
+			int XPos = RandomData.rgen.nextInt(XMax-XMin) + XMin;
+			int ZPos = RandomData.rgen.nextInt(ZMax-ZMin) + ZMin;
+			int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
+			
+			ArenaGenerationFeature agf = RandomData.rgen.nextFloat()>0.2f?
+					new OutsideChestFeature():new BrokenWall();
+			agf.GenerateFeature(inWorld.getBlockAt(XPos,YPos,ZPos).getLocation());
+			
+			
+			SchematicImporter.Init(_Owner);
+			
+			
+		}
+		for(SchematicImporter si:SchematicImporter.Schematics.values()){
+		int XPos = RandomData.rgen.nextInt(XMax-XMin) + XMin;
+		int ZPos = RandomData.rgen.nextInt(ZMax-ZMin) + ZMin;
+		int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
+		si.Place(inWorld, new Location(inWorld,XPos,YPos,ZPos), RandomData.rgen.nextInt(4));
+		}
+		
+		
+	}
+	public static LinkedList<String> ArenaNames = new LinkedList<String>();
+	//prepares a NEW arena.
+	//tasks:
+	//create a new, random map.
+	//create border. we center the arena around the origin. This will be bedrock surrounding  the map.
+	//spawn the chests around the arena.
+	//teleport the calling player to the created world.
+	private void PrepareArena(Player pCaller,String worldName,int XSize,int ZSize,int numchests){
+		ArenaNames.add(worldName);
+		Bukkit.broadcastMessage("Creating Arena:" + worldName + "Size:" + XSize + " by " + ZSize);
+		WorldCreator wc = new WorldCreator(worldName);
+		wc.environment(Environment.NORMAL);
+		wc.generateStructures(true);
+		
+		
+		wc.type(WorldType.NORMAL);
+		World spawnworld = wc.createWorld();
+		
+		//get the topmost block at 0,0.
+		int Ypos = spawnworld.getHighestBlockYAt(0,0);
+		Location usespawn = new Location(spawnworld,0,Ypos,0);
+		spawnworld.setSpawnLocation(0,Ypos,0);
+		
+		
+		Location BorderA = new Location(spawnworld,-XSize/2,0,-ZSize/2);
+		Location BorderB = new Location(spawnworld,XSize/2,0,ZSize/2);
+		
+		useBorderA = BorderA;
+		useBorderB = BorderB;
+		
+		CreateBorder(spawnworld,BorderA,BorderB);
+		
+		
+		CreateFeatures(spawnworld,numchests,BorderA,BorderB);
+		spawnworld.getSpawnLocation().getChunk().load();
+		
+		//teleport the player to this world.
+		pCaller.teleport(spawnworld.getSpawnLocation());
+		pCaller.setBedSpawnLocation(spawnworld.getSpawnLocation());
+		
+		
+		
+		
+	}
+	
+	
 	private void saveborder(World w)
 	{
+		
 		String borderfile = BCRandomizer.pluginMainDir + File.separatorChar + w.getName() + ".border";
 		File bfile = new File(borderfile);
 		try {
-		FileWriter fw = new FileWriter(bfile);
-		fw.write(useBorderA.getBlockX());
-		fw.write(useBorderA.getBlockY());
-		fw.write(useBorderA.getBlockZ());
+		BufferedWriter fw = new BufferedWriter(new FileWriter(bfile));
+		fw.write(String.valueOf(useBorderA.getBlockX()) + "\n");
+		fw.write(String.valueOf(useBorderA.getBlockY()) + "\n");
+		fw.write(String.valueOf(useBorderA.getBlockZ()) + "\n");
 			
-		fw.write(useBorderB.getBlockX());
-		fw.write(useBorderB.getBlockY());
-		fw.write(useBorderB.getBlockZ());
+		fw.write(String.valueOf(useBorderB.getBlockX()) + "\n");
+		fw.write(String.valueOf(useBorderB.getBlockY()) + "\n");
+		fw.write(String.valueOf(useBorderB.getBlockZ()) + "\n");
 		
 		fw.close();
 		}
@@ -177,17 +325,17 @@ public class RandomizerCommand implements CommandExecutor {
 		File bfile = new File(borderfile);
 		if(bfile.exists()){
 			try {
-			FileReader fr = new FileReader(bfile);
+			BufferedReader fr = new BufferedReader(new FileReader(bfile));
 			
 			//read a few ints... 6, 3 for each border.
 			int ax,ay,az;
-			ax = fr.read();
-			ay = fr.read();
-			az = fr.read();
+			ax = Integer.parseInt(fr.readLine());
+			ay = Integer.parseInt(fr.readLine());
+			az = Integer.parseInt(fr.readLine());
 			int bx,by,bz;
-			bx = fr.read();
-			by = fr.read();
-			bz = fr.read();
+			bx = Integer.parseInt(fr.readLine());
+			by = Integer.parseInt(fr.readLine());
+			bz = Integer.parseInt(fr.readLine());
 			fr.close();
 			useBorderA = new Location(w,ax,ay,az);
 			useBorderB = new Location(w,bx,by,bz);
@@ -255,6 +403,113 @@ public class RandomizerCommand implements CommandExecutor {
 		if(arg2.equalsIgnoreCase("fixup")){
 			
 			doFixUp(p);
+			
+			
+		}
+		else if(arg2.equalsIgnoreCase("listworlds")){
+			
+			//list worlds.
+			StringBuffer sb = new StringBuffer();
+			p.sendMessage(BCRandomizer.Prefix + "Loaded Worlds(" + String.valueOf(Bukkit.getWorlds().size()) + ":");
+			
+			for(World iterateworld:Bukkit.getWorlds()){
+			p.sendMessage(BCRandomizer.Prefix + iterateworld.getName());	
+				
+			}
+			
+			
+		}
+		else if(arg2.equalsIgnoreCase("mwdel")){
+			if(arg3.length==0){
+				p.sendMessage(ChatColor.RED + "mwdel <worldname>");
+			}
+			else {
+				//find that world.
+				World foundworld = null;
+				String findworld=arg3[0];
+				for(int i=1;i<arg3.length;i++){
+					findworld = findworld + " " + arg3[i];
+				}
+				
+				
+				for(World iterate:Bukkit.getWorlds()){
+					
+					if(iterate.getName().equalsIgnoreCase(findworld)){
+						foundworld = iterate;
+						break;
+					}
+					
+				}
+				if(foundworld==null){
+					p.sendMessage("couldn't find world:" + findworld);
+				}
+				else {
+					if(foundworld.getPlayers().size()>0){
+						
+						p.sendMessage(BCRandomizer.Prefix + " Cannot delete world. Contains " + foundworld.getPlayers().size() + " Players.");
+						for(Player iterate:foundworld.getPlayers()){
+							p.sendMessage(BCRandomizer.Prefix + iterate.getDisplayName());
+						}
+						
+						
+					} else {
+						
+						Bukkit.getWorlds().remove(foundworld);
+						foundworld.getWorldFolder().deleteOnExit();
+						
+					}
+				}
+				
+			}
+			
+			
+		}
+		else if(arg2.equalsIgnoreCase("mwtp")){
+			
+			if(arg3.length==0){
+				p.sendMessage(ChatColor.RED + "mwtp <worldname>");
+			}
+			else {
+				//find that world.
+				World foundworld = null;
+				String findworld=arg3[0];
+				for(int i=1;i<arg3.length;i++){
+					findworld = findworld + " " + arg3[i];
+				}
+				
+				
+				for(World iterate:Bukkit.getWorlds()){
+					
+					if(iterate.getName().equalsIgnoreCase(findworld)){
+						foundworld = iterate;
+						break;
+					}
+					
+				}
+				if(foundworld==null){
+					p.sendMessage("couldn't find world:" + findworld);
+				}
+				else {
+					p.teleport(foundworld.getSpawnLocation());
+				}
+				
+			}
+			
+			
+		}
+		else if(arg2.equalsIgnoreCase("newarena")){
+			
+			if(arg3.length==0){
+				p.sendMessage(BCRandomizer.Prefix + "world name must be given.");
+				
+			}
+			else {
+				
+				
+				String useworldname = arg3[0];
+				PrepareArena(p,useworldname,128,128,20);
+				
+			}
 			
 			
 		}

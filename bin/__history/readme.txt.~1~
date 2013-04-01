@@ -15,7 +15,7 @@ Permissions nodes:
 
 chestrandomizer.worldname.command
 
-available commands are repopchests, preparegame, startgame,joingame,spectategame,arenaborder1, arenaborder2, clearborder, mobmode,mobsweeper, mobtimeout, repoptimeout and setlives.
+available commands are repopchests, preparegame, startgame,joingame,spectategame,arenaborder1, arenaborder2, clearborder, mobmode,mobsweeper, and mobtimeout
 -repopchests repopulates chests. This is also issued automatically when games start.
 -preparegame prepares a new game.
 -joingame is issued by players after an admin issues /preparegame to prepare the game (or anybody with perms). It will join that game event. The player will be teleported to the appropriate world at the location the player who issued /preparegame was when they issued it.
@@ -24,7 +24,6 @@ available commands are repopchests, preparegame, startgame,joingame,spectategame
 -mobtimeout is used for PvP matches. provided with an argument, it specifies the number of seconds before the mob spawning algorithm will be re-enabled. The mob spawns will be the same as those you would find in the Mob Arena Mode, but currently the caps and spawnrate are not changed.
 -mobsweeper so-named since it is designed to "sweep out" players that are camping. Force-enables the Mob spawning algorithm described above.
 -repoptimeout sets the timeout value for opened chests.
--setlives sets the number of lives to be used for the game. using 0 means "infinite" lives, which will create a continuous game. a continuous game never has a winner; instead players join and leave the game as they wish. Player scores are tallied up. The aim of this "mode" concept is to allow for a "hands-free admining" server, which requires little maintenance or supervision.
 [/list]
 
 Game Tracking Specifics:

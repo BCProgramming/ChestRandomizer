@@ -42,11 +42,3 @@ commands:
         description: sets the timeout after a PvP match in which the mob arena spawn logic will kick in.
       mobsweeper:
         description: enables the Mob Arena spawn logic for a PvP match in progress.
-      newarena:
-        description: attempts to generate a new arena, and teleports the user to it.
-      listworlds:
-        description: lists all current worlds.
-      mwtp:
-        description: teleports you to the spawn location of another world.
-      mwdel:
-        description: deletes a world.

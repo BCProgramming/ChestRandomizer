@@ -306,8 +306,10 @@ public class BCRandomizer extends JavaPlugin {
 	
 	return versionstring.substring(foundpos,endparen);
 	}
+	WorldTracker wt = null;
 	@Override
 	public void onEnable() {
+		
 		
 		System.out.println("BCSURV running on Server version:" + getMCVersion());
 		
@@ -359,11 +361,16 @@ public class BCRandomizer extends JavaPlugin {
 		this.getCommand("borders").setExecutor(Randomcommand);
 		this.getCommand("saveborder").setExecutor(Randomcommand);
 		this.getCommand("loadborder").setExecutor(Randomcommand);
+		this.getCommand("newarena").setExecutor(Randomcommand);
+		this.getCommand("listworlds").setExecutor(Randomcommand);
+		this.getCommand("mwtp").setExecutor(Randomcommand);
+		this.getCommand("mwdel").setExecutor(Randomcommand);
 		// this.getCommand("setfly").setExecutor(Randomcommand);
 		// this.getCommand("prepareinfo").setExecutor(Randomcommand);
 		// this.getCommand("fixup").setExecutor(Randomcommand);
 		// this.getCommand("strike").setExecutor(Randomcommand);
 		ChestRandomizer.reload(this, null);
+		wt = new WorldTracker(this);
 	}
 
 	@Override

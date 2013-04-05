@@ -543,11 +543,7 @@ public class RandomData {
 		//Potion.getBrewer().createEffect(PotionEffectType., arg1, arg2)
 		try {
 		ItemStack createitem=null;
-		if(_ItemID==403){
-			
-			System.out.println("403...");
-			
-		}
+		
 		if(_SpawnType==1){
 			
 			
@@ -1022,7 +1018,7 @@ public class RandomData {
 		boolean foundprefix=true;
 		while(foundprefix){
 			foundprefix=false;
-			System.out.println(Initializer);
+			//System.out.println(Initializer);
 			if(Initializer.startsWith("POTION:"))
 			{
 				_SpawnType=1;
@@ -1044,7 +1040,7 @@ public class RandomData {
 				
 			}
 			else if(Initializer.startsWith("SINGLEENCHANT:")){
-				System.out.println("Single Enchant");
+				//System.out.println("Single Enchant");
 				_SingleEnchantment=true;
 				Initializer = Initializer.substring(14);
 				foundprefix=true;

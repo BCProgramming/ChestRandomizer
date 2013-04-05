@@ -136,32 +136,8 @@ the desired effect is that only chests accessed by players will timeout, but not
 
 Arena Generation:
 
-2.0 adds a new feature: creating new Arenas. the /newarena command is used for this:
+2.0 adds a new feature: creating new Arenas.
 
-/newarena <name> <XSize> <ZSize> <FeatureFactor>
-
-name will be the name of the new world that is created.
-XSize and ZSize are the size of the arena. The plugin will encompass this border with bedrock walls.
-FeatureFactor is a feature generation factor to use. The plugin will use Schematics from the ./plugins/BCRandomizer/Schematics folder. If this folder is not found, it will be populated from the jar file.
-
-the Plugin uses the WorldEdit API to import schematics into the generated arena. an options.ini file, like that provided by default from the jar, can be used to change a few things about how a given schematic will be inserted. the ini is a standard INI file. Each section corresponds to the base name of a schematic. This is the default options.ini at the time of this writing (this will certainly change as I make new ones):
-
-[small_bunker]
-heightoffset=-4
-[desert_tomb]
-heightoffset=-10
-includebiomes=desert
-[pillbox]
-heightoffset=-3
-[forest_sniper]
-heightoffset=-1
-forceair=false
-
-each section is named for a .schematic file; for example, the default setup contains a forest_sniper.schematic file. The options are within the [forest_sniper] section. heightoffset changes the Y offset the schematic from ground level. currently ground level is chosen from one corner, but this will likely be changed to provide a smoother insertion appearance. Underground items such as the desert tomb have larger, negative height offsets, to make them under the ground. forceair is used to copy air blocks. forest_sniper uses this because it has a bottom layer with two stone slabs, but is intended to not replace the ground it is placed on with air. 
-
-When imported into a arena the schematics are rotated at random and inserted. Currently they will avoid intersecting the X/Z placement of any other schematic. This feature is still under heavy development to try to get the best 'default' arenas, as well as providing options.
-
-Once an arena is generated (this will take some time and appears to "hang" the server while the world is initially generated), the player that issued the newarena command is teleported there. The plugin will also set the current border to the borders of the created arena. One caveat of this is that that player will not be teleported back to their previous position when the game concludes. They can use either multiverse commands (if the plugin is installed) or they can use the mwtp command provided by this plugin, which will teleport the player to the spawn point of a world that is specified. As with all SurvivalChests commands, the issuing player must have permissions to use the command.
 
 Note: Features that I'm still deciding how to implement and how they should work:
 

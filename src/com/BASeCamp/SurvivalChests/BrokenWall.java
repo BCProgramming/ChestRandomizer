@@ -9,9 +9,9 @@ public class BrokenWall implements ArenaGenerationFeature {
 	@Override
 	public void GenerateFeature(Location atLocation) {
 		// TODO Auto-generated method stub
-		System.out.println("BrokenWall...");
+		//System.out.println("BrokenWall...");
 		World inworld = atLocation.getWorld();
-		if(!inworld.getBlockAt(atLocation.getBlockX(),atLocation.getBlockY()-1,atLocation.getBlockZ()).getType().equals(Material.WATER)){
+		if(!inworld.getBlockAt(atLocation.getBlockX(),atLocation.getBlockY()-1,atLocation.getBlockZ()).getType().equals(Material.STATIONARY_WATER)){
 			
 			int[][] usearrays = new int[][] { 
 			new int[] {0,1},		

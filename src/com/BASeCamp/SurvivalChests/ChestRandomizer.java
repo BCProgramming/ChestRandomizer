@@ -459,7 +459,7 @@ public class ChestRandomizer {
 		
 		
 		
-		System.out.println("ChestRandomizer::reload()");
+		//System.out.println("ChestRandomizer::reload()");
 		//Thread.dumpStack();
 		
 		randData = new LinkedList<RandomData>();
@@ -650,7 +650,7 @@ public class ChestRandomizer {
 				if (created != null) {
 					
 					if(created.getType()==Material.ENCHANTED_BOOK){
-					System.out.println("Enchanted Book...");
+					//System.out.println("Enchanted Book...");
 					}
 					
 					// get all empty slots.

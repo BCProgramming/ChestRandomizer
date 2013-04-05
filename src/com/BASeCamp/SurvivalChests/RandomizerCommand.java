@@ -1,5 +1,7 @@
 package com.BASeCamp.SurvivalChests;
 
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -216,35 +218,105 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		
 	}
-	private void CreateFeatures(World inWorld,int numchests,Location BorderA,Location BorderB){
+	private double MinimumDistance(List<Location> check,Location loc){
 		
+		double currmin = Double.MAX_VALUE;
+		double grabdist=0;
+		if(check.size()==0) return Double.MAX_VALUE;
+		for(Location iterate:check){
+			grabdist = distance(iterate.getBlockX(),iterate.getBlockY(),loc.getBlockX(),loc.getBlockY());
+			
+			if((grabdist<currmin))
+			{
+				currmin = grabdist;
+			}
+		}
+		return grabdist;
+		
+		
+	}
+	private double distance(float Ax,float Ay,float Bx,float By){
+		
+		float xs = (Bx-Ax)*(Bx-Ax);
+		float ys = (By-Ay)*(By-Ay);
+		
+		return Math.sqrt((xs+ys));
+		
+	}
+	
+	
+	private void CreateFeatures(World inWorld,float featuredensity,Location BorderA,Location BorderB){
+		
+		
+		LinkedList<Location> AddedLocation = new LinkedList<Location>();
+		LinkedList<Rectangle> SavedRegions = new LinkedList<Rectangle>();
 		final int XMin = Math.min(BorderA.getBlockX(),BorderB.getBlockX())+10;
 		final int ZMin = Math.min(BorderA.getBlockZ(), BorderB.getBlockZ())+10;
 		final int XMax = Math.max(BorderA.getBlockX(), BorderB.getBlockX())-10;
 		final int ZMax = Math.max(BorderA.getBlockZ(),BorderB.getBlockZ())-10;
 		
-		
-		for(int i=0;i<numchests;i++){
+		/*
+		for(int i=0;i<featuredensity;i++){
 			
 			//choose a random location.
 			int XPos = RandomData.rgen.nextInt(XMax-XMin) + XMin;
 			int ZPos = RandomData.rgen.nextInt(ZMax-ZMin) + ZMin;
 			int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
-			
+			Location addlocation = new Location(inWorld,XPos,YPos,ZPos);
+			if(MinimumDistance(AddedLocation,addlocation)>32){
+			AddedLocation.add(addlocation);
 			ArenaGenerationFeature agf = RandomData.rgen.nextFloat()>0.2f?
 					new OutsideChestFeature():new BrokenWall();
 			agf.GenerateFeature(inWorld.getBlockAt(XPos,YPos,ZPos).getLocation());
+			}
 			
 			
-			SchematicImporter.Init(_Owner);
 			
 			
-		}
+		}*/
+		
+		
+		for(int i=0;i<featuredensity*Math.sqrt((XMax-XMin)+(ZMax-ZMin));i++){
+		//SchematicImporter.Init(_Owner);
+		int rmaker = RandomData.rgen.nextInt(3)+2;
 		for(SchematicImporter si:SchematicImporter.Schematics.values()){
+			
+				
 		int XPos = RandomData.rgen.nextInt(XMax-XMin) + XMin;
 		int ZPos = RandomData.rgen.nextInt(ZMax-ZMin) + ZMin;
 		int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
-		si.Place(inWorld, new Location(inWorld,XPos,YPos,ZPos), RandomData.rgen.nextInt(4));
+		System.out.println("placing schematic at " + XPos + " " + YPos + " " + ZPos);
+		
+		
+		
+		Location loc = new Location(inWorld,XPos,YPos,ZPos);
+		si.getClip().rotate2D(90*RandomData.rgen.nextInt(4));
+		Rectangle thispos = new Rectangle(XPos-1,ZPos-1,si.getClip().getWidth()+1,si.getClip().getLength()+!);
+		
+		
+		boolean foundintersection = false;
+		for(Rectangle iterate:SavedRegions){
+			
+			iterate.
+			if(iterate.intersects(thispos)){
+				foundintersection=true;
+				break;
+			}
+			
+		}
+		
+				
+			if(!foundintersection){
+			if(si.Place(inWorld, new Location(inWorld,XPos,YPos,ZPos), RandomData.rgen.nextInt(4))){	
+				AddedLocation.add(loc);
+				SavedRegions.add(thispos);
+				System.out.println("Placing Schematic");
+			}
+			}
+		
+			
+			
+		}
 		}
 		
 		
@@ -256,9 +328,9 @@ public class RandomizerCommand implements CommandExecutor {
 	//create border. we center the arena around the origin. This will be bedrock surrounding  the map.
 	//spawn the chests around the arena.
 	//teleport the calling player to the created world.
-	private void PrepareArena(Player pCaller,String worldName,int XSize,int ZSize,int numchests){
+	private void PrepareArena(Player pCaller,String worldName,int XSize,int ZSize,float featuredensity){
 		ArenaNames.add(worldName);
-		Bukkit.broadcastMessage("Creating Arena:" + worldName + "Size:" + XSize + " by " + ZSize);
+		Bukkit.broadcastMessage(BCRandomizer.Prefix + "Creating Arena:" + ChatColor.RED + worldName + ChatColor.YELLOW + ",Size:" + XSize + " by " + ZSize + "Feature Density:" + featuredensity);
 		WorldCreator wc = new WorldCreator(worldName);
 		wc.environment(Environment.NORMAL);
 		wc.generateStructures(true);
@@ -279,13 +351,16 @@ public class RandomizerCommand implements CommandExecutor {
 		useBorderA = BorderA;
 		useBorderB = BorderB;
 		
+		
+		
+		
+		CreateFeatures(spawnworld,featuredensity,BorderA,BorderB);
 		CreateBorder(spawnworld,BorderA,BorderB);
-		
-		
-		CreateFeatures(spawnworld,numchests,BorderA,BorderB);
 		spawnworld.getSpawnLocation().getChunk().load();
 		
 		//teleport the player to this world.
+		//ideally the player knows to use /mwtp to leave a world.
+		
 		pCaller.teleport(spawnworld.getSpawnLocation());
 		pCaller.setBedSpawnLocation(spawnworld.getSpawnLocation());
 		
@@ -499,16 +574,28 @@ public class RandomizerCommand implements CommandExecutor {
 		}
 		else if(arg2.equalsIgnoreCase("newarena")){
 			
-			if(arg3.length==0){
-				p.sendMessage(BCRandomizer.Prefix + "world name must be given.");
+			if(arg3.length<4){
+				p.sendMessage(BCRandomizer.Prefix + " syntax: /newarena <worldname> <XSize> <ZSize> <FeatureDensity>");
 				
 			}
 			else {
-				
-				
+			 
+				try {
 				String useworldname = arg3[0];
-				PrepareArena(p,useworldname,128,128,20);
+				String XS = arg3[1];
+				String ZS = arg3[2];
+				String FeatureDens = arg3[3];
 				
+				int YSize = Integer.parseInt(XS);
+				int ZSize = Integer.parseInt(ZS);
+				float FeatureDensity = Float.parseFloat(FeatureDens);
+				
+				PrepareArena(p,useworldname,YSize,ZSize,FeatureDensity);
+				}
+				catch(NumberFormatException nfe){
+					nfe.printStackTrace();
+					p.sendMessage(BCRandomizer.Prefix + " syntax: /newarena <worldname> <XSize> <ZSize> <FeatureDensity>");
+				}
 			}
 			
 			
@@ -1490,8 +1577,8 @@ private void ShufflePlayers(List<Player> shufflethese){
 				// choose a random chest.
 				Chest chosen = RandomData.Choose(chestchoose);
 				Inventory iv = chosen.getBlockInventory();
-				// BCRandomizer.emitmessage("Added Static Item:" +
-				// result.toString());
+				 BCRandomizer.emitmessage("Added Static Item:" +
+				 result.toString());
 				iv.addItem(result);
 				StaticAdded++;
 			}

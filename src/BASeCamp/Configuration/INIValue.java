@@ -11,7 +11,13 @@ public class INIValue {
 	
 	public String getValue() { return _Value;} 
 	public void setValue(String value) { _Value=value;}
-	
+	public String[] getValues(String separator){
+		return getValue().split(separator);
+		
+		
+		
+	}
+	public String[] getValues(){ return getValues(",");}
 	public String getComment() { return _Comment;}
 	public void setComment(String value){ _Comment=value;}
 	

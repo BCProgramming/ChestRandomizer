@@ -22,23 +22,7 @@ The configuration is relatively simple, consisting mostly of lines of comma-deli
 
 Name,Weight,ItemID,Data,LowDurability,HighDurability,MinStack,MaxStack,Lore,EnchantmentName, EnchantmentProbability...
 
-The first part indicates the name of this item. The exclamation mark tells the plugin that the generated item should share the name given. %CLEVERSWORDNAME% uses a random name generator to create a name for this sword; some examples of this case could be "Katana of Brisk Sneezing" or "Blade of Extreme Selling". Implemented "clever" names include:
-
-%CLEVERAXENAME%
-%CLEVERBOOKNAME%
-%CLEVERHOENAME%
-%CLEVERSHOVELNAME%
-%CLEVERSHEARSNAME%
-%CLEVERSIGNNAME%
-%CLEVERHATNAME%
-%CLEVERCHESTPLATENAME%
-%CLEVERLEGGINGSNAME%
-%CLEVERBOOTSNAME%
-%CLEVERSWORDNAME%
-%CLEVERBOWNAME%
-
-
-The second entry is the probability weight of this item. The plugin adds up the weights of all the items in the file, and the percentage that this value is of that total is the percentage chance that this item will spawn. In this case, the item is very rare (perhaps even too rare) and will not generate very often, because most entries in the default file are 20's, 50's, and 100's. The ItemID is the... well, ItemID, of the item. the Diamond Sword is ItemID 276, so that is what is put here. Next comes the Data value of the item. For items such as Dyes (which you might want to use for some reason, I'm not going to judge you) this item will determine some qualities. Most items don't use it, but if you happen to want to create an item that does, this is available. The next item is the minimum durability, followed by the maximum durability. the generator will select a value between the given percentages of the created items total MaxDurability and give the created item the resulting value. In this case, the item generated will have a durability above 10% but no more than 90% when inserted into a chest or other inventory. The next two items are the minimum and maximum stack sizes for the generated Item Stack. This has 1 for both, meaning you won't get stacks of diamond swords, which is probably for the best (and definitely why me in the past chose that). Next, the blank item is the optional "lore" for the item. This has some special rules; you can indicate a Lore to use here directly. However, if the item name has "of" in the title, (which most of  the built-in "clever" name generators will insert) than there is a chance the plugin will give the item a random lore value itself.
+The first part indicates the name of this item. The exclamation mark tells the plugin that the generated item should share the name given. %CLEVERSWORDNAME% uses a random name generator to create a name for this sword; some examples of this case could be "Katana of Brisk Sneezing" or "Blade of Extreme Selling". The second entry is the probability weight of this item. The plugin adds up the weights of all the items in the file, and the percentage that this value is of that total is the percentage chance that this item will spawn. In this case, the item is very rare (perhaps even too rare) and will not generate very often, because most entries in the default file are 20's, 50's, and 100's. The ItemID is the... well, ItemID, of the item. the Diamond Sword is ItemID 276, so that is what is put here. Next comes the Data value of the item. For items such as Dyes (which you might want to use for some reason, I'm not going to judge you) this item will determine some qualities. Most items don't use it, but if you happen to want to create an item that does, this is available. The next item is the minimum durability, followed by the maximum durability. the generator will select a value between the given percentages of the created items total MaxDurability and give the created item the resulting value. In this case, the item generated will have a durability above 10% but no more than 90% when inserted into a chest or other inventory. The next two items are the minimum and maximum stack sizes for the generated Item Stack. This has 1 for both, meaning you won't get stacks of diamond swords, which is probably for the best (and definitely why me in the past chose that). Next, the blank item is the optional "lore" for the item. This has some special rules; you can indicate a Lore to use here directly. However, if the item name has "of" in the title, (which most of  the built-in "clever" name generators will insert) than there is a chance the plugin will give the item a random lore value itself.
 
 The items after this are Enchantments followed by their probability weighting. Valid Enchantment names the plugin recognizes as of Plugin Version 2.0 are NONE, FLAME, POWER, INFINITY, PUNCH, SHARPNESS,ARTHROPODS,SMITE,EFFICIENCY,UNBREAKING,FIREASPECT,KNOCKBACK,FORTUNE,LOOTING,RESPIRATION,PROTECTION,BLASTPROTECTION,FEATHERFALLING,FIREPROTECTION,PROJECTILEPROTECTION,SILKTOUCH,AQUAAFFINITY, and THORNS. A enchantment name can be prefixed with a exclamation mark; if this is done then the item will be forcibly given that enchantment with the level that will be used in lieu of a probability weighting.
 
@@ -59,6 +43,16 @@ Items can have special "prefixes" added to them. Prefixes are when the line star
 STATIC: has a special effect; instead of chest population choosing items when it populates all the chests, static items instead choose a random chest to be placed into after the main population run. This means that items prefixed with STATIC: will always be present in a chest somewhere, but will only ever appear once. SUPERENCHANT cranks up the enchantment counts and probabilities for the enchantment selection logic, which usually results in more enchantments as well as more powerful enchantments. SINGLEENCHANT: will only allow one enchantment to be applied Total.
 
 
+
+
+
+
+
+-Chest Randomization. Chests will be randomized Either using a custom-made or edited configuration file in \plugins\BCRandomizer, or by using a built-in setup. Features of this randomizer include weighted probabilities on items, support for enchantments, names, and Lore, including the generation of randomized names for tools and equipment as well as a few other items. It also supports the definition of "static" items, which instead of being a weighted probability on each chest will instead choose a random chest for each and put it there (meaning you can have only one item placed somewhere, but always have it exist). It also supports potions as well as player heads.
+-Game Tracking Players will join a game that is being prepared. After the game starts, the remaining players will be tracked, and when there is only one player left standing, that player is declared the winner.
+-Death Message Modification Death Messages are changed to include more information. This includes the weapon the attacker was using (the specific name) as well as the amount of damage the death blow inflicted.
+-Mob Arena mode
+
 This is similar to many existing Mob Arena modes, but is designed to be used in a designated world. Usually, maps that work with the Survival-based gameplay work just as well in Mob Arena Mode, as well. Essentially, this mode pits players against each other, not in open combat, but in a competition to get the most points. Points are awarded by killing mobs, which spawn with various potion buffs, Equipment (the same equipment that can spawn in chests, in fact), and mob-specific, randomized variations, such as baby mobs, charged creepers, and wither skeletons. Mob spawn rates are cranked up and the mob cap is as well. These monsters are no pushover; running outside, even with full armour, is still a dangerous proposition.
 
 
@@ -76,12 +70,7 @@ available commands are repopchests, preparegame, startgame,joingame,spectategame
 -mobtimeout is used for PvP matches. provided with an argument, it specifies the number of seconds before the mob spawning algorithm will be re-enabled. The mob spawns will be the same as those you would find in the Mob Arena Mode, but currently the caps and spawnrate are not changed.
 -mobsweeper so-named since it is designed to "sweep out" players that are camping. Force-enables the Mob spawning algorithm described above.
 -repoptimeout sets the timeout value for opened chests.
--newarena <name> <XSize> <ZSize> <FeatureFactor> generates a new arena and teleports the invoking player to it when it initially generates.
--borders shows you the currently set borders. /newarena will initialize the border values to the size of the created arena.
--arenaborder1 and arenaborder2 set the corners of the border for a rectangular region.
--setlives sets the number of lives each player has for both PvP as well as MobArena Matches. 0 indicates infinite lives which is a flag for a continuous game.
-
-
+[/list]
 
 Game Tracking Specifics:
 
@@ -105,6 +94,86 @@ As it is currently written, Buttons are the only item that can be placed. Button
 Since preparegame sets the spawn, it's worth noting that if you are in creative mode you ought to make sure you are a reasonable height, otherwise players will fall and die the moment they try to join or spectate the game.
 
 
+Features of the randomizer
+-Randomizes all Chests in a world.
+-Items can have random enchantments and randomized names.
+-Chests that are on Wool Blocks will NOT have their contents randomized.
+
+
+Randomization data is stored in the "BCRandomizer" folder of your plugin directory, inside a file named "survivalchests.cfg". This file is not created by default, instead it defaults to using the file inside the plugin .jar. For editing, extract that file to the correct location to get a "default" template upon which to make your changes.
+
+The data for Randomized Names can be changed by creating a "namegen.ini" file in the BCRandomizer folder. Each line of this file can be a comment, starting with //, or an entry. An entry is in the form:
+
+nametype=name
+
+where nametype can be one of Noun,Verb,Adjective,Sword,Helmet,Chestplate,Leggings,Boots,Bow,Pickaxe,Shovel,Hoe,Axe,MobName,MobTitle. The value can also be a comma-delimited list, for example the lines:
+
+Sword=Cutter
+Sword=Greatsword
+
+are the equivalent of this one line:
+
+Sword=Cutter,Greatsword
+
+Items are added to the existing list of words. If you want to clear the list and only use your own name, use "!clear!" as a entry; for example:
+
+Axe=!clear!
+
+will clear that entire list.
+
+
+For the actual Item Randomizer, There are a few "Types" of lines in the file: these come in the form of "Standard" lines, as well as lines for creating Potions and Player Heads.
+
+The following is an example line (standard) from this file (A default survivalchests.cfg file is provided in the zip alongside the jar and this file):
+
+Stone Sword,50,272,0,0,0,1,1,,NONE,700,SHARPNESS,100,FIREASPECT,50
+
+
+The format here is:
+Name,Weight,TypeID,Data,MinDamage,MaxDamage,MinCount,MaxCount,Lore, EnchantmentName,EnchantmentWeight...
+
+
+
+The first element is the Name. This is normally ignored (as in, it is not applied to the Item as it's name). If you want to give the item a special name, precede that name with !. There are also special variables you can use in conjunction with !, Currently implemented name randomizers include:
+%CLEVERHATNAME%
+%CLEVERCHESTPLATENAME%
+%CLEVERLEGGINGSNAME%
+%CLEVERBOOTSNAME%
+%CLEVERSWORDNAME%
+%CLEVERBOWNAME%
+%CLEVERSHEARSNAME%
+Which create random names suitable (or, well, mostly suitable) for each specified item type. 
+
+Weight assigns the "weight" of this item. The higher this value is compared to the other values in the file, the more likely this item is to appear. A item with a weight of 5, for example, is half as likely to appear as one with a weight of 10.
+
+The next item is the TypeID. This is the typeID of the item in question. In the above, we use 272 because that is the ID of the stone Sword.
+
+MinDamage and MaxDamage: When the item is created, a random value is chosen between these values, and set as the items Damage value.
+
+MinCount and MaxCount: When the item is created, a random value is chosen between these values, and the size of the stack of items is set to the resulting value. For armours and most items and tools, it makes sense to have both values set to 1. If you want the possibility of "disjoint" values- for example, if you want it to be only possible to have 1, ot 64 of an item, you will need to use two Lines which differ only in their min and max count.
+
+Lore: This sets the lore text for the item. Normally, this will be empty, but it can be changed. Note that all the items generated from the line will have this lore text. Some item types (helmet, shears, etc.) will be given random lore (about a 10% chance) if this item is empty.
+
+Enchantments are listed at the end of the line. All remaining entries on the line are parsed as Enchantment Names followed by their weight. If the enchantment name starts with a exclamation mark, than that is parsed as being a enchantment that is always given to the resulting item, at the level of the following item. For example:
+
+
+STATIC:SUPERENCHANT:!Femur of Deliverance,700,352,0,0,0,1,1,§r§cDelivers Justice. Also a good fertilizer,!SHARPNESS,6,!FIREASPECT,3,SHARPNESS,40,!SMITE,10
+
+This has the "STATIC:" modifier, meaning the plugin will only add one of this item to the game. SUPERENCHANT: means that enchantments will be "boosted" and more powerful, and since the given name starts with an Exclamation mark, it will be used to name the item. the probability elements here are unused, ID is 352, and the stack sizes will always be 1 (range from 1 to 1). The Lore data is "Delivers Justice, Also a good fertilizer". And items will start with the enchantments of Sharpness VI, Fire Aspect III, and Smite X. the additional Sharpness entry is used with the default enchantment code, and means there is a probability that the item will have a higher sharpness enchantment than VI.
+
+
+For creation potions, there is a similar but slightly different syntax to the line:
+
+POTION:SLOWNESS,10,373,8194,0,0,0
+
+the format is:
+POTION:NAME,Weight,ID,Damage,Extended,Leveled,Splash
+
+NAME is the more significant value here. Supported items include:
+
+FIRERESIST,DAMAGE,HEAL,POISON,REGENERATION,SLOWNESS,SPEED,STRENGTH,WATER,WEAKNESS,INVISIBILITY
+
+ID and Damage are both unused, and will be 373 and the appropriate damage value for the resulting potion in the created item. Extended indicates when the potion has a extended length. Leveled indicates whether it is a Level II potion, and Splash is whether it is a splash potion.
 
 The Head Randomizing line is nice and simple:
 
@@ -133,39 +202,9 @@ one of the features I have added with the release for Bukkit 1.5 include a featu
 
 the desired effect is that only chests accessed by players will timeout, but not if somebody else accesses it in the meantime.
 
+Another idea I'm toying with is the plugin showing the recent viewers of that chest, as a way to track player movement depending on the map in question. 
 
-Arena Generation:
 
-2.0 adds a new feature: creating new Arenas. the /newarena command is used for this:
-
-/newarena <name> <XSize> <ZSize> <FeatureFactor>
-
-name will be the name of the new world that is created.
-XSize and ZSize are the size of the arena. The plugin will encompass this border with bedrock walls.
-FeatureFactor is a feature generation factor to use. The plugin will use Schematics from the ./plugins/BCRandomizer/Schematics folder. If this folder is not found, it will be populated from the jar file.
-
-the Plugin uses the WorldEdit API to import schematics into the generated arena. an options.ini file, like that provided by default from the jar, can be used to change a few things about how a given schematic will be inserted. the ini is a standard INI file. Each section corresponds to the base name of a schematic. This is the default options.ini at the time of this writing (this will certainly change as I make new ones):
-
-[small_bunker]
-heightoffset=-4
-[desert_tomb]
-heightoffset=-10
-includebiomes=desert
-[pillbox]
-heightoffset=-3
-[forest_sniper]
-heightoffset=-1
-forceair=false
-
-each section is named for a .schematic file; for example, the default setup contains a forest_sniper.schematic file. The options are within the [forest_sniper] section. heightoffset changes the Y offset the schematic from ground level. currently ground level is chosen from one corner, but this will likely be changed to provide a smoother insertion appearance. Underground items such as the desert tomb have larger, negative height offsets, to make them under the ground. forceair is used to copy air blocks. forest_sniper uses this because it has a bottom layer with two stone slabs, but is intended to not replace the ground it is placed on with air. 
-
-When imported into a arena the schematics are rotated at random and inserted. Currently they will avoid intersecting the X/Z placement of any other schematic. This feature is still under heavy development to try to get the best 'default' arenas, as well as providing options.
-
-Once an arena is generated (this will take some time and appears to "hang" the server while the world is initially generated), the player that issued the newarena command is teleported there. The plugin will also set the current border to the borders of the created arena. One caveat of this is that that player will not be teleported back to their previous position when the game concludes. They can use either multiverse commands (if the plugin is installed) or they can use the mwtp command provided by this plugin, which will teleport the player to the spawn point of a world that is specified. As with all SurvivalChests commands, the issuing player must have permissions to use the command.
-
-Note: Features that I'm still deciding how to implement and how they should work:
-
-Multiple Lives has some unimplemented features and some oddness that makes it difficult to use for appropriate gameplay in most cases. It will still work fine for PvP matches, but Mob Fight matches will have weird scoring issues.
 
 GITHUB: (It's messy, I apologize in advance for anybody that looks at it...)
 

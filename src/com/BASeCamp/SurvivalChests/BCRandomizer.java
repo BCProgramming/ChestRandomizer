@@ -46,6 +46,7 @@ public class BCRandomizer extends JavaPlugin {
 			+ "BCSurv" + ChatColor.WHITE + "]";
 	public final static String PluginName = "BCRandomizer";
 	public static String pluginMainDir = "./plugins/BCRandomizer";
+	public static String SchematicsFolder = "./plugins/BCRandomizer/Schematics";
 	// TODO: use plugin.yml to retrieve configuration data- more precisely, to
 	// retrieve the file to use for the randomization data.
 	// Another idea is to allow that to be changed via other commands, possibly
@@ -370,7 +371,9 @@ public class BCRandomizer extends JavaPlugin {
 		// this.getCommand("fixup").setExecutor(Randomcommand);
 		// this.getCommand("strike").setExecutor(Randomcommand);
 		ChestRandomizer.reload(this, null);
+		SchematicImporter.Init(this);
 		wt = new WorldTracker(this);
+		
 	}
 
 	@Override

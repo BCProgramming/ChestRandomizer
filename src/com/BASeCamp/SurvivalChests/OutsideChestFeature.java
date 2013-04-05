@@ -17,7 +17,7 @@ public class OutsideChestFeature implements ArenaGenerationFeature {
 		final World inWorld = atLocation.getWorld();
 		
 		//create a pedestal, make sure we aren't over water.
-		if(inWorld.getBlockAt(XPos,YPos-1,ZPos).getType().equals(Material.WATER)){
+		if(inWorld.getBlockAt(XPos,YPos-1,ZPos).getType().equals(Material.STATIONARY_WATER)){
 			return;
 		}
 			for(int xp = XPos-3;xp<XPos+3;xp++){

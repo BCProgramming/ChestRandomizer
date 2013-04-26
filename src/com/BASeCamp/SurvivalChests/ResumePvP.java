@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class ResumePvP implements Runnable{
 
@@ -21,18 +22,37 @@ public class ResumePvP implements Runnable{
 	private long starttime;
 	private List<Player> _Players = null;
 	private List<Player> _Spectators = null;
+	private Scoreboard Scoreboard = null;
 	public Thread TrackerThread = null;
 	World useWorld = null;
+	private Player Preparator = null;
 	private GameTracker usetracker;
 	public GameTracker getTracker() { return usetracker;}
-	public ResumePvP(BCRandomizer bcr,World target,int numseconds,List<Player> ActivePlayers,List<Player> Spectators,int useLives,Location BorderA,Location BorderB){
+	public Player getPreparator() { return Preparator;}
+private boolean AllowHealthRegen = true; 
+	
+	
+	
+	
+	public ResumePvP(Player pPreparator,BCRandomizer bcr,
+			World target,
+			int numseconds,
+			List<Player> ActivePlayers,
+			List<Player> Spectators,
+			int useLives,
+			Location BorderA,
+			Location BorderB,
+			Scoreboard ss){
 		_bcr = bcr;
 		_SecondsDelay=numseconds;
 		starttime= System.currentTimeMillis();
 		_Players=ActivePlayers;
 		_Spectators = Spectators;
 		useWorld=target;
-		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators,bcr.Randomcommand.getMobArenaMode(),useLives,BorderA,BorderB);
+		Preparator = pPreparator;
+		usetracker = new GameTracker(_bcr,useWorld,_Players,_Spectators,bcr.Randomcommand.getMobArenaMode(),useLives,BorderA,BorderB,ss);
+		
+		
 	}
 	public static void BroadcastWorld(World toWorld,String Message){
 		
@@ -102,6 +122,11 @@ public class ResumePvP implements Runnable{
 		TrackerThread.start();
 		
 	}
+	public void setScoreboard(Scoreboard ss) {
+		// TODO Auto-generated method stub
+		Scoreboard = ss;
+	}
+	public Scoreboard getScoreboard(){ return Scoreboard;}
 
 	
 	

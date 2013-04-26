@@ -429,7 +429,64 @@ public class BCRandomizer extends JavaPlugin {
 		}
 		
 	}
-
+	public static int getAverageY(Location BorderA,Location BorderB){
+		
+		int MinX = Math.min(BorderA.getBlockX(), BorderB.getBlockX());
+		int MinY = Math.min(BorderA.getBlockY(), BorderB.getBlockY());
+		int MinZ = Math.min(BorderA.getBlockZ(), BorderB.getBlockZ());
+		int MaxX = Math.max(BorderA.getBlockX(), BorderB.getBlockX());
+		int MaxY = Math.max(BorderA.getBlockY(), BorderB.getBlockY());
+		int MaxZ = Math.max(BorderA.getBlockZ(), BorderB.getBlockZ());
+		
+		Location MinBorder = new Location(BorderA.getWorld(),MinX,MinY,MinZ);
+		Location MaxBorder = new Location(BorderA.getWorld(),MaxX,MaxY,MaxZ);
+		int AccumSum=0;
+		int countentries=0;
+		for(int x=MinBorder.getBlockX();x<MaxBorder.getBlockX();x++){
+			for(int z=MinBorder.getBlockZ();z<MaxBorder.getBlockZ();z++){
+				
+				Location testlocation = new Location(BorderA.getWorld(),x,MaxY,z);
+				Location maxY = HighestBlockAt(testlocation);
+				
+				AccumSum+=maxY!=null?maxY.getBlockY():0;
+				countentries++;
+				
+			}
+		}
+		
+		return AccumSum/countentries;
+		
+		
+	}
+	
+	public static Location HighestBlockAt(Location loctest){
+		return HighestBlockAt(loctest,new Material[]{Material.AIR,Material.BEDROCK,Material.BEACON,Material.LEAVES,Material.WOOD});
+	}
+	public static int getHighestBlockYAt(World w,int xpos,int zpos){
+		
+		Location l = HighestBlockAt(new Location(w,xpos,0,zpos));
+		return l!=null?l.getBlockY():0;
+	}
+	public static Location HighestBlockAt(Location loctest,Material[] AirBlocks){
+		World w = loctest.getWorld();
+		//start at 256.
+		int xtest = loctest.getBlockX();
+		int ztest = loctest.getBlockZ();
+		for(int y=256;y>0;y--){
+			Material gettype = w.getBlockAt(xtest,y,ztest).getType();
+			boolean isair=false;
+			for(Material testtype:AirBlocks){
+				if(testtype.equals(gettype)) {isair=true;break;}
+				
+			}
+			if(!isair) return new Location(w,xtest,y,ztest);
+			
+			
+		}
+		
+		return null;
+		
+	}
 	public GameTracker getWorldGame(World testworld) {
 
 		for (GameTracker gt : ActiveGames) {

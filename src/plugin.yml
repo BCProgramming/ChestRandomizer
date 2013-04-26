@@ -50,3 +50,9 @@ commands:
         description: teleports you to the spawn location of another world.
       mwdel:
         description: deletes a world.
+      autoprepare:
+        description: turns autopreparation on or off.
+      joinstartdelay:
+        description: sets the delay after enough people have joined a game at which time it will automatically start. use 0 to disable auto-start after join.
+      hardcorehealth:
+        description: enables/disables hardcore health mode. hardcore health mode prevents regeneration from hunger.

@@ -7,6 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import com.BASeCamp.SurvivalChests.Events.PlayerSpectateEvent;
+
 //class that manages game preparation.
 // each /preparegame <name> will create a new instance of GamePreparer.
 public class GamePreparer {

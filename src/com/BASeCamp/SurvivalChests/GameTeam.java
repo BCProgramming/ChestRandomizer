@@ -22,13 +22,25 @@ public class GameTeam {
 		return _Players.contains(playertest);
 		
 	}
-	
+	public void AddPlayer(Player PlayerAdd){
+		_Players.add(PlayerAdd);
+		
+		
+	}
+	public void RemovePlayer(Player PlayerRemove){
+		_Players.remove(PlayerRemove);
+	}
+
 	public String getName(){
 		return _Name;
 		
 	}
 	public boolean Eliminated(){
 		return _Players.size()==0;
+	}
+	public GameTeam(String pTeamName){
+		_Name  = pTeamName;
+		_Players = new LinkedList<Player>();
 	}
 	public GameTeam(String pTeamName,List<Player> TeamPlayers){
 		_Name = pTeamName;

@@ -93,7 +93,7 @@ public class SchematicImporter {
 	        	 }
 	        	 is.close();
 	        	 os.close();
-	        	  
+	        	 fw.close(); 
 	        	  
 	          }
 	          		
@@ -227,6 +227,13 @@ public class SchematicImporter {
 		String heightoffset = usesection.getValue("heightoffset","0").getValue();
 		String wateronly = usesection.getValue("waterfeature","false").getValue();
 		
+		Location PointA = new Location(target,origin.getBlockX(),origin.getBlockY(),origin.getBlockZ());
+		Location PointB = new Location(target,origin.getBlockX()+cc.getLength(),origin.getBlockY(),origin.getBlockZ()+cc.getWidth());
+		
+		int useHeight = BCRandomizer.getAverageY(PointA, PointB);
+		origin = new Vector(origin.getX(),useHeight,origin.getZ());
+		
+		
 		String[] includebiomes = usesection.getValue("includebiomes").getValues();
 		String[] excludebiomes = usesection.getValue("excludebiomes").getValues();
 		String sforceair = usesection.getValue("forceair","true").getValue();
@@ -272,7 +279,7 @@ public class SchematicImporter {
 			cc.setOrigin(origin);
 			es.enableQueue();
 		//cc.place(es, origin,false);
-			cc.paste(es, origin,false,true);
+			cc.paste(es, origin,!forceair,true);
 		//cc.pasteEntities(origin);
 		
 		

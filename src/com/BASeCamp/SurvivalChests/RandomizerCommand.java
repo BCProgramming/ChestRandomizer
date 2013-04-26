@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -24,15 +25,22 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.StorageMinecart;
+import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 //import org.fusesource.jansi.Ansi.Color;
 
 import BASeCamp.Configuration.INIFile;
 
 import com.BASeCamp.SurvivalChests.*;
+import com.BASeCamp.SurvivalChests.Events.GameStartEvent;
+import com.BASeCamp.SurvivalChests.Events.ParticipantJoinEvent;
 import com.sk89q.worldedit.Vector;
 
 public class RandomizerCommand implements CommandExecutor {
@@ -58,10 +66,13 @@ public class RandomizerCommand implements CommandExecutor {
 	// game.
 	private boolean accepting = false;
 	private boolean MobArenaMode = false;
+	private boolean AutoPrepare = true;
+	public int JoinStartDelay = 0;
+	private int JoinDelayTaskID=0;
 	private int ChestTimeout=400;
 	
 	private int uselives = 1; //number of lives, defaults to one.
-	
+	private boolean HardcoreHealth=false;
 	private Location _SpawnSpot = null;
 	private int MobTimeout = 0; //0 means no mobtimeout at all. any other value is a number of seconds
 	//before Mob spawning will be force-enabled.
@@ -161,7 +172,7 @@ public class RandomizerCommand implements CommandExecutor {
 		final int ZMin = Math.min(BorderA.getBlockZ(), BorderB.getBlockZ());
 		final int XMax = Math.max(BorderA.getBlockX(), BorderB.getBlockX());
 		final int ZMax = Math.max(BorderA.getBlockZ(),BorderB.getBlockZ());
-		
+		final boolean createceiling=true;
 		//we want to fill in from 0 to 128 of each Y coordinate.
 		
 		//wall one: xMin side.
@@ -172,7 +183,7 @@ public class RandomizerCommand implements CommandExecutor {
 		
 		for(int currz = ZMin;currz<ZMax;currz++){
 			
-			for(int usey=0;usey<128;usey++){
+			for(int usey=0;usey<256;usey++){
 				useworld.getBlockAt(XMin,usey,currz).setType(Material.BEDROCK);
 			}
 			
@@ -183,7 +194,7 @@ public class RandomizerCommand implements CommandExecutor {
 		//wall 2: xMax side.
 		for(int currz = ZMin;currz<ZMax;currz++){
 			
-			for(int usey=0;usey<128;usey++){
+			for(int usey=0;usey<256;usey++){
 				useworld.getBlockAt(XMax,usey,currz).setType(Material.BEDROCK);
 			}
 			
@@ -205,6 +216,15 @@ public class RandomizerCommand implements CommandExecutor {
 				
 				useworld.getBlockAt(currx,usey,ZMax).setType(Material.BEDROCK);
 			}
+			
+			
+		}
+		if(createceiling){
+			/*for(int currx=XMin;currx<XMax;currx++){
+				for(int currz=ZMin;currz<ZMax;currz++){
+					useworld.getBlockAt(currx,128,currz).setType(Material.BEDROCK);
+				}
+			}*/
 			
 			
 		}
@@ -284,20 +304,27 @@ public class RandomizerCommand implements CommandExecutor {
 				
 		int XPos = RandomData.rgen.nextInt(XMax-XMin) + XMin;
 		int ZPos = RandomData.rgen.nextInt(ZMax-ZMin) + ZMin;
-		int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
+		
+		
+		
+		
+		
+		//int YPos = inWorld.getHighestBlockYAt(XPos, ZPos);
+		int YPos=0;
+		YPos = BCRandomizer.getHighestBlockYAt(inWorld,XPos,YPos);
 		System.out.println("placing schematic at " + XPos + " " + YPos + " " + ZPos);
 		
 		
 		
 		Location loc = new Location(inWorld,XPos,YPos,ZPos);
 		si.getClip().rotate2D(90*RandomData.rgen.nextInt(4));
-		Rectangle thispos = new Rectangle(XPos-1,ZPos-1,si.getClip().getWidth()+1,si.getClip().getLength()+!);
+		Rectangle thispos = new Rectangle(XPos-1,ZPos-1,si.getClip().getWidth()+1,si.getClip().getLength()+1);
 		
 		
 		boolean foundintersection = false;
 		for(Rectangle iterate:SavedRegions){
 			
-			iterate.
+			
 			if(iterate.intersects(thispos)){
 				foundintersection=true;
 				break;
@@ -330,7 +357,9 @@ public class RandomizerCommand implements CommandExecutor {
 	//teleport the calling player to the created world.
 	private void PrepareArena(Player pCaller,String worldName,int XSize,int ZSize,float featuredensity){
 		ArenaNames.add(worldName);
-		Bukkit.broadcastMessage(BCRandomizer.Prefix + "Creating Arena:" + ChatColor.RED + worldName + ChatColor.YELLOW + ",Size:" + XSize + " by " + ZSize + "Feature Density:" + featuredensity);
+		Bukkit.broadcastMessage(BCRandomizer.Prefix + "Creating Arena.");
+		Bukkit.broadcastMessage(BCRandomizer.Prefix + "Name:" + worldName + " Dimensions:" + XSize + "," + ZSize +" ");
+		
 		WorldCreator wc = new WorldCreator(worldName);
 		wc.environment(Environment.NORMAL);
 		wc.generateStructures(true);
@@ -494,6 +523,14 @@ public class RandomizerCommand implements CommandExecutor {
 			
 			
 		}
+		else if(arg2.equalsIgnoreCase("hardcorehealth")){
+			HardcoreHealth=!HardcoreHealth;
+			String usemessage = BCRandomizer.Prefix + " Hardcore Health:" + (HardcoreHealth?"Enabled":"Disabled");
+			if(p==null) System.out.println(usemessage); else p.sendMessage(usemessage);
+			
+			
+			
+		}
 		else if(arg2.equalsIgnoreCase("mwdel")){
 			if(arg3.length==0){
 				p.sendMessage(ChatColor.RED + "mwdel <worldname>");
@@ -652,6 +689,11 @@ public class RandomizerCommand implements CommandExecutor {
 				if(p==null) System.out.println(usemessage); else p.sendMessage(usemessage);	
 			}
 			
+			
+		}
+		else if(arg2.equalsIgnoreCase("autoprepare")){
+			
+			//
 			
 		}
 		else if(arg2.equalsIgnoreCase("concludegame"))
@@ -813,9 +855,10 @@ public class RandomizerCommand implements CommandExecutor {
 				
 			
 			
-			prepareGame(playingWorld,numseconds,preparetime);
+			prepareGame(p,playingWorld,numseconds,preparetime);
 		} else if (arg2.equalsIgnoreCase("joingame")) {
-			if (!accepting) {
+			if(playingWorld==null) playingWorld = p.getWorld();
+			if (!accepting && !AutoPrepare) {
 
 				p
 						.sendMessage(BCRandomizer.Prefix
@@ -824,6 +867,17 @@ public class RandomizerCommand implements CommandExecutor {
 				return false;
 
 			}
+			else if(AutoPrepare && _Owner.ActiveGames.size()==0){
+				Bukkit.broadcastMessage(BCRandomizer.Prefix + " A Game is being auto-prepared!");
+				prepareGame(p,playingWorld,30,50);
+				//onCommand(sender,arg1,"preparegame",new String[]{"40"});
+			}
+				
+				
+				
+				
+			
+			
 			if (p == null)
 				return false;
 
@@ -853,18 +907,61 @@ public class RandomizerCommand implements CommandExecutor {
 
 			} else {
 				p
-						.sendMessage(ChatColor.RED
+						.sendMessage(BCRandomizer.Prefix + ChatColor.RED
 								+ " You are already participating!");
 
 				return false;
 			}
 
-			Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.AQUA
+			Bukkit.broadcastMessage(BCRandomizer.Prefix +p.getDisplayName() + ChatColor.AQUA
 					+ " is participating.(" + joinedplayers.size()
 					+ " players)");
 
-			Bukkit.broadcastMessage("Current participants:"
+			Bukkit.broadcastMessage(BCRandomizer.Prefix +"Current participants:"
 					+ StringUtil.Join(getPlayerNames(joinedplayers), ","));
+			
+			final Player lasttojoin = p; 
+			//finally, if the timeout is non-zero...
+			if(JoinStartDelay>0){
+				if(joinedplayers.size() > (MobArenaMode?0:1))
+				//if the join task ID is non-zero, cancel it and set it to zero.
+				if(JoinDelayTaskID!=0){
+					Bukkit.getScheduler().cancelTask(JoinDelayTaskID);
+					JoinDelayTaskID=0;
+				}
+				//create a new delayed task.
+				
+				JoinDelayTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner,new Runnable(){
+				public void run(){
+					StartGame(lasttojoin, 30, MobArenaMode);
+				}
+				}, JoinStartDelay*20);
+				Bukkit.broadcastMessage(BCRandomizer.Prefix + "Game will start in " + JoinStartDelay + " seconds.");
+				
+				
+				
+				
+			}
+			
+		}
+		else if(arg2.equalsIgnoreCase("joinstartdelay")){
+			try {
+			String firstargument = arg3[0];
+			int parsed = Integer.parseInt(firstargument);
+			JoinStartDelay = parsed;
+			String usemessage = BCRandomizer.Prefix + "JoinStartDelay set to " + JoinStartDelay;
+			}
+			catch(Exception exx){
+			
+				String usemessage = BCRandomizer.Prefix + "syntax: /joinstartdelay <seconds>";
+				if(p!=null) p.sendMessage(usemessage); else System.out.println(usemessage);
+			}
+			
+			
+			
+			
+			
+			
 		}
 		else if(arg2.equalsIgnoreCase("prepareinfo")){
 			if(p==null) return false;
@@ -1161,7 +1258,7 @@ public class RandomizerCommand implements CommandExecutor {
 		return retval;
 	}
 
-	private void prepareGame(World inWorld,int delaystart,final int prepatorydelay) {
+	private void prepareGame(final Player p,World inWorld,int delaystart,final int prepatorydelay) {
 		
 		PrepareGameEvent pge = new PrepareGameEvent();
 		Bukkit.getPluginManager().callEvent(pge);
@@ -1210,7 +1307,7 @@ public class RandomizerCommand implements CommandExecutor {
 		if(delaystart > 0){
 			Bukkit.getScheduler().runTaskLater(_Owner, new Runnable() {
 				public void run(){
-					StartGame(playingWorld,prepatorydelay,MobArenaMode);
+					StartGame(p,playingWorld,prepatorydelay,MobArenaMode);
 					
 				}
 				
@@ -1234,11 +1331,62 @@ public class RandomizerCommand implements CommandExecutor {
 	private void StartGame(Player p,int numseconds,boolean MobArena){
 		StartGame(p,null,numseconds,MobArena);
 	}
-	private void StartGame(World w,int numseconds,boolean MobArena){
+	/*private void StartGame(World w,int numseconds,boolean MobArena){
 		StartGame(null,w,numseconds,MobArena);
+	}*/
+	
+	private void SethardcoreRecipes()
+	{
+		
+				
+		Iterator<Recipe> iter = Bukkit.recipeIterator();
+		while(iter.hasNext()){
+			Recipe current = iter.next();
+			if(current.getResult().getType()==Material.SPECKLED_MELON)
+				iter.remove();
+			else if(current.getResult().getType()==Material.GOLDEN_APPLE)
+				iter.remove();
+			
+		}
+		ShapedRecipe newapple = new ShapedRecipe(new ItemStack(Material.GOLDEN_APPLE,1));
+		newapple.setIngredient('G', Material.GOLD_INGOT);
+		newapple.setIngredient('M',Material.APPLE);
+		newapple.shape("GGG","GMG","GGG");
+		Bukkit.addRecipe(newapple);
+		ShapelessRecipe newmelon = new ShapelessRecipe(new ItemStack(Material.SPECKLED_MELON,1));
+		newmelon.addIngredient(Material.GOLD_BLOCK);
+		newmelon.addIngredient(Material.MELON);
+		Bukkit.addRecipe(newmelon);
+		
+		
+	}
+	
+	private void RemovehardcoreRecipes(){
+		Iterator<Recipe> iter = Bukkit.recipeIterator();
+		
+		while(iter.hasNext()){
+			Recipe current = iter.next();
+			if(current.getResult().getType()==Material.SPECKLED_MELON)
+				iter.remove();
+			else if(current.getResult().getType()==Material.GOLDEN_APPLE)
+				iter.remove();
+			
+		}
+		ShapedRecipe newapple = new ShapedRecipe(new ItemStack(Material.GOLDEN_APPLE,1));
+		newapple.setIngredient('G', Material.GOLD_NUGGET);
+		newapple.setIngredient('M',Material.APPLE);
+		newapple.shape("GGG","GMG","GGG");
+		Bukkit.addRecipe(newapple);
+		ShapelessRecipe newmelon = new ShapelessRecipe(new ItemStack(Material.SPECKLED_MELON,1));
+		newmelon.addIngredient(Material.GOLD_NUGGET);
+		newmelon.addIngredient(Material.MELON);
+		Bukkit.addRecipe(newmelon);
 	}
 	private void StartGame(Player p,World w, int numseconds, boolean MobArena) {
 		accepting = false;
+		
+		
+		
 		if (joinedplayers.size() == 0) {
 			if (p != null)
 				p.sendMessage(BCRandomizer.Prefix
@@ -1269,14 +1417,24 @@ public class RandomizerCommand implements CommandExecutor {
 
 		final World grabworld = (w==null?(p!=null?p.getWorld():playingWorld):w);
 
+		Scoreboard ss = Bukkit.getScoreboardManager().getMainScoreboard();
+		Objective scoreget = ss.getObjective("Score");
+		if(scoreget==null) {
+			scoreget = ss.registerNewObjective("Score", "dummy");
+			scoreget.setDisplayName("Score");
+			scoreget.setDisplaySlot(DisplaySlot.SIDEBAR);
+		}
+		scoreget.setDisplayName("Score");
+		scoreget.setDisplaySlot(DisplaySlot.SIDEBAR);
+		
 		if (_Owner.Randomcommand.MobArenaMode)
 			numseconds = 0;
-
-		rp = new ResumePvP(_Owner, grabworld, numseconds, joinedplayers,
-				spectating,uselives,useBorderA,useBorderB);
-
+		
+		rp = new ResumePvP(p,_Owner, grabworld, numseconds, joinedplayers,
+				spectating,uselives,useBorderA,useBorderB,ss);
+		rp.getTracker().setAllowHealthRegen(!HardcoreHealth);
 		GameStartEvent eventobj = new GameStartEvent(joinedplayers, spectating,
-				MobArena);
+				MobArena,rp.getTracker());
 		Bukkit.getServer().getPluginManager().callEvent(eventobj);
 
 		Bukkit.broadcastMessage(BCRandomizer.Prefix + ChatColor.GOLD
@@ -1286,11 +1444,13 @@ public class RandomizerCommand implements CommandExecutor {
 		grabworld.setPVP(false);
 		
 		
+	
 		
 		
 		// iterate through all online players.
 		for (Player pl : joinedplayers) {
-
+			ss.resetScores(pl);
+			scoreget.getScore(pl).setScore(0);
 			if (pl.isOnline()) {
 
 				pl
@@ -1339,7 +1499,7 @@ public class RandomizerCommand implements CommandExecutor {
 		// GameStartEvent eventobj= new
 		// GameStartEvent(joinedplayers,spectating,MobArena);
 		rp.getTracker().deathwatcher.onGameStart(eventobj);
-
+		
 		if (!_Owner.Randomcommand.getMobArenaMode()) {
 			ResumePvP.BroadcastWorld(grabworld, BCRandomizer.Prefix
 					+ ChatColor.GREEN + "PvP will be re-enabled in "
@@ -1456,6 +1616,8 @@ private void ShufflePlayers(List<Player> shufflethese){
 		LinkedList<Furnace> allfurnaces = new LinkedList<Furnace>();
 		LinkedList<Dispenser> alldispensers = new LinkedList<Dispenser>();
 		LinkedList<StorageMinecart> allstoragecarts = new LinkedList<StorageMinecart>();
+		LinkedList<Dropper> allDroppers = new LinkedList<Dropper>();
+		LinkedList<Hopper> allHoppers = new LinkedList<Hopper>();
 		LinkedList<BrewingStand> allbrewingstands = new LinkedList<BrewingStand>();
 		World gotworld = w;
 		if (!silent)
@@ -1487,7 +1649,21 @@ private void ShufflePlayers(List<Player> shufflethese){
 					PopulationInfo.setPopulated(gotworld, (InventoryHolder)iteratestate);
 					//set it as populated.
 				}
-				
+				if(iteratestate instanceof Hopper){
+					
+					Hopper casted = (Hopper)iteratestate;
+					allHoppers.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					populatedamount+=cr.Shuffle();
+					
+				}
+				else if(iteratestate instanceof Dropper){
+					
+					Dropper casted = (Dropper)iteratestate;
+					allDroppers.add(casted);
+					ChestRandomizer cr = new ChestRandomizer(_Owner,casted.getInventory(),sourcefile);
+					populatedamount+=cr.Shuffle();
+				}
 				if(iteratestate instanceof StorageMinecart){
 					StorageMinecart casted = (StorageMinecart)iteratestate;
 					allstoragecarts.add(casted);
@@ -1561,6 +1737,13 @@ private void ShufflePlayers(List<Player> shufflethese){
 					ChatColor.LIGHT_PURPLE + allbrewingstands.size() + ChatColor.RED + " Brewing Stands" +
 					ChatColor.YELLOW + " Populated.");
 					
+			ResumePvP.BroadcastWorld(w,ChatColor.AQUA.toString() +
+					 allDroppers.size() + ChatColor.DARK_GREEN + " Droppers" +
+					ChatColor.YELLOW + " Populated.");
+			
+			ResumePvP.BroadcastWorld(w,ChatColor.AQUA.toString() +
+					 allDroppers.size() + ChatColor.GRAY + " Hoppers" +
+					ChatColor.YELLOW + " Populated.");
 					
 			
 					ResumePvP.BroadcastWorld(w,ChatColor.YELLOW + "Populated "

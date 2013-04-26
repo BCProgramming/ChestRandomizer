@@ -53,7 +53,10 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
+
+import com.BASeCamp.SurvivalChests.Events.GameEndEvent;
 
 public class GameTracker implements Runnable {
 
@@ -143,6 +146,7 @@ public class GameTracker implements Runnable {
 	private Location BorderA,BorderB;
 	private World runningWorld = null;
 	private LinkedList<Player> StillAlive = new LinkedList<Player>();
+	private TeamManager GameTeams = new TeamManager();
 	private List<Player> _Spectators = null;
 	private LinkedList<Player> _deadPlayers = null;
 	private boolean _Accepting = false;
@@ -168,6 +172,17 @@ public class GameTracker implements Runnable {
 	
 	public Location getBorderB(){return BorderB;}
 	public void setBorderB(Location value){BorderB=value;}
+	
+	
+	private boolean AllowHealthRegen = true; 
+	
+	public boolean getAllowHealthRegen() {
+		// TODO Auto-generated method stub
+		return AllowHealthRegen;
+	}
+	public void setAllowHealthRegen(boolean value){
+		AllowHealthRegen = value;
+	}
 	
 	public World getWorld() { return runningWorld;}
 	private HashMap<String, Integer> ScoreTally = new HashMap<String, Integer>();
@@ -379,6 +394,9 @@ public class GameTracker implements Runnable {
 	public HashMap<String, Integer> getScoreTally() {
 		return ScoreTally;
 	}
+	public void AddTeam(GameTeam gt){
+		
+	}
 	public void AddParticipant(Player p){
 		//task: we need to add this player to the Active Game.
 		//first, we need to plonk them into all the structures.
@@ -424,7 +442,8 @@ public class GameTracker implements Runnable {
 		chosenX = rgen.nextDouble()*(XMaximum-XMinimum)+XMinimum;
 		chosenZ = rgen.nextDouble()*(ZMaximum-ZMinimum)+ZMinimum;
 		//now, our task: get the highest block at...
-		chosenY = (double)ba.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
+		//chosenY = (double)ba.getWorld().getHighestBlockYAt((int)chosenX, (int)chosenZ);
+		chosenY = BCRandomizer.getHighestBlockYAt(ba.getWorld(),(int)chosenX,(int)chosenZ);
 		}
 		Location chosenlocation = new Location(ba.getWorld(),chosenX,chosenY,chosenZ);
 		//participant.teleport(chosenlocation);
@@ -435,12 +454,16 @@ public class GameTracker implements Runnable {
 		
 		
 	}
+	private Scoreboard Scoreboard=null;
+	
+	public Scoreboard getScoreboard(){return Scoreboard;}
 	private int InitialPlayerLives = 0;
 	public int getInitialPlayerLives() { return InitialPlayerLives;}
 	
 	public GameTracker(BCRandomizer Owner, World applicableWorld,
-			List<Player> Participants, List<Player> spectators, boolean MobArena,int pPlayerLives, Location pBorderA, Location pBorderB) {
+			List<Player> Participants, List<Player> spectators, boolean MobArena,int pPlayerLives, Location pBorderA, Location pBorderB, Scoreboard ss) {
 		// initialize StillAlive List.
+		Scoreboard = ss;
 		InitialPlayerLives = pPlayerLives;
 		BorderA=pBorderA;
 		BorderB=pBorderB;
@@ -1113,4 +1136,5 @@ public class GameTracker implements Runnable {
 		// TODO Auto-generated method stub
 		return runningWorld;
 	}
+
 }

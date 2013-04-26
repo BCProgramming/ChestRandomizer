@@ -27,6 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.BASeCamp.SurvivalChests.BCRandomizer;
 import com.BASeCamp.SurvivalChests.RandomData;
+import com.BASeCamp.SurvivalChests.Events.ItemPopulateEvent;
 
 public class ChestRandomizer {
 
@@ -648,6 +649,9 @@ public class ChestRandomizer {
 				
 				BCRandomizer.emitmessage("Data:" + created.getData().getData());
 				if (created != null) {
+					
+					ItemPopulateEvent populated = new ItemPopulateEvent(created,gotinventory);
+					Bukkit.getPluginManager().callEvent(populated);
 					
 					if(created.getType()==Material.ENCHANTED_BOOK){
 					//System.out.println("Enchanted Book...");

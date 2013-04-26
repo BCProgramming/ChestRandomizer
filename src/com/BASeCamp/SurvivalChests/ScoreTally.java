@@ -3,7 +3,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.BASeCamp.SurvivalChests.PlayerTally;
 import com.BASeCamp.SurvivalChests.TallyData;
@@ -68,6 +70,7 @@ public class ScoreTally {
 		
 		
 	}
+	
 	public void clearTally(Player p){
 		clearTally(p.getName());
 	}

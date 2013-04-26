@@ -57,6 +57,8 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -80,11 +82,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 import org.bukkit.*;
 import org.bukkit.entity.Monster;
 
 import com.BASeCamp.SurvivalChests.ScoreTally.ScoreSystem;
+import com.BASeCamp.SurvivalChests.Events.GameEndEvent;
+import com.BASeCamp.SurvivalChests.Events.GameStartEvent;
+import com.BASeCamp.SurvivalChests.Events.ParticipantDeathEvent;
 //TODO: change all references to Player that are within HashMaps or lists to Strings- index Players by name, rather than
 //the Player object itself.
 public class CoreEventHandler implements Listener {
@@ -736,6 +744,19 @@ public class CoreEventHandler implements Listener {
 				
 				currscore+= addedvalue;
 				tally.put(awardplayer.getName(), currscore);
+				
+				Scoreboard ss = applicablegame.getScoreboard();
+				if(ss!=null){
+					Objective grabscore = ss.getObjective("Score");
+					if(grabscore==null) {
+						grabscore = ss.registerNewObjective("Score", "dummy");
+						grabscore.setDisplayName("Score");
+						grabscore.setDisplaySlot(DisplaySlot.SIDEBAR);
+					}
+					
+					grabscore.getScore(awardplayer).setScore(currscore);
+				}
+				
 				//if the current score is equal to or above 1K...
 				
 				if(currscore>=NextTarget)
@@ -1400,7 +1421,7 @@ Location handleGameSpawn(Player p){
 		String DyingName = dyingPlayer.getDisplayName() + ChatColor.YELLOW;
 		String KillerName = "";
 		
-		
+		ScoreSystem usesystem = ScoreSystem.KillsMinusDeaths;
 		
 		final Player Killer = dyingPlayer.getKiller();
 		
@@ -1408,7 +1429,7 @@ Location handleGameSpawn(Player p){
 			//if the Killer was not a Player
 			if(applicablegame.getTally()!=null){
 				applicablegame.getTally().PlayerDeath(dyingPlayer,dyingPlayer);
-				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), ScoreSystem.KillsMinusDeaths);
+				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), usesystem);
 			    dyingPlayer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(currentscore));
 			    //can't easily force a respawn, but we already handle the PlayerRespawn anyway.
 			    
@@ -1418,8 +1439,8 @@ Location handleGameSpawn(Player p){
 			//if it was a player, tally that up.
 			if(applicablegame.getTally()!=null){
 				applicablegame.getTally().PlayerDeath(dyingPlayer, Killer);
-				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), ScoreSystem.KillsMinusDeaths);
-				int killerscore = applicablegame.getTally().getPlayerScore(Killer.getName(),ScoreSystem.KillsMinusDeaths);
+				int currentscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(), usesystem);
+				int killerscore = applicablegame.getTally().getPlayerScore(Killer.getName(),usesystem);
 			    dyingPlayer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(currentscore));
 			    Killer.sendMessage(BCRandomizer.Prefix + "Current Score:" + String.valueOf(killerscore));
 			}
@@ -1562,12 +1583,18 @@ Location handleGameSpawn(Player p){
 				}
 				usemessage = RandomData.Choose(possiblemessages);
 
+				
+				
+				
 			}
 			else {
 				usemessage = DyingName + " was killed by a " + getEntityDescription(Killer,true);
 			}
 				
-			
+			int dyerscore = applicablegame.getTally().getPlayerScore(dyingPlayer.getName(),usesystem);
+			int killerscore = applicablegame.getTally().getPlayerScore(Killer.getName(),usesystem);
+			applicablegame.getScoreboard().getObjective("Score").getScore(dyingPlayer).setScore(dyerscore);
+			applicablegame.getScoreboard().getObjective("Score").getScore(Killer).setScore(killerscore);
 			
 		}
 		else if(Killer==null){
@@ -1764,6 +1791,21 @@ Location handleGameSpawn(Player p){
 		}
 
 	}
+	@EventHandler
+	public void onEntityRegainHealth(EntityRegainHealthEvent event){
+		
+		if(event.getEntity() instanceof Player){
+			Player p = (Player)event.getEntity();
+			GameTracker applicablegame = _owner.getPlayerGame(p);
+			
+		if(event.getRegainReason()==RegainReason.SATIATED){
+			if(!applicablegame.getAllowHealthRegen()){
+				event.setCancelled(true);
+			}
+		}
+		}
+	}
+	
 	@EventHandler
 	public void onSignChange(SignChangeEvent event){
 		GameTracker applicablegame = _owner.getWorldGame(event.getPlayer().getWorld());
@@ -2020,7 +2062,7 @@ Location handleGameSpawn(Player p){
 	public void onGameStart(final GameStartEvent event) {
 
 		if(_owner.Randomcommand.getMobArenaMode()){
-		MidnighttaskID = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(_owner, new Runnable() {
+		MidnighttaskID = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(_owner, new Runnable() {
 			
 			public void run() {
 				try {

@@ -36,6 +36,8 @@ public class NameGenerator {
 	public List<String> Hats = new LinkedList<String>(Arrays.asList("Hat","Cap","Helmet","Topper","Fez","Sombrero"));
 	public List<String> Chestplates = new LinkedList<String>(Arrays.asList(
 			"Chestplate","Mail","Tunic","Shirt","Blouse","Tank-top","Potato sack","Jersey","Pullover","Sweater","Turtleneck"));
+	public List<String> Barding = new LinkedList<String>(Arrays.asList(
+			"Barding","Horse Armour","champron","Criniere"));
 	public List<String> Pants = new LinkedList<String>(Arrays.asList(
 			"Leggings","Pants","Greaves","Trousers","Britches","Slacks","Pantaloons"));
 	public List<String> Boots = new LinkedList<String>(Arrays.asList("Boots","Shoes","Flip-Flops","Clogs","Booties","Moccasins","Sneakers","Cleats","Loafers","Slippers"));

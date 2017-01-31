@@ -93,7 +93,7 @@ public class GameTracker implements Runnable {
 				bsa = new BlockState[]{(BlockState)ih};
 			}
 				
-			
+			if(bsa==null) return;
 			for(BlockState bs:bsa){	
 			
 			
@@ -934,6 +934,7 @@ public class GameTracker implements Runnable {
 		if (runningWorld != null) {
 			runningWorld.setPVP(false);
 		}
+		
 		Bukkit.broadcastMessage(ChatColor.YELLOW
 				+ "Game Over. PvP disabled.");
 

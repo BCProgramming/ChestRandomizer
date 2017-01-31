@@ -18,6 +18,8 @@ import java.util.Timer;
 
 
 
+import me.ryanhamshire.GriefPrevention.Claim;
+
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.*;
@@ -1417,7 +1419,26 @@ public class RandomizerCommand implements CommandExecutor {
 
 		final World grabworld = (w==null?(p!=null?p.getWorld():playingWorld):w);
 
+		//extra logic: if neither arenaborder is set, we will see if we are in a GP claim.
+		if(useBorderA==null || useBorderB==null){
+			if(_Owner.gp!=null){
+				Claim grabclaim = _Owner.gp.dataStore.getClaimAt(p.getLocation(), true, null);
+				if(grabclaim!=null){
+					useBorderA = grabclaim.getLesserBoundaryCorner();
+					useBorderB = grabclaim.getGreaterBoundaryCorner();
+				}
+						
+			}
+			
+			
+			
+			
+		}
+		
+		
+		
 		Scoreboard ss = Bukkit.getScoreboardManager().getMainScoreboard();
+		ss.clearSlot(DisplaySlot.SIDEBAR);
 		Objective scoreget = ss.getObjective("Score");
 		if(scoreget==null) {
 			scoreget = ss.registerNewObjective("Score", "dummy");
@@ -1436,7 +1457,7 @@ public class RandomizerCommand implements CommandExecutor {
 		GameStartEvent eventobj = new GameStartEvent(joinedplayers, spectating,
 				MobArena,rp.getTracker());
 		Bukkit.getServer().getPluginManager().callEvent(eventobj);
-
+		
 		Bukkit.broadcastMessage(BCRandomizer.Prefix + ChatColor.GOLD
 				+ "Survival Event " + ChatColor.GREEN + " has begun in world "
 				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");

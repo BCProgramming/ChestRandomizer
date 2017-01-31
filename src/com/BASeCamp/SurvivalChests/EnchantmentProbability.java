@@ -2,6 +2,7 @@ package com.BASeCamp.SurvivalChests;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.*;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
@@ -81,7 +82,7 @@ public class EnchantmentProbability implements Cloneable {
 	float[] cacheprobabilities = null;
 	EnchantmentAssignmentData[] enchantdata = null;
 	public void Apply(ItemStack applyitem){
-		
+		if(enchantdata==null) return;
 		if(Enchantprobabilities.size()==0) return; //no enchants to choose from.
 		//otherwise, simplez. create an array of floats and a corresponding array of EnchantmentAssignmentData's...
 		
@@ -187,6 +188,40 @@ public class EnchantmentProbability implements Cloneable {
 		
 		
 	}*/
+	
+	public EnchantmentProbability(FileConfiguration Source,String NodePath,RandomData Target){
+		this(); //call default constructor.
+		if(Source.getConfigurationSection(NodePath)==null)
+			return;
+		for(String subkey :Source.getConfigurationSection(NodePath).getKeys(false)){
+			//NodePath.subkey is the path...
+			String enchantmentname = Source.getString(NodePath + "." + subkey + ".Name","NONE");
+			boolean isstatic = Source.getBoolean(NodePath + "." + subkey + ".Static");
+			if(isstatic) {
+				int enchantmentlevel = Source.getInt(NodePath + "." + subkey + ".Level",1);
+				Target.staticenchants.put(enchantmentname,enchantmentlevel);
+			}
+			float ProbabilityWeight = (float)(Source.getDouble(NodePath + "." + subkey + ".Weight",1));
+			this.setProbability(enchantmentname, ProbabilityWeight);
+			
+			
+			
+		}
+		
+		
+	}
+	public void Save(FileConfiguration Target,String NodePath){
+		if(enchantdata==null) return;
+		for(EnchantmentAssignmentData ead:this.enchantdata){
+			String targetname=NodePath + "." + ead.Name;
+			Target.set(targetname + ".Weight", ead.Weight);
+			Target.set(targetname + ".Name",ead.Name);
+			Target.set(targetname + ".Level", ead.Level);
+		}
+		
+		
+		
+	}
 	public EnchantmentProbability()
 	{
 		EnchantLevelProbabilities.put(1,100f);

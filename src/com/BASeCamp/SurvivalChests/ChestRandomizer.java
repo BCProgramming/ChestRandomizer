@@ -9,6 +9,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.w3c.dom.Document;
@@ -512,7 +513,16 @@ public class ChestRandomizer {
 		}
 
 		System.out.println("Read in " + randData.size() + " elements");
-
+		//save to yml...
+		FileConfiguration outConfig = new YamlConfiguration();
+		RandomData.SaveRandomData(randData,outConfig,"SurvivalChests.RandomData");
+		
+		List<RandomData> results = RandomData.ReadRandomData(outConfig, new YamlConfiguration(), "SurvivalChests.RandomData");
+		System.out.println("Read in " + results.size() + " elements via Yaml.");
+		String savetarget = BCRandomizer.pluginMainDir + "/randomdata.yml";
+		try {outConfig.save(new File(savetarget));} catch(IOException exx){}
+		
+		
 	}
 
 	public void clear() {

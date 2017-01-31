@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -16,6 +17,8 @@ import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Skeleton;
@@ -72,7 +75,7 @@ public class SpawnerRandomizer {
 			EntityType.BAT, EntityType.BLAZE, EntityType.SPIDER,
 			EntityType.ENDERMAN, EntityType.CREEPER, EntityType.GHAST,
 			EntityType.PIG_ZOMBIE, EntityType.WITCH, EntityType.SKELETON,
-			EntityType.MAGMA_CUBE, EntityType.ZOMBIE };
+			EntityType.MAGMA_CUBE, EntityType.ZOMBIE,EntityType.HORSE };
 
 	public void RandomizeEntity(LivingEntity le) {
 
@@ -106,6 +109,28 @@ public class SpawnerRandomizer {
 			baseXP = 5;
 		}
 
+		if(le instanceof Horse){
+			baseXP *=3;
+			Horse h = (Horse)le;
+			Variant selectedVariant = RandomData.Choose(new Variant[] {Variant.HORSE,Variant.DONKEY});
+			
+			h.setVariant(selectedVariant);
+			
+			h.getInventory().setSaddle(new ItemStack(Material.SADDLE,1));
+			if(selectedVariant==Variant.HORSE){
+			Material selectedItem = RandomData.Choose(new Material[]{Material.IRON_BARDING,Material.GOLD_BARDING,Material.DIAMOND_BARDING});
+			h.getInventory().setArmor(new ItemStack(selectedItem,1));
+			}
+			else if(selectedVariant==Variant.DONKEY){
+				
+				//randomize!
+				ChestRandomizer cr = new ChestRandomizer(this._owner,h.getInventory(),"");
+				cr.Shuffle();
+				//now reset Armour and Saddle.
+				h.getInventory().setSaddle(new ItemStack(Material.SADDLE,1));
+				h.getInventory().setArmor(null);
+			}
+		}
 		if (le instanceof Creeper) {
 
 			baseXP *= 2;
@@ -211,6 +236,21 @@ public class SpawnerRandomizer {
 
 			}
 
+			//also: 20 percent chance of them riding a horse.
+			if(RandomData.rgen.nextFloat() < 0.2f){
+				
+				//spawn a Horse in their location...
+				Horse spawnhorse = (Horse) le.getWorld().spawnEntity(le.getLocation(), EntityType.HORSE);
+				//ok now choose either zombie or skeleton horse.
+				Variant selected = RandomData.Choose(new Variant[]{Variant.SKELETON_HORSE,Variant.UNDEAD_HORSE});
+				spawnhorse.setVariant(selected);
+				//give it the entity as a rider.
+				spawnhorse.setPassenger(le);
+				
+				
+			}
+			
+			
 		}
 
 	}

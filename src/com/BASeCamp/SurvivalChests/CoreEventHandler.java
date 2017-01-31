@@ -32,6 +32,8 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
@@ -537,6 +539,22 @@ public class CoreEventHandler implements Listener {
 			}
 
 		}
+		else if(event.getRightClicked() instanceof Horse){
+			
+			Horse clickedhorse = (Horse) event.getRightClicked();
+			if(clickedhorse.getVariant()==Variant.SKELETON_HORSE || clickedhorse.getVariant()==Variant.UNDEAD_HORSE) {
+				event.setCancelled(true);
+			}
+			clickedhorse.setTamed(true);
+			clickedhorse.setOwner(event.getPlayer());
+			String gothorsename="";
+			if(clickedhorse.getVariant()==Variant.DONKEY) gothorsename = "Donkey";
+			if(clickedhorse.getVariant()==Variant.MULE) gothorsename = "Mule";
+			if(clickedhorse.getVariant()==Variant.HORSE) gothorsename ="Horse";
+			clickedhorse.setCustomName(event.getPlayer().getDisplayName() + "'s " + gothorsename);
+			event.getPlayer().sendMessage(BCRandomizer.Prefix + " You recruit a trusty " + gothorsename);
+			
+		}
 
 	}
 
@@ -788,7 +806,7 @@ public class CoreEventHandler implements Listener {
 	
 	private int getMonsterValue(LivingEntity monster) {
 		// TODO Auto-generated method stub
-		int basescore = 1;
+		double basescore = 1;
 		basescore = Math.min(1,monster.getMaxHealth()/5);
 		//first, calculate base values.
 		if(monster instanceof Zombie){
@@ -920,7 +938,7 @@ else if(monster instanceof CaveSpider) {
 		}
 		
 		
-		return basescore;
+		return (int)(Math.floor(basescore));
 	}
 	private HashMap<Enchantment,Integer> enchantmentvalues = null;
 	public HashMap<Enchantment,Integer> getEnchantmentValues() {
@@ -1798,6 +1816,7 @@ Location handleGameSpawn(Player p){
 			Player p = (Player)event.getEntity();
 			GameTracker applicablegame = _owner.getPlayerGame(p);
 			
+			if(applicablegame==null) return;
 		if(event.getRegainReason()==RegainReason.SATIATED){
 			if(!applicablegame.getAllowHealthRegen()){
 				event.setCancelled(true);
@@ -1858,6 +1877,12 @@ Location handleGameSpawn(Player p){
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
 		
+		if(event.getEntity() instanceof Horse){
+			SpawnerRandomizer sr = new SpawnerRandomizer(_owner);
+			sr.RandomizeEntity(event.getEntity());
+			return;
+		}
+		
 		if(event.getEntity() instanceof Animals) {
 			event.setCancelled(true);
 			return;
@@ -1909,9 +1934,10 @@ Location handleGameSpawn(Player p){
 							EntityType.WITCH,
 							EntityType.MAGMA_CUBE,
 							EntityType.BLAZE,
-							EntityType.ENDERMAN},
+							EntityType.ENDERMAN,
+							EntityType.HORSE},
 							new float[] {100f,
-							100f,20f,50f,5f,10f,10f});
+							100f,20f,50f,5f,10f,1f,10f});
 					
 			try {
 			event.getEntity().getWorld().spawnEntity(event.getLocation(), chosenEntityType);

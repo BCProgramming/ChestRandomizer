@@ -1,5 +1,6 @@
 name: BASeCamp Survival Chests
 main: com.BASeCamp.SurvivalChests.BCRandomizer
+softdepend: [GriefPrevention]
 version: 1.6
 commands:
       repopchests:

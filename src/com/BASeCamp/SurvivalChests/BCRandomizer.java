@@ -13,11 +13,14 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.*;
 
@@ -58,6 +61,26 @@ public class BCRandomizer extends JavaPlugin {
 	public RandomizerCommand Randomcommand = null;
 	public LinkedList<GameTracker> ActiveGames = new LinkedList<GameTracker>();
 
+	public GriefPrevention gp = null;
+	
+	private void getGriefPrevention(){
+		try {
+		for(Plugin iterate:Bukkit.getPluginManager().getPlugins()){
+			if(iterate.getClass().getName().equalsIgnoreCase("GriefPrevention")){
+				gp = (GriefPrevention)iterate;
+				return;
+			}
+		}
+		}
+		catch(Exception exx){
+			return;
+		}
+		
+		
+		
+		
+	}
+	
 	public GameTracker getGame(Player p) {
 		// returns true of the player is a participant or spectator of a game.
 		// null otherwise.
@@ -330,6 +353,7 @@ public class BCRandomizer extends JavaPlugin {
 			e.printStackTrace();
 		}
 
+		getGriefPrevention();
 		
 		Randomcommand = new RandomizerCommand(this);
 		PluginCommand batchcommand = this.getCommand("repopchests");

@@ -3,6 +3,7 @@
 	<name>survivalchests</name>
 	<comment></comment>
 	<projects>
+		<project>GriefPrevention</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

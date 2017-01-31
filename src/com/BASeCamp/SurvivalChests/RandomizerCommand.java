@@ -10,11 +10,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
+
 
 
 
@@ -37,6 +39,7 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 //import org.fusesource.jansi.Ansi.Color;
+
 
 import BASeCamp.Configuration.INIFile;
 
@@ -474,7 +477,7 @@ public class RandomizerCommand implements CommandExecutor {
 			String permnode = "chestrandomizer." + WorldName + "." + usecmd;
 			if(usecmd.equalsIgnoreCase("strike"))
 			{
-				Block b = p.getTargetBlock(null, 200);
+				Block b = p.getTargetBlock(new HashSet<Byte>(), 200);
 				Location l = b.getLocation();
 				l.getWorld().strikeLightning(l);
 				

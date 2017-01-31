@@ -2,7 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/bukkit/plugins/WorldEdit.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/bukkit/bukkit-1.5.1-R0.2-20130404.191133-3.jar"/>
+	<classpathentry kind="lib" path="D:/programs/spigot/plugins/worldedit-bukkit-6.0.jar"/>
+	<classpathentry kind="lib" path="D:/spigot/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="D:/spigot/Spigot/Spigot-API/target/spigot-api-1.8-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="D:/spigot/GriefPrevention.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

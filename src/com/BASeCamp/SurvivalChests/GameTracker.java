@@ -917,8 +917,12 @@ public class GameTracker implements Runnable {
 		}
 
 		// make spectators unable to fly, since the game is over.
-		for (Player Spectator : _Spectators) {
-			Location Spectatorlocation = Spectator.getLocation();
+		for (final Player Spectator : _Spectators) {
+			Bukkit.getScheduler().runTask(_Owner, new Runnable(){
+				
+			public void run(){
+				Location Spectatorlocation = Spectator.getLocation();
+			
 			int Yuse = Spectator.getWorld().getHighestBlockYAt(
 					Spectator.getLocation());
 			Location setLocation = new Location(Spectator.getWorld(),
@@ -928,6 +932,8 @@ public class GameTracker implements Runnable {
 			Spectator.setAllowFlight(false);
 			Spectator.setFlying(false);
 			BCRandomizer.unvanishPlayer(Spectator);
+			}
+			});
 
 		}
 		// also, disable PvP again.

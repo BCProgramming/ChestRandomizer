@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,9 @@ import java.util.Random;
 import java.util.Timer;
 
 
+
+
+import me.ryanhamshire.GriefPrevention.Claim;
 
 import org.bukkit.*;
 import org.bukkit.World.Environment;
@@ -35,6 +39,7 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 //import org.fusesource.jansi.Ansi.Color;
+
 
 import BASeCamp.Configuration.INIFile;
 
@@ -472,7 +477,7 @@ public class RandomizerCommand implements CommandExecutor {
 			String permnode = "chestrandomizer." + WorldName + "." + usecmd;
 			if(usecmd.equalsIgnoreCase("strike"))
 			{
-				Block b = p.getTargetBlock(null, 200);
+				Block b = p.getTargetBlock(new HashSet<Byte>(), 200);
 				Location l = b.getLocation();
 				l.getWorld().strikeLightning(l);
 				
@@ -1417,7 +1422,26 @@ public class RandomizerCommand implements CommandExecutor {
 
 		final World grabworld = (w==null?(p!=null?p.getWorld():playingWorld):w);
 
+		//extra logic: if neither arenaborder is set, we will see if we are in a GP claim.
+		if(useBorderA==null || useBorderB==null){
+			if(_Owner.gp!=null){
+				Claim grabclaim = _Owner.gp.dataStore.getClaimAt(p.getLocation(), true, null);
+				if(grabclaim!=null){
+					useBorderA = grabclaim.getLesserBoundaryCorner();
+					useBorderB = grabclaim.getGreaterBoundaryCorner();
+				}
+						
+			}
+			
+			
+			
+			
+		}
+		
+		
+		
 		Scoreboard ss = Bukkit.getScoreboardManager().getMainScoreboard();
+		ss.clearSlot(DisplaySlot.SIDEBAR);
 		Objective scoreget = ss.getObjective("Score");
 		if(scoreget==null) {
 			scoreget = ss.registerNewObjective("Score", "dummy");
@@ -1436,7 +1460,7 @@ public class RandomizerCommand implements CommandExecutor {
 		GameStartEvent eventobj = new GameStartEvent(joinedplayers, spectating,
 				MobArena,rp.getTracker());
 		Bukkit.getServer().getPluginManager().callEvent(eventobj);
-
+		
 		Bukkit.broadcastMessage(BCRandomizer.Prefix + ChatColor.GOLD
 				+ "Survival Event " + ChatColor.GREEN + " has begun in world "
 				+ ChatColor.DARK_AQUA + grabworld.getName() + "!");
@@ -1468,7 +1492,7 @@ public class RandomizerCommand implements CommandExecutor {
 				pl.setSaturation(20);
 				pl.setGameMode(GameMode.ADVENTURE);
 				pl.setFlying(false);
-				pl.playSound(pl.getLocation(), Sound.ENDERMAN_HIT, 1.0f, 1.0f);
+				pl.playSound(pl.getLocation(), Sound.ENTITY_ENDERMEN_HURT, 1.0f, 1.0f);
 				
 				for(Player spectator :spectating){
 					spectator.hidePlayer(pl);

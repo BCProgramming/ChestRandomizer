@@ -3,23 +3,32 @@ package com.BASeCamp.SurvivalChests;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 
 
 
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Donkey;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mule;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Spider;
+import org.bukkit.entity.WitherSkeleton;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.inventory.ItemStack;
@@ -72,7 +81,7 @@ public class SpawnerRandomizer {
 			EntityType.BAT, EntityType.BLAZE, EntityType.SPIDER,
 			EntityType.ENDERMAN, EntityType.CREEPER, EntityType.GHAST,
 			EntityType.PIG_ZOMBIE, EntityType.WITCH, EntityType.SKELETON,
-			EntityType.MAGMA_CUBE, EntityType.ZOMBIE };
+			EntityType.MAGMA_CUBE, EntityType.ZOMBIE,EntityType.HORSE };
 
 	public void RandomizeEntity(LivingEntity le) {
 
@@ -106,6 +115,32 @@ public class SpawnerRandomizer {
 			baseXP = 5;
 		}
 
+		if(le instanceof AbstractHorse){
+			baseXP *=3;
+			AbstractHorse h = (AbstractHorse)le;
+			
+			
+			
+			if(h instanceof Horse){
+			Material selectedItem = RandomData.Choose(new Material[]{Material.IRON_BARDING,Material.GOLD_BARDING,Material.DIAMOND_BARDING});
+			((Horse)h).getInventory().setArmor(new ItemStack(selectedItem,1));
+			}
+			else if(h instanceof Donkey){
+				
+				//randomize!
+				ChestRandomizer cr = new ChestRandomizer(this._owner,((Donkey)h).getInventory(),"");
+				cr.Shuffle();
+				//now reset Armour and Saddle.
+				((Donkey)h).getInventory().setItem(0,new ItemStack(Material.SADDLE,1) );
+			}
+			else if(h instanceof Mule)
+			{
+				ChestRandomizer cr = new ChestRandomizer(this._owner,((Mule)h).getInventory(),"");
+				cr.Shuffle();
+				//now reset Armour and Saddle.
+				((Mule)h).getInventory().setItem(0,new ItemStack(Material.SADDLE,1) );
+			}
+		}
 		if (le instanceof Creeper) {
 
 			baseXP *= 2;
@@ -116,8 +151,14 @@ public class SpawnerRandomizer {
 			baseXP *= 2.5;
 			// ((Skeleton)le).
 			Skeleton cs = (Skeleton) le;
-			cs.setSkeletonType(
-					RandomData.rgen.nextBoolean() ? SkeletonType.WITHER : SkeletonType.NORMAL);
+			
+			if(RandomData.rgen.nextBoolean())
+			{
+				//replace with Wither Skeleton
+				le.getWorld().spawnEntity(le.getLocation(), EntityType.WITHER_SKELETON); //should be randomized automatically- no need to do it here, assuming the event is fired.
+			}
+			/*cs.setSkeletonType(
+					RandomData.rgen.nextBoolean() ? SkeletonType.WITHER : SkeletonType.NORMAL);*/
 
 		}
 		if (le instanceof Zombie) {
@@ -138,7 +179,10 @@ public class SpawnerRandomizer {
 			// choose random Weapon, Boots, Leggings, Chestplate, and Helmet.
 			// each item has a 20 percent chance of being blank.
 			
-
+            if(RandomData.rgen.nextBoolean())
+            {
+            	le.getEquipment().setItemInOffHand(RandomData.GenerateShield());
+            }
 			// weapon.
 			if (RandomData.rgen.nextFloat() > 0.2f) {
 				// choose a random weapon.
@@ -147,7 +191,7 @@ public class SpawnerRandomizer {
 				List<RandomData> Bows = ChestRandomizer.getBowData(_owner);
 				// choose one element.
 				RandomData chosenweapon =null;
-				if(le instanceof Skeleton && ((Skeleton)le).getSkeletonType()==SkeletonType.NORMAL)
+				if(le instanceof Skeleton && !(le instanceof WitherSkeleton))
 				{
 					
 				chosenweapon = RandomData.ChooseRandomData(Bows);	
@@ -158,8 +202,7 @@ public class SpawnerRandomizer {
 				ItemStack acquiredweapon = chosenweapon.Generate();
 				if (acquiredweapon != null)
 					// el.setEquipment(0,CraftItemStack.asCraftCopy(acquiredweapon));
-					
-					le.getEquipment().setItemInHand(acquiredweapon);
+				    le.getEquipment().setItemInMainHand(acquiredweapon);
 					//el.setEquipment(0, CraftItemStack.asNMSCopy(acquiredweapon));
 
 			}
@@ -211,6 +254,27 @@ public class SpawnerRandomizer {
 
 			}
 
+			//also: 20 percent chance of them riding a horse.
+			if(RandomData.rgen.nextFloat() < 0.2f){
+				
+				//spawn a Horse in their location...
+				AbstractHorse EnemyHorse;
+				EntityType ChosenHorse = RandomData.Choose(new EntityType[]{EntityType.SKELETON_HORSE,EntityType.ZOMBIE_HORSE});
+				EnemyHorse = (AbstractHorse)le.getWorld().spawnEntity(le.getLocation(),ChosenHorse);
+				
+				
+				
+				((AbstractHorse)EnemyHorse).addPassenger(le);
+				
+				
+				
+				//give it the entity as a rider.
+				
+				
+				
+			}
+			
+			
 		}
 
 	}

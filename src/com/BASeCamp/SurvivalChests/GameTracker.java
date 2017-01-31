@@ -38,7 +38,6 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -93,12 +92,13 @@ public class GameTracker implements Runnable {
 				bsa = new BlockState[]{(BlockState)ih};
 			}
 				
-			
+			if(bsa==null) return;
 			for(BlockState bs:bsa){	
 			
 			
 			if(bs!=null && !_Owner.Randomcommand.hasBlockBeneath(bs.getBlock(),Material.WOOL))
 			{
+				
 				Location sl = bs.getLocation();
 				//special condition:
 				//we do NOT repopulate if the last player that accessed us
@@ -107,10 +107,12 @@ public class GameTracker implements Runnable {
 				InventoryAccessInfo iai = lastInventoryAccess.get((InventoryHolder)bs);
 				if(iai==null) System.out.println("Alert:iai is null");
 				Player closest = iai.getViewed().getLast();
-				
+				if(!bs.getLocation().getWorld().equals(closest.getLocation().getWorld())) 
+					return;
 				//Player closest = BCRandomizer.getNearestPlayer(bs.getLocation());
 				//if distance is less than 16, we want to reschedule...
 				int sizelimit = _Owner.Configuration.getRepopPreventionRadius();
+				
 				if(bs.getLocation().distance(closest.getLocation()) < sizelimit)
 				{
 				Bukkit.getScheduler().scheduleSyncDelayedTask(_Owner, new ChestPopulator(closured,(InventoryHolder)bs), _ChestTimeout);
@@ -280,9 +282,9 @@ public class GameTracker implements Runnable {
 	private void spawnrepopulationparticles(Location sl,boolean showfailed)
 	{
 		if(showfailed) return; //change: do nothing for failed respawn.
-		Sound usesound = showfailed?Sound.ANVIL_BREAK:Sound.ENDERMAN_TELEPORT;
+		Sound usesound = showfailed?Sound.BLOCK_ANVIL_BREAK:Sound.ENTITY_ENDERMEN_TELEPORT;
 		
-		sl.getWorld().playSound(sl, Sound.ENDERMAN_TELEPORT, 10,1);
+		sl.getWorld().playSound(sl, Sound.ENTITY_ENDERMEN_TELEPORT, 10,1);
 		for(int i=0;i<10;i++)
 		{
 			//choose random location within the block.
@@ -917,8 +919,12 @@ public class GameTracker implements Runnable {
 		}
 
 		// make spectators unable to fly, since the game is over.
-		for (Player Spectator : _Spectators) {
-			Location Spectatorlocation = Spectator.getLocation();
+		for (final Player Spectator : _Spectators) {
+			Bukkit.getScheduler().runTask(_Owner, new Runnable(){
+				
+			public void run(){
+				Location Spectatorlocation = Spectator.getLocation();
+			
 			int Yuse = Spectator.getWorld().getHighestBlockYAt(
 					Spectator.getLocation());
 			Location setLocation = new Location(Spectator.getWorld(),
@@ -928,12 +934,15 @@ public class GameTracker implements Runnable {
 			Spectator.setAllowFlight(false);
 			Spectator.setFlying(false);
 			BCRandomizer.unvanishPlayer(Spectator);
+			}
+			});
 
 		}
 		// also, disable PvP again.
 		if (runningWorld != null) {
 			runningWorld.setPVP(false);
 		}
+		
 		Bukkit.broadcastMessage(ChatColor.YELLOW
 				+ "Game Over. PvP disabled.");
 

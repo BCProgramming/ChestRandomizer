@@ -27,13 +27,13 @@ import org.bukkit.plugin.Plugin;
 import BASeCamp.Configuration.INIFile;
 import BASeCamp.Configuration.INISection;
 
+
 import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.commands.RegionCommands;
 import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.masks.RegionMask;
 import com.sk89q.worldedit.regions.Region;
@@ -270,8 +270,7 @@ public class SchematicImporter {
 		
 		
 		
-		
-		final EditSession es = new EditSession(bw,500000);
+		final EditSession es =  new EditSession(bw,500000);
 		
 		if(allowedbiome && iswater==onwater){
 		try {

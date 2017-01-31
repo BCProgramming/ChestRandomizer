@@ -1,6 +1,4 @@
 package com.BASeCamp.SurvivalChests;
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,19 +6,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-
-
-
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.FireworkEffect.Builder;
-
+import org.bukkit.block.Banner;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -57,6 +58,7 @@ public class RandomData {
 	private int _MaxCount;
 	private byte _Data;
 	private String _Lore = "";
+	private String _Description = "";
 	private EnchantmentProbability _enchantmentprob = null;
 	private boolean _SuperEnchantment;
 	private boolean _SingleEnchantment=false;
@@ -78,6 +80,8 @@ public class RandomData {
 	public void setMaxCount(int value){_MaxCount=value;}
 	public String getLore(){return _Lore;}
 	public void setLore(String value){ _Lore=value;}
+	public String getDescription(){ return _Description;}
+	public void setDescription(String value){_Description=value;}
 	public EnchantmentProbability getEnchantmentInformation() { return _enchantmentprob;}
 	public HashMap<String,Integer> staticenchants = new HashMap<String,Integer>();
 	
@@ -97,14 +101,7 @@ public class RandomData {
 		return RandomData.Choose(rdata, probabilities);
 		
 	}
-	private String GenerateCleverName(String ItemType){
-		
-		return ItemType + "Powerful " + ItemType;	
-	}
-	private String GenerateCleverLore(String ItemType){
-		
-	return ItemType + "has extra power :D";
-	}
+	
 	
 	public static ItemStack getHead(String headname) {
 
@@ -129,11 +126,49 @@ public class RandomData {
 	return source.getType().equals(Material.INK_SACK);
 	
 	}
+	static DyeColor[] AllDyes = new DyeColor[]{DyeColor.BLACK,DyeColor.BLUE,DyeColor.BROWN,DyeColor.CYAN,DyeColor.GRAY,DyeColor.GREEN,
+			DyeColor.LIGHT_BLUE,DyeColor.LIME,DyeColor.MAGENTA,DyeColor.ORANGE,DyeColor.PINK,DyeColor.PURPLE,DyeColor.RED,DyeColor.SILVER,DyeColor.WHITE,DyeColor.YELLOW};
+	
+	public static DyeColor getRandomDye()
+	{
+		return Choose(AllDyes);
+	}
+	public static ItemStack GenerateShield()
+	{
+		
+		ItemStack result = new ItemStack(Material.SHIELD);
+		
+		int Numpatterns = RandomData.rgen.nextInt(8)+3;
+		 ItemMeta meta = result.getItemMeta();
+          BlockStateMeta bmeta = (BlockStateMeta) meta;
+         
+         Banner banner = (Banner) bmeta.getBlockState();
+         DyeColor baseColor = RandomData.getRandomDye();
+         banner.setBaseColor(baseColor);
+         for(int i=0;i<Numpatterns;i++)
+         {
+        	 PatternType usePattern;
+        	 do{
+        		 usePattern = RandomData.Choose(PatternType.values());
+        	 } while (usePattern==PatternType.BASE);
+        	 DyeColor useColor = RandomData.getRandomDye();
+             banner.addPattern(new Pattern(useColor,usePattern));	 
+         }
+         banner.update();
+
+         bmeta.setBlockState(banner);
+         result.setItemMeta(bmeta);
+		
+		
+		
+		return result;
+		
+	}
 	public static String getDyeName(ItemStack source){
 		
 		if(isDye(source)){
+			
 		Dye sourcedye = new Dye(source.getData().getData());
-		
 		if(sourcedye.getColor()==DyeColor.BLACK)
 			return "Ink Sac";
 		else if(sourcedye.getColor()==DyeColor.BLUE)
@@ -491,6 +526,7 @@ public class RandomData {
 		Duration*=20; //duration is # of seconds...
 		BCRandomizer.emitmessage("Creating Potion- Name:" + Name + " Duration:" + Duration + " Level:" + Level + " Splash:" + Splash);
 		PotionEffectType pet = MapPotionType(Name);
+		
 		PotionType pt = PotionType.getByEffect(pet);
 	
 		Potion makepotion = new Potion(pt);
@@ -611,6 +647,7 @@ public class RandomData {
 				
 			}
 			BCRandomizer.emitmessage("durability set to " + durabilityset + "Min/max " + _DamageMin + " " + _DamageMax);
+			
 		createitem = new ItemStack(_ItemID,amountset,(short)durabilityset,_Data);
 		//createitem.getData().setData(_Data);
 		if(durabilityset > 0)
@@ -679,6 +716,12 @@ public class RandomData {
 		if(usename.startsWith("!")){
 		usename=usename.substring(1);
 		//BCRandomizer.emitmessage("usename=" + usename);
+		if(usename.contains("%CLEVERBARDINGNAME%")){
+			usename = usename.replace("%CLEVERBARDINGNAME%",
+							BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Barding,
+									BCRandomizer.NameGen.Adjectives,
+									BCRandomizer.NameGen.Verbs));
+		}
 		if(usename.contains("%CLEVERAXENAME%")){
 			
 			usename = usename.replace("%CLEVERAXENAME%",
@@ -764,6 +807,13 @@ public class RandomData {
 		if(usename.contains("%CLEVERBOWNAME%")){
 			usename = usename.replace("%CLEVERBOWNAME%",
 					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Bow,
+							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
+			
+			
+		}
+		if(usename.contains("%CLEVERSHIELDNAME%")){
+			usename = usename.replace("%CLEVERSHIELDNAME%",
+					BCRandomizer.NameGen.GenerateName(BCRandomizer.NameGen.Shield,
 							BCRandomizer.NameGen.Adjectives,BCRandomizer.NameGen.Verbs));
 			
 			
@@ -1012,7 +1062,76 @@ public class RandomData {
 		
 		
 	}
-	
+	//reads RandomData from the... uh... file.
+	public static List<RandomData> ReadRandomData(FileConfiguration Source,FileConfiguration Target,String NodePath){
+		ArrayList<RandomData> buildlist = new ArrayList<RandomData>();
+		
+		ConfigurationSection grabsection = Source.getConfigurationSection(NodePath);
+		for(String iterate:grabsection.getKeys(false)){
+			//read all the Data...
+			String rdataNode = NodePath + "." + iterate;
+			RandomData readelement = new RandomData(Source,rdataNode);
+			
+			readelement.Save(Target, rdataNode);
+			buildlist.add(readelement);
+			
+			
+		}
+		return buildlist;
+		
+	}
+	public static void SaveRandomData(List<RandomData> SaveIt,FileConfiguration Target,String NodePath){
+		
+		int datacount=0;
+		for(RandomData iterate:SaveIt){
+			datacount++;
+			String usedescription = iterate.getDescription();
+			if(usedescription==null || usedescription.length()==0) usedescription = "data" + String.valueOf(datacount);
+			String usenode = NodePath + "." + usedescription;
+			iterate.Save(Target, usenode);
+		}
+		
+		
+	}
+	public RandomData(FileConfiguration Source,String NodePath){
+		//YAML FileConfiguration support.
+		//valid types: Potion, Head or Item. item is default.
+		String ItemType = Source.getString(NodePath + ".Type","Item");
+		if(ItemType.equalsIgnoreCase("Item")) _SpawnType = 0;
+		else if(ItemType.equalsIgnoreCase("Potion")) _SpawnType = 1;
+		else if(ItemType.equalsIgnoreCase("Head")) _SpawnType = 2;
+		_SingleEnchantment = Source.getBoolean(NodePath + ".SingleEnchantment",false);
+		_Name = Source.getString(NodePath + ".Name","");
+		_ItemID = Source.getInt(NodePath + ".ItemID",0);
+		_Weighting = (float)Source.getDouble(NodePath + ".Weight");
+		_Data = (byte)(Source.getInt(NodePath + ".Data"));
+		_DamageMin = (float)Source.getDouble(NodePath + ".DamageMin");
+		_DamageMax = (float)Source.getDouble(NodePath + ".DamageMax");
+		this._MinCount=Source.getInt(NodePath + ".MinCount",1);
+		this._MaxCount=Source.getInt(NodePath + ".MaxCount",1);
+		this._Lore = Source.getString(NodePath +".Lore","");
+		this._SingleEnchantment = Source.getBoolean(NodePath + ".SingleEnchantment",false);
+		this._SuperEnchantment = Source.getBoolean(NodePath + ".SingleEnchantment",false);
+		this._enchantmentprob = new EnchantmentProbability(Source,NodePath + ".Enchantments",this);
+		
+		
+		
+	}
+	public void Save(FileConfiguration Target,String NodePath){
+		Target.set(NodePath +".Type", _SpawnType);
+		Target.set(NodePath + ".SingleEnchantment", _SingleEnchantment);
+		Target.set(NodePath + ".Name", _Name);
+		Target.set(NodePath + ".ItemID", _ItemID);
+		Target.set(NodePath + ".Weighting", _Weighting);
+		Target.set(NodePath + ".Data",_Data);
+		Target.set(NodePath + ".SuperEnchant",_SuperEnchantment);
+		Target.set(NodePath + ".MinCount", _MinCount);
+		Target.set(NodePath + ".MaxCount", _MaxCount);
+		Target.set(NodePath + ".Lore",_Lore);
+		Target.set(NodePath + ".DamageMin",_DamageMin);
+		Target.set(NodePath + ".DamageMax",_DamageMax);
+		_enchantmentprob.Save(Target, NodePath + ".Enchantment");
+	}
 	public RandomData(String Initializer){
 		//initialize a RandomData instance. Initializer String is provided from the configuration file, and applies to all non-
 		boolean foundprefix=true;

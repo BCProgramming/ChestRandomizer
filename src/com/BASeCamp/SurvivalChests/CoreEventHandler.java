@@ -1,7 +1,6 @@
 package com.BASeCamp.SurvivalChests;
 
 import java.awt.geom.Rectangle2D;
-
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,6 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+
+
+
+
+
 
 
 
@@ -22,6 +27,7 @@ import org.bukkit.block.BlockState;
 
 
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
@@ -29,24 +35,29 @@ import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Donkey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Mule;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Skeleton.SkeletonType;
+import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wither;
+import org.bukkit.entity.WitherSkeleton;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieHorse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -282,7 +293,7 @@ public class CoreEventHandler implements Listener {
 			tcolor=ChatColor.GRAY;
 			BuildDescription = "Skeleton";
 			Skeleton cs = (Skeleton)entityfor;
-			if(cs.getSkeletonType()==SkeletonType.WITHER){
+			if(cs instanceof WitherSkeleton){
 				
 				//Wither...
 				BuildDescription="Wither Skeleton";
@@ -439,9 +450,9 @@ public class CoreEventHandler implements Listener {
 			ProjectileItems = new HashMap<Material,ProjectileMapper>();
 			
 			
-			ProjectileItems.put(Material.WOOD_HOE, new ProjectileMapper(Material.WOOD_HOE,Material.ARROW,Arrow.class,Sound.SHOOT_ARROW));
+			ProjectileItems.put(Material.WOOD_HOE, new ProjectileMapper(Material.WOOD_HOE,Material.ARROW,Arrow.class,Sound.ENTITY_ARROW_SHOOT));
 			ProjectileItems.put(Material.WOOD_SPADE, 
-					new ProjectileMapper(Material.WOOD_SPADE,Material.FIREBALL,WitherSkull.class,Sound.GHAST_FIREBALL));
+					new ProjectileMapper(Material.WOOD_SPADE,Material.FIREBALL,WitherSkull.class,Sound.ENTITY_GHAST_SHOOT));
 			
 			
 		}
@@ -521,7 +532,7 @@ public class CoreEventHandler implements Listener {
 		
 		
 		
-	}
+	} 
 	
 	@EventHandler
 	public void OnPlayerInteractEntity(PlayerInteractEntityEvent event) {
@@ -536,6 +547,27 @@ public class CoreEventHandler implements Listener {
 				event.setCancelled(true);
 			}
 
+		}
+		else if(event.getRightClicked() instanceof AbstractHorse){
+			
+			
+			AbstractHorse clickedhorse = (AbstractHorse) event.getRightClicked();
+			
+			if(clickedhorse instanceof SkeletonHorse || clickedhorse instanceof ZombieHorse)
+				event.setCancelled(true);
+			
+		    
+			clickedhorse.setTamed(true);
+			clickedhorse.setOwner(event.getPlayer());
+		    
+			String gothorsename="";
+			
+			if(clickedhorse instanceof Donkey) gothorsename="Donkey";
+			if(clickedhorse instanceof Mule) gothorsename="Mule";
+			if(clickedhorse instanceof Horse) gothorsename="Horse";
+			clickedhorse.setCustomName(event.getPlayer().getDisplayName() + "'s " + gothorsename);
+			event.getPlayer().sendMessage(BCRandomizer.Prefix + " You recruit a trusty " + gothorsename);
+			
 		}
 
 	}
@@ -788,7 +820,7 @@ public class CoreEventHandler implements Listener {
 	
 	private int getMonsterValue(LivingEntity monster) {
 		// TODO Auto-generated method stub
-		int basescore = 1;
+		double basescore = 1;
 		basescore = Math.min(1,monster.getMaxHealth()/5);
 		//first, calculate base values.
 		if(monster instanceof Zombie){
@@ -920,7 +952,7 @@ else if(monster instanceof CaveSpider) {
 		}
 		
 		
-		return basescore;
+		return (int)(Math.floor(basescore));
 	}
 	private HashMap<Enchantment,Integer> enchantmentvalues = null;
 	public HashMap<Enchantment,Integer> getEnchantmentValues() {
@@ -1306,7 +1338,7 @@ Location handleGameSpawn(Player p){
 	Location chooselocation = gt.chooseSpotinBorder();
 	//teleport the player to it.
 	p.teleport(chooselocation);
-	p.getWorld().playSound(chooselocation, Sound.ENDERMAN_HIT, 10, 1); //play enderman sound.
+	p.getWorld().playSound(chooselocation, Sound.ENTITY_ENDERMEN_HURT, 10, 1); //play enderman sound.
 	p.setExp(0);
 	p.setLevel(0);
 	p.setAllowFlight(false);
@@ -1798,6 +1830,7 @@ Location handleGameSpawn(Player p){
 			Player p = (Player)event.getEntity();
 			GameTracker applicablegame = _owner.getPlayerGame(p);
 			
+			if(applicablegame==null) return;
 		if(event.getRegainReason()==RegainReason.SATIATED){
 			if(!applicablegame.getAllowHealthRegen()){
 				event.setCancelled(true);
@@ -1858,6 +1891,12 @@ Location handleGameSpawn(Player p){
 		GameTracker applicablegame = _owner.getWorldGame(event.getEntity().getWorld());
 		if(!_Trackers.contains(applicablegame)|| applicablegame==null) return;
 		
+		if(event.getEntity() instanceof Horse){
+			SpawnerRandomizer sr = new SpawnerRandomizer(_owner);
+			sr.RandomizeEntity(event.getEntity());
+			return;
+		}
+		
 		if(event.getEntity() instanceof Animals) {
 			event.setCancelled(true);
 			return;
@@ -1909,9 +1948,10 @@ Location handleGameSpawn(Player p){
 							EntityType.WITCH,
 							EntityType.MAGMA_CUBE,
 							EntityType.BLAZE,
-							EntityType.ENDERMAN},
+							EntityType.ENDERMAN,
+							EntityType.HORSE},
 							new float[] {100f,
-							100f,20f,50f,5f,10f,10f});
+							100f,20f,50f,5f,10f,1f,10f});
 					
 			try {
 			event.getEntity().getWorld().spawnEntity(event.getLocation(), chosenEntityType);
